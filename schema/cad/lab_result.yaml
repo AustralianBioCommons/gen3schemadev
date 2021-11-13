@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+id: "lab_result"
+title: Lab Result
+type: object
+namespace: https://gen3.biocommons.org.au
+category: clinical
+program: '*'
+project: '*'
+description: >-
+  Biospecimen information that links subjects to samples including sample's provider,
+  source, dbgap sample detail and so forth.
+additionalProperties: false
+submittable: true
+validators: null
+
+systemProperties:
+  - id
+  - project_id
+  - state
+  - created_datetime
+  - updated_datetime
+
+links:
+  - name: subjects
+    backref: lab_results
+    label: describes
+    target_type: subject
+    multiplicity: many_to_one
+    required: true
+
+required:
+  - type
+  - subjects
+  - submitter_id
+
+uniqueKeys:
+  - [id]
+  - [project_id, submitter_id]
+
+properties:
+
+  $ref: "_definitions.yaml#/ubiquitous_properties"
+
+  subjects:
+    $ref: "_definitions.yaml#/to_one"
