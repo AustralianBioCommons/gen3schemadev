@@ -40,7 +40,7 @@ class Gen3DatetimeProperty(Gen3Property):
         super().__init__(name, description, termdef, source, term_id, term_version)
 
     def get_data(self):
-        return {"$ref": "_definitions.yaml#datetime", "description": self.data["description"]}
+        return {"$ref": "_definitions.yaml#/datetime", "description": self.data["description"]}
 
 
 class Gen3JsonProperty(Gen3Property):
