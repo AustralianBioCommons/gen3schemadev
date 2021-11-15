@@ -40,13 +40,14 @@ class Gen3DatetimeProperty(Gen3Property):
         super().__init__(name, description, termdef, source, term_id, term_version)
 
     def get_data(self):
-        return {"$ref": "_definitions.yaml#datetime", "description": self.data["description"]}
+        return {"$ref": "_definitions.yaml#/datetime", "description": self.data["description"]}
 
 
 class Gen3JsonProperty(Gen3Property):
     def __init__(self, name, typename, description="", termdef=None, source=None, term_id=None, term_version=None):
         super().__init__(name, description, termdef, source, term_id, term_version)
         self.type = typename
+        self.data["type"] = typename
 
     def init_from_dict(self, d: dict):
         if "type" not in d or d["type"] != self.type:
