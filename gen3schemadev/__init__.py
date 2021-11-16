@@ -104,7 +104,7 @@ class Gen3Object:
                    "preferred", "program", "project", "properties", "required", "submittable", "systemProperties",
                    "title", "type", "uniqueKeys", "validators"]:
             if hasattr(self, "set_%s" % key) and callable(func := getattr(self, "set_%s" % key)):
-                func(key)
+                func(value)
         else:
             super().__setattr__(key, value)
 
