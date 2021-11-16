@@ -40,4 +40,8 @@ if __name__ == "__main__":
             if field.REQUIRED:
                 g3_obj.add_required(field.VARIABLE_NAME)
 
+
+    for object in bundle.objects:
+        bundle.objects[object].namespace = "https://gen3.biocommons.org.au"
+
     bundle.dump("schema_out/")
