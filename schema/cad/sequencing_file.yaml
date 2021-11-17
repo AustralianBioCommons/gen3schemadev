@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
-id: "sequencing"
-title: Sequencing
+id: "sequencing_file"
+title: Sequencing File
 type: object
 namespace: https://gen3.biocommons.org.au
 category: data_file
@@ -27,19 +27,19 @@ links:
     required: true
     subgroup:
       - name: core_metadata_collections
-        backref: sequencings
+        backref: sequencing_files
         label: data_from
         target_type: core_metadata_collection
         multiplicity: many_to_one
         required: false
       - name: samples
-        backref: sequencings
+        backref: sequencing_files
         label: data_from
         target_type: sample
         multiplicity: many_to_many
         required: false
       - name: projects
-        backref: sequencings
+        backref: sequencing_files
         label: data_from
         target_type: project
         multiplicity: many_to_one
