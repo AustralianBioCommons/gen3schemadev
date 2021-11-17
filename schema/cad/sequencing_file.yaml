@@ -1,15 +1,16 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
-id: "sequencing_file"
-title: Sequencing File
+id: "sequencing"
+title: Sequencing
 type: object
 namespace: https://gen3.biocommons.org.au
 category: data_file
 program: '*'
 project: '*'
-description: "Data file containing sequencing information."
+description: >-
+  Data file containing sequencing information.
 additionalProperties: false
-submittable: true
+submittable: false
 validators: null
 
 systemProperties:
@@ -26,13 +27,19 @@ links:
     required: true
     subgroup:
       - name: core_metadata_collections
-        backref: reference_files
+        backref: sequencings
         label: data_from
         target_type: core_metadata_collection
         multiplicity: many_to_one
         required: false
+      - name: samples
+        backref: sequencings
+        label: data_from
+        target_type: sample
+        multiplicity: many_to_many
+        required: false
       - name: projects
-        backref: reference_files
+        backref: sequencings
         label: data_from
         target_type: project
         multiplicity: many_to_one
@@ -44,15 +51,25 @@ required:
   - file_name
   - file_size
   - md5sum
+  - data_type
+  - data_format
+  - data_category
 
 uniqueKeys:
-  - [ id ]
-  - [ project_id, submitter_id ]
+  - [id]
+  - [project_id, submitter_id]
 
 properties:
+
   $ref: "_definitions.yaml#/data_file_properties"
+
+  samples:
+    $ref: "_definitions.yaml#/to_many"
 
   core_metadata_collections:
     $ref: "_definitions.yaml#/to_many"
+  
   projects:
-    $ref: "_definitions.yaml#/to_many_project"
+    $ref: "_definitions.yaml#/to_one_project"
+
+  
