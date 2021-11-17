@@ -27,6 +27,8 @@ if __name__ == "__main__":
                 g3_obj.add_property(gen3schemadev.Gen3Number(field.VARIABLE_NAME,field.DESCRIPTION,field.TERM,field.TERM_SOURCE,field.TERM_ID,field.CDE_VERSION))
             elif field.TYPE == "boolean":
                 g3_obj.add_property(gen3schemadev.Gen3Boolean(field.VARIABLE_NAME,field.DESCRIPTION,field.TERM,field.TERM_SOURCE,field.TERM_ID,field.CDE_VERSION))
+            elif field.TYPE == "string":
+                g3_obj.add_property(gen3schemadev.Gen3String(field.VARIABLE_NAME,field.DESCRIPTION,field.TERM,field.TERM_SOURCE,field.TERM_ID,field.CDE_VERSION))
             elif field.TYPE.startswith("enum"):
                 prop = gen3schemadev.Gen3Enum(field.VARIABLE_NAME, field.DESCRIPTION, field.TERM, field.TERM_SOURCE, field.TERM_ID, field.CDE_VERSION)
                 evals = enums.loc[enums.type_name == field.TYPE]

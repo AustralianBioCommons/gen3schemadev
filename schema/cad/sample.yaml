@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
-id: "lab_result"
-title: Lab Result
+id: "sample"
+title: Sample
 type: object
 namespace: https://gen3.biocommons.org.au
 category: clinical
@@ -23,7 +23,7 @@ systemProperties:
 
 links:
   - name: subjects
-    backref: lab_results
+    backref: samples
     label: describes
     target_type: subject
     multiplicity: many_to_one
