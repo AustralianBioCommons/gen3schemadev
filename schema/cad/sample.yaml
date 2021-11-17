@@ -1,14 +1,15 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
-id: "lab_result"
-title: Lab Result
+id: "sample"
+title: sample
 type: object
-namespace: https://gen3.biocommons.org.au
+namespace: https://gen3.theanvil.io
 category: clinical
 program: '*'
 project: '*'
 description: >-
-  Measurements obtained from blood or other laboratory tests required by a medical professional.
+  Biospecimen information that links subjects to samples including sample's provider and
+  source.
 additionalProperties: false
 submittable: true
 validators: null
@@ -22,7 +23,7 @@ systemProperties:
 
 links:
   - name: subjects
-    backref: lab_results
+    backref: samples
     label: describes
     target_type: subject
     multiplicity: many_to_one

@@ -1,3 +1,14 @@
+## CAD Template yamls
+
+This folder contains template yamls that are used for a base from which to inject properties from the template spreadsheet.
+
+For each 'object' or 'entity' in the spreadsheet, there should exist a template which contains all the information that is either static across schemas or has not yet been automated.
+
+It also contains template `core_metadata_collection`, `_definitions`, `_terms` and `_settings` yamls directly copied from the anvil gdc dictionary for generic definitions.
+
+Schemas for the CAD project are largely based on the Anvil & BioData Catalyst/gtex dictionary with project specific edits.
+
+
 Proposed additional keywords
 ============================
 
