@@ -1,4 +1,13 @@
-class Gen3Property:
+from abc import abstractmethod
+
+
+class Gen3WrapObject:
+    @abstractmethod
+    def get_data(self) -> dict:
+        pass
+
+
+class Gen3Property(Gen3WrapObject):
     def __init__(self, name, description=None, termdef=None, source=None, term_id=None, term_version=None):
         self.name = name
         self.data = {"description": description}
