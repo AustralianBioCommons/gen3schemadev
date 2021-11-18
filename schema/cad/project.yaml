@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
 id: "project"
-title: Study
+title: Project
 type: object
 program: '*'
 project: '*'
@@ -181,17 +181,17 @@ properties:
       The full name for the project.
     type: string
         
-  study_description:
+  project_description:
     description: >-
       The description for the project.
     type: string    
 
-  study_registration:
+  project_registration:
     description: >-
       External source from which the identifier included in study_id originates
     type: string
     
-  study_id:
+  project_id:
     description: >-
       Unique identifier that can be used to retrieve more information for a study
     type: string
