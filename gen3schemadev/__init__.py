@@ -3,7 +3,9 @@ import os
 import yaml
 from enum import Enum
 from .gen3properties import Gen3Property, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, Gen3Integer, Gen3Number, \
-    Gen3Boolean, Gen3String
+    Gen3Boolean, Gen3String, Gen3WrapObject
+from typing import List
+from abc import abstractmethod
 
 
 class Gen3Context:
@@ -59,7 +61,7 @@ class Gen3Term:
         return self.context.__repr__() + ": " + self.value
 
 
-class Gen3Object:
+class Gen3Object(Gen3WrapObject):
     class CATEGORY(Enum):
         ADMINISTRATIVE = "administrative"
         ANALYSIS = "analysis"
@@ -142,10 +144,11 @@ class Gen3Object:
         self.data["id"] = value
 
     def get_links(self):
-        return self.data["links"]
+        links = self.data["links"]
+        return [Gen3LinkGroup.from_dict(i) if Gen3LinkGroup.is_link_group(i) else Gen3Link.from_dict(i) for i in links]
 
-    def set_links(self, value):
-        self.data["links"] = value
+    def set_links(self, value: List[Gen3WrapObject]):
+        self.data["links"] = [i.get_data() for i in value]
 
     def get_namespace(self):
         return self.data["namespace"]
@@ -266,6 +269,99 @@ class Gen3Object:
             elif isinstance(dat[key], dict):
                 retval.extend(self._get_ref_recurse(dat[key]))
         return retval
+
+
+class Gen3Link(Gen3WrapObject):
+    class MULTIPLICITY(Enum):
+        ONE_TO_ONE   = 'one_to_one'
+        ONE_TO_MANY  = 'one_to_many'
+        MANY_TO_ONE  = 'many_to_one'
+        MANY_TO_MANY = 'many_to_many'
+
+    def __init__(self,name: str, backref_name: str, label: str, target_type: str, multiplicity: MULTIPLICITY, required: bool):
+        self.data = {"name":name,
+                     "backref": backref_name,
+                     "label": label,
+                     "target_type": target_type,
+                     "multiplicity": multiplicity.value,
+                     "required:": required}
+
+    @classmethod
+    def from_dict(cls,data: dict):
+        return cls(data["name"],
+                   data["backref"],
+                   data["label"],
+                   data["target_type"],
+                   Gen3Link.MULTIPLICITY._value2member_map_[data["multiplicity"]],
+                   data["required"])
+
+    def __getattribute__(self, item):
+        """
+        Python magic in progress. this will redirect all property accesses to the
+        respective getter functions to allow for overwriting
+        """
+        if item in ["name","backref","label","target_type","multiplicity","required"]:
+            if hasattr(self, "get_%s" % item) and callable(func := getattr(self, "get_%s" % item)):
+                return func()
+            elif item in self.data:
+                self.data[item]
+        else:
+            return super().__getattribute__(item)
+
+    def __setattr__(self, key, value):
+        """
+        Python magic in progress. this will redirect specific property access to
+        setter functions to allow for overrides
+        """
+        if key in ["name","backref","label","target_type","multiplicity","required"]:
+            if hasattr(self, "set_%s" % key) and callable(func := getattr(self, "set_%s" % key)):
+                func(value)
+            elif key in self.data:
+                self.data[key] = value
+        else:
+            super().__setattr__(key, value)
+
+    def get_multiplicity(self):
+        return Gen3Link.MULTIPLICITY._value2member_map_[self.data["multiplicity"]]
+
+    def set_multiplicity(self, mult: MULTIPLICITY):
+        self.data["multiplicity"] = mult.value
+
+    def get_data(self):
+        return self.data.copy()
+
+
+class Gen3LinkGroup(Gen3WrapObject):
+    def __init__(self, links: List[Gen3Link] = [], exclusive = False, required= True):
+        self.data = {"exclusive": exclusive, "required": required}
+        self.links = links
+
+    def get_links(self):
+        return self.links
+
+    def add_link(self, link: Gen3Link):
+        self.links.append(link)
+
+    def remove_link(self, link: Gen3Link):
+        self.links.remove(link)
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        exclusive= data["exclusive"]
+        required = True
+        if "required" in data:
+            required = data["required"]
+
+        links = [Gen3Link.from_dict(i) for i in data["subgroup"]]
+        return cls(links,exclusive,required)
+
+    @staticmethod
+    def is_link_group(data):
+        return "subgroup" in data
+
+    def get_data(self):
+        self.data["subgroup"] = [l.get_data() for l in self.links]
+        return self.data.copy()
 
 
 class ConfigBundle:
