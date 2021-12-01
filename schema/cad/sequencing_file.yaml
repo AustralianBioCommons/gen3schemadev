@@ -50,7 +50,7 @@ required:
   - submitter_id
   - file_name
   - file_size
-  - md5sumq
+  - md5sum
 
 uniqueKeys:
   - [id]
