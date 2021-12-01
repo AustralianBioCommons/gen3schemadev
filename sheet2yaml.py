@@ -6,14 +6,13 @@ def main():
     pass
 
 if __name__ == "__main__":
-    properties = pd.read_excel("Harm_vars.xlsx","property_definitions")
+    properties = pd.read_excel("Harm_vars.xlsx", "property_definitions")
     properties.replace({np.nan: None}, inplace=True)
 
-    enums = pd.read_excel("Harm_vars.xlsx","enum_definitions")
+    enums = pd.read_excel("Harm_vars.xlsx", "enum_definitions")
     enums.replace({np.nan: None}, inplace=True)
 
-
-    bundle= gen3schemadev.ConfigBundle("schema/cad")
+    bundle = gen3schemadev.ConfigBundle("schema/cad")
 
     for object_name in properties.OBJECT.unique():
         g3_obj = bundle.objects["%s.yaml"%object_name]

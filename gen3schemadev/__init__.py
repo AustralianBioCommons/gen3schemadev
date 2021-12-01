@@ -1,6 +1,6 @@
 import glob
 import os
-import yaml
+import oyaml as yaml
 from enum import Enum
 from .gen3properties import Gen3Property, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, Gen3Integer, Gen3Number, \
     Gen3Boolean, Gen3String, Gen3WrapObject
@@ -10,7 +10,7 @@ from abc import abstractmethod
 
 class Gen3Context:
     """the context of a variable within a bundle, essentially equivalent to a string of the format
-    filenae#xpathselector (Xpath is a query language)
+    filename#xpathselector (Xpath is a query language)
     Only chold selector used"""
 
     def __init__(self, filename, path):

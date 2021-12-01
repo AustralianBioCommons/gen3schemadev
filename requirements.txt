@@ -2,3 +2,4 @@ setuptools~=58.5.3
 PyYAML~=6.0
 pandas
 openpyxl
+oyaml
