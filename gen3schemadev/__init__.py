@@ -1,6 +1,6 @@
 import glob
 import os
-import yaml
+import oyaml as yaml
 from enum import Enum
 from .gen3properties import Gen3Property, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, Gen3Integer, Gen3Number, \
     Gen3Boolean, Gen3String, Gen3WrapObject
@@ -10,7 +10,7 @@ from abc import abstractmethod
 
 class Gen3Context:
     """the context of a variable within a bundle, essentially equivalent to a string of the format
-    filenae#xpathselector (Xpath is a query language)
+    filename#xpathselector (Xpath is a query language)
     Only chold selector used"""
 
     def __init__(self, filename, path):
@@ -332,7 +332,7 @@ class Gen3Link(Gen3WrapObject):
 
 
 class Gen3LinkGroup(Gen3WrapObject):
-    def __init__(self, links: List[Gen3Link] = [], exclusive = False, required= True):
+    def __init__(self, links: List[Gen3Link] = [], exclusive=False, required=True):
         self.data = {"exclusive": exclusive, "required": required}
         self.links = links
 
@@ -347,7 +347,7 @@ class Gen3LinkGroup(Gen3WrapObject):
 
     @classmethod
     def from_dict(cls, data: dict):
-        exclusive= data["exclusive"]
+        exclusive = data["exclusive"]
         required = True
         if "required" in data:
             required = data["required"]
@@ -462,3 +462,6 @@ class ConfigBundle:
                 self._add_context_recurse(ctxt, item[elem])
             else:
                 self.vars.append(Gen3Term(item[elem], ctxt))
+
+    def _remove_null_values(self):
+        print("hello")
