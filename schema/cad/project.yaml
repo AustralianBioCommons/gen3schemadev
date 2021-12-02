@@ -138,32 +138,7 @@ properties:
   dbgap_accession_number:
     type: string
     description: "The dbgap accession number provided for the project. (CMG)"
-    
-  dbgap_phs:
-    description: >-
-      The dbGaP phs accession.
-    type: string
-    
-  dbgap_version:
-    description: >-
-      The dbGaP version (example, v1).
-    type: string
-    
-  dbgap_participant_set:
-    description: >-
-      The dbGaP participant set (example, p1).
-    type: string
-    
-  dbgap_consent:
-    description: >-
-      The dbGaP consent number (example, c1).
-    type: string
-    
-  dbgap_consent_text:
-    description: >-
-      The dbGaP consent text (example, HMB-IRB).
-    type: string    
-    
+
   authz:
     description: >-
       The authz string (example, ["/programs/Program.name/projects/Project.code"] ).
@@ -195,3 +170,4 @@ properties:
     description: >-
       Unique identifier that can be used to retrieve more information for a study
     type: string
+
