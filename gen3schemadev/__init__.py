@@ -332,7 +332,7 @@ class Gen3Link(Gen3WrapObject):
 
 
 class Gen3LinkGroup(Gen3WrapObject):
-    def __init__(self, links: List[Gen3Link] = [], exclusive = False, required= True):
+    def __init__(self, links: List[Gen3Link] = [], exclusive=False, required=True):
         self.data = {"exclusive": exclusive, "required": required}
         self.links = links
 
@@ -347,7 +347,7 @@ class Gen3LinkGroup(Gen3WrapObject):
 
     @classmethod
     def from_dict(cls, data: dict):
-        exclusive= data["exclusive"]
+        exclusive = data["exclusive"]
         required = True
         if "required" in data:
             required = data["required"]
@@ -462,3 +462,6 @@ class ConfigBundle:
                 self._add_context_recurse(ctxt, item[elem])
             else:
                 self.vars.append(Gen3Term(item[elem], ctxt))
+
+    def _remove_null_values(self):
+        print("hello")
