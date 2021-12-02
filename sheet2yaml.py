@@ -6,10 +6,15 @@ def main():
     pass
 
 if __name__ == "__main__":
-    properties = pd.read_excel("Harm_vars.xlsx", "property_definitions")
+    sheet_id = "1AX9HLzIV6wtkVylLkwOr3kdKDaZf4ukeYACTJ7lYngk"
+    properties_gid = "804936807"
+    url = "https://docs.google.com/spreadsheets/d/{}/export?format=csv&gid={}".format(sheet_id, properties_gid)
+    properties = pd.read_csv(url)
     properties.replace({np.nan: None}, inplace=True)
 
-    enums = pd.read_excel("Harm_vars.xlsx", "enum_definitions")
+    enums_gid = "1170119639"
+    url = "https://docs.google.com/spreadsheets/d/{}/export?format=csv&gid={}".format(sheet_id, enums_gid)
+    enums = pd.read_csv(url)
     enums.replace({np.nan: None}, inplace=True)
 
     bundle = gen3schemadev.ConfigBundle("schema/cad")
