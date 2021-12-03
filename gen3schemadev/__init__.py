@@ -348,7 +348,7 @@ class Gen3LinkGroup(Gen3WrapObject):
 
     @classmethod
     def from_dict(cls, data: dict):
-        exclusive= data["exclusive"]
+        exclusive = data["exclusive"]
         required = True
         if "required" in data:
             required = data["required"]

@@ -26,8 +26,18 @@ class Gen3Property(Gen3WrapObject):
     def set_name(self, name):
         self.name = name
 
+    def remove_null(self):
+        data_copy = self.data.copy()
+        marked_for_deletion = []
+        for key, value in data_copy.items():
+            if not value:
+                marked_for_deletion.append(key)
+        for key in marked_for_deletion:
+            del data_copy[key]
+        return data_copy
+
     def get_data(self):
-        return self.data.copy()
+        return self.remove_null()
 
     def set_description(self, description):
         self.data["description"] = description
@@ -112,8 +122,9 @@ class Gen3Integer(Gen3JsonProperty):
 
 
 class Gen3String(Gen3JsonProperty):
-    def __init__(self, name, description="", termdef=None, source=None, term_id=None, term_version=None):
+    def __init__(self, name, description="", pattern=None, termdef=None, source=None, term_id=None, term_version=None):
         super().__init__(name, "string", description, termdef, source, term_id, term_version)
+        self.data["pattern"] = pattern
 
 
 class Gen3Boolean(Gen3JsonProperty):
