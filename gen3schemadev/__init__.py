@@ -6,6 +6,7 @@ from .gen3properties import Gen3Property, Gen3DatetimeProperty, Gen3JsonProperty
     Gen3Boolean, Gen3String, Gen3WrapObject
 from typing import List
 from abc import abstractmethod
+import networkx as nx
 
 
 class Gen3Context:
@@ -284,7 +285,7 @@ class Gen3Link(Gen3WrapObject):
                      "label": label,
                      "target_type": target_type,
                      "multiplicity": multiplicity.value,
-                     "required:": required}
+                     "required": required}
 
     @classmethod
     def from_dict(cls,data: dict):
@@ -304,7 +305,7 @@ class Gen3Link(Gen3WrapObject):
             if hasattr(self, "get_%s" % item) and callable(func := getattr(self, "get_%s" % item)):
                 return func()
             elif item in self.data:
-                self.data[item]
+                return self.data[item]
         else:
             return super().__getattribute__(item)
 
@@ -332,7 +333,7 @@ class Gen3Link(Gen3WrapObject):
 
 
 class Gen3LinkGroup(Gen3WrapObject):
-    def __init__(self, links: List[Gen3Link] = [], exclusive=False, required=True):
+    def __init__(self, links: List[Gen3Link] = [], exclusive = False, required= True):
         self.data = {"exclusive": exclusive, "required": required}
         self.links = links
 
@@ -463,5 +464,42 @@ class ConfigBundle:
             else:
                 self.vars.append(Gen3Term(item[elem], ctxt))
 
-    def _remove_null_values(self):
-        print("hello")
+    def getObjectByID(self,uid: str):
+        for i in self.objects.values():
+            if i.id == uid:
+                return i
+        raise KeyError(uid)
+
+    def getDependencyGraph(self):
+        graph = nx.DiGraph()
+        for obj in self.objects.values():
+            to_obj= obj.id
+            for link_element in obj.get_links():
+                links = [link_element]
+                if isinstance(link_element, Gen3LinkGroup):
+                    links = link_element.get_links()
+                for link in links:
+                    from_obj = link.target_type
+                    link_data = {}
+
+                    if link.multiplicity == Gen3Link.MULTIPLICITY.MANY_TO_MANY or \
+                            link.multiplicity == Gen3Link.MULTIPLICITY.ONE_TO_MANY:
+                        link_data["MUL_FROM"] = "N"
+                    else:
+                        link_data["MUL_FROM"] = "1"
+
+                    if link.multiplicity == Gen3Link.MULTIPLICITY.MANY_TO_ONE or \
+                            link.multiplicity == Gen3Link.MULTIPLICITY.MANY_TO_MANY:
+                        link_data["MUL_TO"] = "N"
+                    else:
+                        link_data["MUL_TO"] = "1"
+
+                    link_data["label"] = link.label
+                    link_data["name"] = link.backref
+                    link_data["reverse_name"] = link.name
+                    link_data["required"] = link.required
+
+
+
+                    graph.add_edge(from_obj,to_obj,**link_data)
+        return graph

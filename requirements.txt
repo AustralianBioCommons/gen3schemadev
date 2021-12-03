@@ -3,3 +3,7 @@ PyYAML~=6.0
 pandas
 openpyxl
 oyaml
+
+networkx
+matplotlib
+ete3
