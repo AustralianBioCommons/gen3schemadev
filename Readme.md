@@ -5,7 +5,7 @@ gen3schemadev is an object mapper for a gen3 schema to allow programmatical gene
 ### Local deployment (compose-services)
 
 1. Make schema edits to the Harmonised Variables - v1 google sheet
-2. All schema objects in the google sheet need to have a template schema in the `schema` folder
+2. All schema objects in the google sheet need to have a template schema in the `schema` folder (to be phased out when all info can be generated)
 3. Run `schema2yaml.py` which automatically reads the google sheets and parses the required information, creating the parsed schemas in the folder 'schema_out' 
 4. Copy `schema_out/*.yaml` to `path/to/umccr-dictionary/dictionary/cad/gdcdictionary/schema`, compile, test, validate. If test or validate fails, go back to 1 above.
 5. Simulate data with the new schema, `make simulate dd=cad`, adjust the number of samples and name of project as required.
