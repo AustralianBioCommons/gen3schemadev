@@ -111,6 +111,13 @@ class Gen3Object(Gen3WrapObject):
         else:
             super().__setattr__(key, value)
 
+    def set_object_definitions(self, schema_id, title, category, description, namespace):
+        self.set_id(schema_id)
+        self.set_title(title)
+        self.set_category(category)
+        self.set_description(description)
+        self.set_namespace(namespace)
+
     def get_additionalProperties(self):
         return self.data["additionalProperties"]
 
@@ -279,8 +286,8 @@ class Gen3Link(Gen3WrapObject):
         MANY_TO_ONE  = 'many_to_one'
         MANY_TO_MANY = 'many_to_many'
 
-    def __init__(self,name: str, backref_name: str, label: str, target_type: str, multiplicity: MULTIPLICITY, required: bool):
-        self.data = {"name":name,
+    def __init__(self, name: str, backref_name: str, label: str, target_type: str, multiplicity: MULTIPLICITY, required: bool):
+        self.data = {"name": name,
                      "backref": backref_name,
                      "label": label,
                      "target_type": target_type,
