@@ -43,7 +43,7 @@ if __name__ == "__main__":
             single_links = link_rows[link_rows.SUBGROUP.values == None]
             group_links = link_rows[link_rows.SUBGROUP.values != None]
             for each_idx, each_row in single_links.iterrows():
-                this_link = gen3schemadev.Gen3Link(each_row.NAME, each_row.BACKREF, each_row.LABEL, each_row.SCHEMA,
+                this_link = gen3schemadev.Gen3Link(each_row.NAME, each_row.BACKREF, each_row.LABEL, each_row.PARENT,
                                                    gen3schemadev.Gen3Link.MULTIPLICITY(each_row.MULTIPLICITY),
                                                    each_row.REQUIRED)
                 links_list.append(this_link)
@@ -58,7 +58,7 @@ if __name__ == "__main__":
                         this_link = {"name": each_row.NAME,
                                      "backref": each_row.BACKREF,
                                      "label": each_row.LABEL,
-                                     "target_type": each_row.SCHEMA,
+                                     "target_type": each_row.PARENT,
                                      "multiplicity": each_row.MULTIPLICITY,
                                      "required": each_row.REQUIRED}
                         subgroup_dict['subgroup'].append(this_link)
