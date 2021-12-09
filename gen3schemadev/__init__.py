@@ -157,6 +157,17 @@ class Gen3Object(Gen3WrapObject):
 
     def set_links(self, value: List[Gen3WrapObject]):
         self.data["links"] = [i.get_data() for i in value]
+        self.add_required_links()
+
+    def add_required_links(self):
+        for link in self.data["links"]:
+            if link['required']:
+                if 'name' in link.keys():
+                    self.add_required(link['name'])
+                else:
+                    for sublink in link['subgroup']:
+                        if sublink['required']:
+                            self.add_required(sublink['name'])
 
     def get_namespace(self):
         return self.data["namespace"]
