@@ -22,16 +22,9 @@ systemProperties:
   - updated_datetime
 
 links:
-  - name: subjects
-    backref: samples
-    label: describes
-    target_type: subject
-    multiplicity: many_to_one
-    required: true
 
 required:
   - type
-  - subjects
   - submitter_id
 
 uniqueKeys:
