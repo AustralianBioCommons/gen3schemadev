@@ -2,11 +2,12 @@ import glob
 import os
 import oyaml as yaml
 from enum import Enum
-from .gen3properties import Gen3Property, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, Gen3Integer, Gen3Number, \
+from .gen3properties import Gen3Property, Gen3DefinitionProperty, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, Gen3Integer, Gen3Number, \
     Gen3Boolean, Gen3String, Gen3WrapObject
 from typing import List
 from abc import abstractmethod
 import networkx as nx
+from collections import OrderedDict
 
 
 class Gen3Context:
@@ -157,17 +158,32 @@ class Gen3Object(Gen3WrapObject):
 
     def set_links(self, value: List[Gen3WrapObject]):
         self.data["links"] = [i.get_data() for i in value]
-        self.add_required_links()
+        self.add_required_links_and_properties()
 
-    def add_required_links(self):
+    def add_required_links_and_properties(self):
+        """Add links that are required to required and add links as properties"""
         for link in self.data["links"]:
-            if link['required']:
-                if 'name' in link.keys():
+            if 'name' in link:
+                if link['required']:
                     self.add_required(link['name'])
+                if link['name'] == "projects":
+                    reference = "_definitions.yaml#/" + "_".join(link['multiplicity'].split("_")[-2:]) + "_project"
+                    self.add_property(Gen3DefinitionProperty(link['name'], reference))
                 else:
-                    for sublink in link['subgroup']:
-                        if sublink['required']:
-                            self.add_required(sublink['name'])
+                    reference = "_definitions.yaml#/" + "_".join(link['multiplicity'].split("_")[-2:])
+                    self.add_property(Gen3DefinitionProperty(link['name'], reference))
+            elif 'subgroup' in link:
+                for sublink in link['subgroup']:
+                    if sublink['required']:
+                        self.add_required(sublink['name'])
+                    if sublink['name'] == "projects":
+                        reference = "_definitions.yaml#/" + "_".join(sublink['multiplicity'].split("_")[-2:]) + "_project"
+                        self.add_property(Gen3DefinitionProperty(sublink['name'], reference))
+                    else:
+                        reference = "_definitions.yaml#/" + "_".join(sublink['multiplicity'].split("_")[-2:])
+                        self.add_property(Gen3DefinitionProperty(sublink['name'], reference))
+
+
 
     def get_namespace(self):
         return self.data["namespace"]
