@@ -1,8 +1,8 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 import gen3schemadev
-from collections import OrderedDict
-import networkx as nx
+
 
 def main():
     pass
@@ -38,7 +38,8 @@ if __name__ == "__main__":
             g3_obj = bundle.objects[f"{row.ID}.yaml"]
             g3_obj.set_object_definitions(row.ID, row.TITLE, row.CATEGORY, row.DESCRIPTION, row.NAMESPACE)
         except KeyError:
-            g3_obj = gen3schemadev.Gen3Object.create_empty(f"{row.ID}.yaml",row.ID,row.TITLE,row.NAMESPACE,row.CATEGORY,row.DESCRIPTION)
+            g3_obj = gen3schemadev.Gen3Object.create_empty(f"{row.ID}.yaml", row.ID, row.TITLE, row.NAMESPACE,
+                                                           row.CATEGORY, row.DESCRIPTION)
             g3_obj.set_systemProperties(row.SYSTEM_PROPERTIES.split(";"))
             bundle.addObject(g3_obj)
 
@@ -71,26 +72,33 @@ if __name__ == "__main__":
                     links_list.append(gen3schemadev.Gen3LinkGroup.from_dict(subgroup_dict))
             g3_obj.set_links(links_list)
 
-
         # parse property definitions
         object_fields = properties.loc[properties.OBJECT == row.ID]
-        for idx,field in object_fields.iterrows():
+        for idx, field in object_fields.iterrows():
             if field.TYPE == "datetime":
-                g3_obj.add_property(gen3schemadev.Gen3DatetimeProperty(field.VARIABLE_NAME,field.DESCRIPTION))
+                g3_obj.add_property(gen3schemadev.Gen3DatetimeProperty(field.VARIABLE_NAME, field.DESCRIPTION))
             elif field.TYPE == "integer":
-                g3_obj.add_property(gen3schemadev.Gen3Integer(field.VARIABLE_NAME,field.DESCRIPTION,field.TERM,field.TERM_SOURCE,field.TERM_ID,field.CDE_VERSION))
+                g3_obj.add_property(
+                    gen3schemadev.Gen3Integer(field.VARIABLE_NAME, field.DESCRIPTION, field.TERM, field.TERM_SOURCE,
+                                              field.TERM_ID, field.CDE_VERSION))
             elif field.TYPE == "number":
-                g3_obj.add_property(gen3schemadev.Gen3Number(field.VARIABLE_NAME,field.DESCRIPTION,field.TERM,field.TERM_SOURCE,field.TERM_ID,field.CDE_VERSION))
+                g3_obj.add_property(
+                    gen3schemadev.Gen3Number(field.VARIABLE_NAME, field.DESCRIPTION, field.TERM, field.TERM_SOURCE,
+                                             field.TERM_ID, field.CDE_VERSION))
             elif field.TYPE == "boolean":
-                g3_obj.add_property(gen3schemadev.Gen3Boolean(field.VARIABLE_NAME,field.DESCRIPTION,field.TERM,field.TERM_SOURCE,field.TERM_ID,field.CDE_VERSION))
+                g3_obj.add_property(
+                    gen3schemadev.Gen3Boolean(field.VARIABLE_NAME, field.DESCRIPTION, field.TERM, field.TERM_SOURCE,
+                                              field.TERM_ID, field.CDE_VERSION))
             elif field.TYPE == "string":
-                g3_obj.add_property(gen3schemadev.Gen3String(field.VARIABLE_NAME,field.DESCRIPTION,field.PATTERN,field.TERM,field.TERM_SOURCE,field.TERM_ID,field.CDE_VERSION))
+                g3_obj.add_property(
+                    gen3schemadev.Gen3String(field.VARIABLE_NAME, field.DESCRIPTION, field.PATTERN, field.TERM,
+                                             field.TERM_SOURCE, field.TERM_ID, field.CDE_VERSION))
             elif field.TYPE.startswith("enum"):
-                prop = gen3schemadev.Gen3Enum(field.VARIABLE_NAME, field.DESCRIPTION, field.TERM, field.TERM_SOURCE, field.TERM_ID, field.CDE_VERSION)
+                prop = gen3schemadev.Gen3Enum(field.VARIABLE_NAME, field.DESCRIPTION, field.TERM, field.TERM_SOURCE,
+                                              field.TERM_ID, field.CDE_VERSION)
                 evals = enums.loc[enums.type_name == field.TYPE]
-                for idx,evline in evals.iterrows():
-
-                    prop.add_enum_option(evline.enum,evline.source,evline.term_id,evline.version)
+                for idx, evline in evals.iterrows():
+                    prop.add_enum_option(evline.enum, evline.source, evline.term_id, evline.version)
                 g3_obj.add_property(prop)
             else:
                 raise KeyError(field.TYPE)

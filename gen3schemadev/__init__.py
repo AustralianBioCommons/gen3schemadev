@@ -2,7 +2,8 @@ import glob
 import os
 import oyaml as yaml
 from enum import Enum
-from .gen3properties import Gen3Property, Gen3DefinitionProperty, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, Gen3Integer, Gen3Number, \
+from .gen3properties import Gen3Property, Gen3DefinitionProperty, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, \
+    Gen3Integer, Gen3Number, \
     Gen3Boolean, Gen3String, Gen3WrapObject
 from typing import List
 from abc import abstractmethod
@@ -89,25 +90,25 @@ class Gen3Object(Gen3WrapObject):
     @classmethod
     def create_empty(cls, filename, ID, title, namespace, category, description=""):
         data = OrderedDict([('$schema', "http://json-schema.org/draft-04/schema#"),
-                                     ('id', ID),
-                                     ('title', title),
-                                     ('type', 'object'),
-                                     ('namespace', namespace),
-                                     ('category', category),
-                                     ('program', '*'),
-                                     ('project', '*'),
-                                     ('description', description),
-                                     ('additionalProperties', False),
-                                     ('submittable', True),
-                                     ('validators', None),
-                                     ('systemProperties', []),
-                                     ('links', []),
-                                     ('required', ['type', 'submitter_id']),
-                                     ('uniqueKeys', [
-                                         ['id'],
-                                         ['project_id', 'submitter_id']]),
-                                     ('properties', {})
-                                     ])
+                            ('id', ID),
+                            ('title', title),
+                            ('type', 'object'),
+                            ('namespace', namespace),
+                            ('category', category),
+                            ('program', '*'),
+                            ('project', '*'),
+                            ('description', description),
+                            ('additionalProperties', False),
+                            ('submittable', True),
+                            ('validators', None),
+                            ('systemProperties', []),
+                            ('links', []),
+                            ('required', ['type', 'submitter_id']),
+                            ('uniqueKeys', [
+                                ['id'],
+                                ['project_id', 'submitter_id']]),
+                            ('properties', {})
+                            ])
 
         if data['category'] == "data_file":
             data['properties']['$ref'] = "_definitions.yaml#/data_file_properties"
@@ -115,9 +116,7 @@ class Gen3Object(Gen3WrapObject):
         else:
             data['properties']['$ref'] = "_definitions.yaml#/ubiquitous_properties"
 
-        return_obj = cls(filename,data)
-
-
+        return_obj = cls(filename, data)
 
         return return_obj
 
@@ -197,28 +196,27 @@ class Gen3Object(Gen3WrapObject):
 
     def add_required_links_and_properties(self):
         """Add links that are required to required and add links as properties"""
-        for link in self.data["links"]:
-            if 'name' in link:
-                if link['required']:
-                    self.add_required(link['name'])
-                if link['name'] == "projects":
-                    reference = "_definitions.yaml#/" + "_".join(link['multiplicity'].split("_")[-2:]) + "_project"
-                    self.add_property(Gen3DefinitionProperty(link['name'], reference))
+        for link in self.get_links():
+            if isinstance(link,Gen3Link):
+                if link.required:
+                    self.add_required(link.name)
+                if link.name == "projects":
+                    reference = "_definitions.yaml#/" + "_".join(link.multiplicity.value.split("_")[-2:]) + "_project"
+                    self.add_property(Gen3DefinitionProperty(link.name, reference))
                 else:
-                    reference = "_definitions.yaml#/" + "_".join(link['multiplicity'].split("_")[-2:])
-                    self.add_property(Gen3DefinitionProperty(link['name'], reference))
-            elif 'subgroup' in link:
-                for sublink in link['subgroup']:
-                    if sublink['required']:
-                        self.add_required(sublink['name'])
-                    if sublink['name'] == "projects":
-                        reference = "_definitions.yaml#/" + "_".join(sublink['multiplicity'].split("_")[-2:]) + "_project"
-                        self.add_property(Gen3DefinitionProperty(sublink['name'], reference))
+                    reference = "_definitions.yaml#/" + "_".join(link.multiplicity.value.split("_")[-2:])
+                    self.add_property(Gen3DefinitionProperty(link.name, reference))
+            elif isinstance(link,Gen3LinkGroup):
+                for sublink in link.get_links():
+                    if sublink.required:
+                        self.add_required(sublink.name)
+                    if sublink.name == "projects":
+                        reference = "_definitions.yaml#/" + "_".join(
+                            sublink.multiplicity.value.split("_")[-2:]) + "_project"
+                        self.add_property(Gen3DefinitionProperty(sublink.name, reference))
                     else:
-                        reference = "_definitions.yaml#/" + "_".join(sublink['multiplicity'].split("_")[-2:])
-                        self.add_property(Gen3DefinitionProperty(sublink['name'], reference))
-
-
+                        reference = "_definitions.yaml#/" + "_".join(sublink.multiplicity.value.split("_")[-2:])
+                        self.add_property(Gen3DefinitionProperty(sublink.name, reference))
 
     def get_namespace(self):
         return self.data["namespace"]
@@ -343,12 +341,13 @@ class Gen3Object(Gen3WrapObject):
 
 class Gen3Link(Gen3WrapObject):
     class MULTIPLICITY(Enum):
-        ONE_TO_ONE   = 'one_to_one'
-        ONE_TO_MANY  = 'one_to_many'
-        MANY_TO_ONE  = 'many_to_one'
+        ONE_TO_ONE = 'one_to_one'
+        ONE_TO_MANY = 'one_to_many'
+        MANY_TO_ONE = 'many_to_one'
         MANY_TO_MANY = 'many_to_many'
 
-    def __init__(self, name: str, backref_name: str, label: str, target_type: str, multiplicity: MULTIPLICITY, required: bool):
+    def __init__(self, name: str, backref_name: str, label: str, target_type: str, multiplicity: MULTIPLICITY,
+                 required: bool):
         self.data = {"name": name,
                      "backref": backref_name,
                      "label": label,
@@ -357,7 +356,7 @@ class Gen3Link(Gen3WrapObject):
                      "required": required}
 
     @classmethod
-    def from_dict(cls,data: dict):
+    def from_dict(cls, data: dict):
         return cls(data["name"],
                    data["backref"],
                    data["label"],
@@ -370,7 +369,7 @@ class Gen3Link(Gen3WrapObject):
         Python magic in progress. this will redirect all property accesses to the
         respective getter functions to allow for overwriting
         """
-        if item in ["name","backref","label","target_type","multiplicity","required"]:
+        if item in ["name", "backref", "label", "target_type", "multiplicity", "required"]:
             if hasattr(self, f"get_{item}") and callable(func := getattr(self, f"get_{item}")):
                 return func()
             elif item in self.data:
@@ -383,7 +382,7 @@ class Gen3Link(Gen3WrapObject):
         Python magic in progress. this will redirect specific property access to
         setter functions to allow for overrides
         """
-        if key in ["name","backref","label","target_type","multiplicity","required"]:
+        if key in ["name", "backref", "label", "target_type", "multiplicity", "required"]:
             if hasattr(self, f"set_{key}") and callable(func := getattr(self, f"set_{key}")):
                 func(value)
             elif key in self.data:
@@ -402,7 +401,7 @@ class Gen3Link(Gen3WrapObject):
 
 
 class Gen3LinkGroup(Gen3WrapObject):
-    def __init__(self, links: List[Gen3Link] = [], exclusive = False, required= True):
+    def __init__(self, links: List[Gen3Link] = [], exclusive=False, required=True):
         self.data = {"exclusive": exclusive, "required": required}
         self.links = links
 
@@ -423,7 +422,7 @@ class Gen3LinkGroup(Gen3WrapObject):
             required = data["required"]
 
         links = [Gen3Link.from_dict(i) for i in data["subgroup"]]
-        return cls(links,exclusive,required)
+        return cls(links, exclusive, required)
 
     @staticmethod
     def is_link_group(data):
@@ -533,19 +532,19 @@ class ConfigBundle:
             else:
                 self.vars.append(Gen3Term(item[elem], ctxt))
 
-    def getObjectByID(self,uid: str):
+    def getObjectByID(self, uid: str):
         for i in self.objects.values():
             if i.id == uid:
                 return i
         raise KeyError(uid)
 
-    def addObject(self,obj: Gen3Object):
+    def addObject(self, obj: Gen3Object):
         self.objects[obj.filename] = obj
 
     def getDependencyGraph(self):
         graph = nx.DiGraph()
         for obj in self.objects.values():
-            to_obj= obj.id
+            to_obj = obj.id
             for link_element in obj.get_links():
                 links = [link_element]
                 if isinstance(link_element, Gen3LinkGroup):
@@ -571,7 +570,5 @@ class ConfigBundle:
                     link_data["reverse_name"] = link.name
                     link_data["required"] = link.required
 
-
-
-                    graph.add_edge(from_obj,to_obj,**link_data)
+                    graph.add_edge(from_obj, to_obj, **link_data)
         return graph
