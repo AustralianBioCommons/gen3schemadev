@@ -40,13 +40,7 @@ if __name__ == "__main__":
         except KeyError:
             g3_obj = gen3schemadev.Gen3Object.create_empty(f"{row.ID}.yaml",row.ID,row.TITLE,row.NAMESPACE,row.CATEGORY,row.DESCRIPTION)
             g3_obj.set_systemProperties(row.SYSTEM_PROPERTIES.split(";"))
-            bundle.objects[f"{row.ID}.yaml"] = g3_obj
-            g3_obj = bundle.objects[f"{row.ID}.yaml"]
-            if g3_obj.data['category'] == "data_file":
-                g3_obj.data['properties']['$ref'] = "_definitions.yaml#/data_file_properties"
-                g3_obj.add_required('object_id')
-            else:
-                g3_obj.data['properties']['$ref'] = "_definitions.yaml#/ubiquitous_properties"
+            bundle.addObject(g3_obj)
 
         # parse link definitions
         link_rows = links[links['SCHEMA'] == row.ID]

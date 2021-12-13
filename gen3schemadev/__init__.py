@@ -108,7 +108,18 @@ class Gen3Object(Gen3WrapObject):
                                          ['project_id', 'submitter_id']]),
                                      ('properties', {})
                                      ])
-        return cls(filename,data)
+
+        if data['category'] == "data_file":
+            data['properties']['$ref'] = "_definitions.yaml#/data_file_properties"
+            data["required"].append('object_id')
+        else:
+            data['properties']['$ref'] = "_definitions.yaml#/ubiquitous_properties"
+
+        return_obj = cls(filename,data)
+
+
+
+        return return_obj
 
     def __getattribute__(self, item):
         """
@@ -527,6 +538,9 @@ class ConfigBundle:
             if i.id == uid:
                 return i
         raise KeyError(uid)
+
+    def addObject(self,obj: Gen3Object):
+        self.objects[obj.filename] = obj
 
     def getDependencyGraph(self):
         graph = nx.DiGraph()
