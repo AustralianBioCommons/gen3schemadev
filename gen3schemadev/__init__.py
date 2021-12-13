@@ -86,6 +86,30 @@ class Gen3Object(Gen3WrapObject):
         if "$schema" not in self.data:
             self.data["$schema"] = "http://json-schema.org/draft-04/schema#"
 
+    @classmethod
+    def create_empty(cls, filename, ID, title, namespace, category, description=""):
+        data = OrderedDict([('$schema', "http://json-schema.org/draft-04/schema#"),
+                                     ('id', ID),
+                                     ('title', title),
+                                     ('type', 'object'),
+                                     ('namespace', namespace),
+                                     ('category', category),
+                                     ('program', '*'),
+                                     ('project', '*'),
+                                     ('description', description),
+                                     ('additionalProperties', False),
+                                     ('submittable', True),
+                                     ('validators', None),
+                                     ('systemProperties', []),
+                                     ('links', []),
+                                     ('required', ['type', 'submitter_id']),
+                                     ('uniqueKeys', [
+                                         ['id'],
+                                         ['project_id', 'submitter_id']]),
+                                     ('properties', {})
+                                     ])
+        return cls(filename,data)
+
     def __getattribute__(self, item):
         """
         Python magic in progress. this will redirect all property accesses to the

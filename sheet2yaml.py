@@ -38,27 +38,9 @@ if __name__ == "__main__":
             g3_obj = bundle.objects[f"{row.ID}.yaml"]
             g3_obj.set_object_definitions(row.ID, row.TITLE, row.CATEGORY, row.DESCRIPTION, row.NAMESPACE)
         except KeyError:
-            this_data = OrderedDict([('$schema', "http://json-schema.org/draft-04/schema#"),
-                                     ('id', row.ID),
-                                     ('title', row.TITLE),
-                                     ('type', 'object'),
-                                     ('namespace', row.NAMESPACE),
-                                     ('category', row.CATEGORY),
-                                     ('program', '*'),
-                                     ('project', '*'),
-                                     ('description', row.DESCRIPTION),
-                                     ('additionalProperties', False),
-                                     ('submittable', True),
-                                     ('validators', None),
-                                     ('systemProperties', row.SYSTEM_PROPERTIES.split(";")),
-                                     ('links', []),
-                                     ('required', ['type', 'submitter_id']),
-                                     ('uniqueKeys', [
-                                         ['id'],
-                                         ['project_id', 'submitter_id']]),
-                                     ('properties', {})
-                                     ])
-            bundle.objects[f"{row.ID}.yaml"] = gen3schemadev.Gen3Object(f"{row.ID}.yaml", this_data)
+            g3_obj = gen3schemadev.Gen3Object.create_empty(f"{row.ID}.yaml",row.ID,row.TITLE,row.NAMESPACE,row.CATEGORY,row.DESCRIPTION)
+            g3_obj.set_systemProperties(row.SYSTEM_PROPERTIES.split(";"))
+            bundle.objects[f"{row.ID}.yaml"] = g3_obj
             g3_obj = bundle.objects[f"{row.ID}.yaml"]
             if g3_obj.data['category'] == "data_file":
                 g3_obj.data['properties']['$ref'] = "_definitions.yaml#/data_file_properties"
