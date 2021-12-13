@@ -186,13 +186,27 @@ class Gen3Object(Gen3WrapObject):
     def set_id(self, value):
         self.data["id"] = value
 
-    def get_links(self):
+    def get_links(self) -> List[Gen3WrapObject]:
         links = self.data["links"]
         return [Gen3LinkGroup.from_dict(i) if Gen3LinkGroup.is_link_group(i) else Gen3Link.from_dict(i) for i in links]
 
     def set_links(self, value: List[Gen3WrapObject]):
+        self._zap_derived_link_properties()
         self.data["links"] = [i.get_data() for i in value]
         self.add_required_links_and_properties()
+
+    def _zap_derived_link_properties(self):
+        """removes derived link properties from the object"""
+        for link in self.get_links():
+            if isinstance(link,Gen3Link):
+                if link.required:
+                    self.remove_required(link.name)
+                self.remove_property(link.name)
+            elif isinstance(link,Gen3LinkGroup):
+                for sublink in link.get_links():
+                    if sublink.required:
+                        self.remove_required(sublink.name)
+                    self.remove_property(sublink.name)
 
     def add_required_links_and_properties(self):
         """Add links that are required to required and add links as properties"""
@@ -265,6 +279,10 @@ class Gen3Object(Gen3WrapObject):
             self.data["properties"] = {}
         self.data["properties"][prop.get_name()] = prop.get_data()
 
+    def remove_property(self, name):
+        if name in self.data["properties"]:
+            del self.data["properties"][name]
+
     def get_required(self):
         return self.data["required"]
 
@@ -276,6 +294,10 @@ class Gen3Object(Gen3WrapObject):
             self.required = [value]
         else:
             self.required.append(value)
+
+    def remove_required(self, value):
+        if value in self.required:
+            del self.required[value]
 
     def get_submittable(self):
         return self.data["submittable"]
