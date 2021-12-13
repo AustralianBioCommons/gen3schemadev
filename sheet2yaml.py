@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import gen3schemadev
+from collections import OrderedDict
 import networkx as nx
 
 def main():
@@ -29,12 +30,41 @@ if __name__ == "__main__":
     enums = pd.read_csv(url)
     enums.replace({np.nan: None}, inplace=True)
 
-    bundle = gen3schemadev.ConfigBundle("schema/cad")
+    bundle = gen3schemadev.ConfigBundle("schema/templates")
 
     for idx, row in objects.iterrows():
         # parse object definition
-        g3_obj = bundle.objects["%s.yaml"%row.ID]
-        g3_obj.set_object_definitions(row.ID, row.TITLE, row.CATEGORY, row.DESCRIPTION, row.NAMESPACE)
+        try:
+            g3_obj = bundle.objects["%s.yaml"%row.ID]
+            g3_obj.set_object_definitions(row.ID, row.TITLE, row.CATEGORY, row.DESCRIPTION, row.NAMESPACE)
+        except KeyError:
+            this_data = OrderedDict([('$schema', "http://json-schema.org/draft-04/schema#"),
+                                     ('id', row.ID),
+                                     ('title', row.TITLE),
+                                     ('type', 'object'),
+                                     ('namespace', row.NAMESPACE),
+                                     ('category', row.CATEGORY),
+                                     ('program', '*'),
+                                     ('project', '*'),
+                                     ('description', row.DESCRIPTION),
+                                     ('additionalProperties', False),
+                                     ('submittable', True),
+                                     ('validators', None),
+                                     ('systemProperties', row.SYSTEM_PROPERTIES.split(";")),
+                                     ('links', []),
+                                     ('required', ['type', 'submitter_id']),
+                                     ('uniqueKeys', [
+                                         ['id'],
+                                         ['project_id', 'submitter_id']]),
+                                     ('properties', {})
+                                     ])
+            bundle.objects["%s.yaml"%row.ID] = gen3schemadev.Gen3Object("%s.yaml"%row.ID, this_data)
+            g3_obj = bundle.objects["%s.yaml"%row.ID]
+            if g3_obj.data['category'] == "data_file":
+                g3_obj.data['properties']['$ref'] = "_definitions.yaml#/data_file_properties"
+                g3_obj.add_required('object_id')
+            else:
+                g3_obj.data['properties']['$ref'] = "_definitions.yaml#/ubiquitous_properties"
 
         # parse link definitions
         link_rows = links[links['SCHEMA'] == row.ID]
@@ -64,6 +94,7 @@ if __name__ == "__main__":
                         subgroup_dict['subgroup'].append(this_link)
                     links_list.append(gen3schemadev.Gen3LinkGroup.from_dict(subgroup_dict))
             g3_obj.set_links(links_list)
+
 
         # parse property definitions
         object_fields = properties.loc[properties.OBJECT == row.ID]
