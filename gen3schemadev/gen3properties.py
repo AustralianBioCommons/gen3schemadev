@@ -7,8 +7,6 @@ class Gen3WrapObject:
         pass
 
 
-
-
 class Gen3Property(Gen3WrapObject):
     def __init__(self, name, description=None, termdef=None, source=None, term_id=None, term_version=None):
         self.name = name
@@ -54,6 +52,19 @@ class Gen3Property(Gen3WrapObject):
 
     def get_definition(self):
         return self.data["termDef"]
+
+
+class Gen3DefinitionProperty(Gen3Property):
+    def __init__(self, name, ref):
+        super().__init__(name)
+        self.data["$ref"] = ref
+        null_values = []
+        for k, v in self.data.items():
+            if not v:
+                null_values.append(k)
+        for k in null_values:
+            del self.data[k]
+        del self.data['termDef']
 
 
 class Gen3DatetimeProperty(Gen3Property):
