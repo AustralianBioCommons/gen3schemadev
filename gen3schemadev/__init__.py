@@ -94,7 +94,7 @@ class Gen3Object(Gen3WrapObject):
         if item in ["additionalProperties", "category", "description", "id", "links", "namespace", "nodeTerms",
                     "preferred", "program", "project", "properties", "required", "submittable", "systemProperties",
                     "title", "type", "uniqueKeys", "validators"]:
-            if hasattr(self, "get_%s" % item) and callable(func := getattr(self, "get_%s" % item)):
+            if hasattr(self, f"get_{item}") and callable(func := getattr(self, f"get_{item}")):
                 return func()
         else:
             return super().__getattribute__(item)
@@ -107,7 +107,7 @@ class Gen3Object(Gen3WrapObject):
         if key in ["additionalProperties", "category", "description", "id", "links", "namespace", "nodeTerms",
                    "preferred", "program", "project", "properties", "required", "submittable", "systemProperties",
                    "title", "type", "uniqueKeys", "validators"]:
-            if hasattr(self, "set_%s" % key) and callable(func := getattr(self, "set_%s" % key)):
+            if hasattr(self, f"set_{key}") and callable(func := getattr(self, f"set_{key}")):
                 func(value)
         else:
             super().__setattr__(key, value)
@@ -336,7 +336,7 @@ class Gen3Link(Gen3WrapObject):
         respective getter functions to allow for overwriting
         """
         if item in ["name","backref","label","target_type","multiplicity","required"]:
-            if hasattr(self, "get_%s" % item) and callable(func := getattr(self, "get_%s" % item)):
+            if hasattr(self, f"get_{item}") and callable(func := getattr(self, f"get_{item}")):
                 return func()
             elif item in self.data:
                 return self.data[item]
@@ -349,7 +349,7 @@ class Gen3Link(Gen3WrapObject):
         setter functions to allow for overrides
         """
         if key in ["name","backref","label","target_type","multiplicity","required"]:
-            if hasattr(self, "set_%s" % key) and callable(func := getattr(self, "set_%s" % key)):
+            if hasattr(self, f"set_{key}") and callable(func := getattr(self, f"set_{key}")):
                 func(value)
             elif key in self.data:
                 self.data[key] = value

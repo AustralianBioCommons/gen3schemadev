@@ -12,21 +12,21 @@ if __name__ == "__main__":
     sheet_id = "1AX9HLzIV6wtkVylLkwOr3kdKDaZf4ukeYACTJ7lYngk"
 
     objects_gid = "1815863480"
-    url = "https://docs.google.com/spreadsheets/d/{}/export?format=csv&gid={}".format(sheet_id, objects_gid)
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={objects_gid}"
     objects = pd.read_csv(url)
 
     links_gid = "1073266181"
-    url = "https://docs.google.com/spreadsheets/d/{}/export?format=csv&gid={}".format(sheet_id, links_gid)
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={links_gid}"
     links = pd.read_csv(url)
     links.replace({np.nan: None}, inplace=True)
 
     properties_gid = "804936807"
-    url = "https://docs.google.com/spreadsheets/d/{}/export?format=csv&gid={}".format(sheet_id, properties_gid)
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={properties_gid}"
     properties = pd.read_csv(url)
     properties.replace({np.nan: None}, inplace=True)
 
     enums_gid = "1170119639"
-    url = "https://docs.google.com/spreadsheets/d/{}/export?format=csv&gid={}".format(sheet_id, enums_gid)
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={enums_gid}"
     enums = pd.read_csv(url)
     enums.replace({np.nan: None}, inplace=True)
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     for idx, row in objects.iterrows():
         # parse object definition
         try:
-            g3_obj = bundle.objects["%s.yaml"%row.ID]
+            g3_obj = bundle.objects[f"{row.ID}.yaml"]
             g3_obj.set_object_definitions(row.ID, row.TITLE, row.CATEGORY, row.DESCRIPTION, row.NAMESPACE)
         except KeyError:
             this_data = OrderedDict([('$schema', "http://json-schema.org/draft-04/schema#"),
@@ -58,8 +58,8 @@ if __name__ == "__main__":
                                          ['project_id', 'submitter_id']]),
                                      ('properties', {})
                                      ])
-            bundle.objects["%s.yaml"%row.ID] = gen3schemadev.Gen3Object("%s.yaml"%row.ID, this_data)
-            g3_obj = bundle.objects["%s.yaml"%row.ID]
+            bundle.objects[f"{row.ID}.yaml"] = gen3schemadev.Gen3Object(f"{row.ID}.yaml", this_data)
+            g3_obj = bundle.objects[f"{row.ID}.yaml"]
             if g3_obj.data['category'] == "data_file":
                 g3_obj.data['properties']['$ref'] = "_definitions.yaml#/data_file_properties"
                 g3_obj.add_required('object_id')
