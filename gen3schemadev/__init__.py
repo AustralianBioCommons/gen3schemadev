@@ -112,7 +112,6 @@ class Gen3Object(Gen3WrapObject):
 
         if data['category'] == "data_file":
             data['properties']['$ref'] = "_definitions.yaml#/data_file_properties"
-            data["required"].append('object_id')
         else:
             data['properties']['$ref'] = "_definitions.yaml#/ubiquitous_properties"
 
