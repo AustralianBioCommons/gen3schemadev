@@ -58,8 +58,8 @@ if __name__ == "__main__":
                 subgroups = list(set(group_links.SUBGROUP.tolist()))
                 for subgroup in subgroups:
                     this_subgroup = group_links[group_links['SUBGROUP'] == subgroup]
-                    subgroup_dict = {"exclusive": group_links.EXCLUSIVE[0],
-                                     "required": group_links.SG_REQUIRED[0],
+                    subgroup_dict = {"exclusive": group_links.EXCLUSIVE.iloc[0],
+                                     "required": group_links.SG_REQUIRED.iloc[0],
                                      "subgroup": []}
                     for this_idx, each_row in this_subgroup.iterrows():
                         this_link = {"name": each_row.NAME,
@@ -100,6 +100,14 @@ if __name__ == "__main__":
                 for idx, evline in evals.iterrows():
                     prop.add_enum_option(evline.enum, evline.source, evline.term_id, evline.version)
                 g3_obj.add_property(prop)
+            elif field.TYPE == "array":
+                if field.ARRAY_ITEMS_TYPE.startswith("enum"):
+                    prop = gen3schemadev.Gen3Array(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
+                                                   items_type="enum")
+                    evals = enums.loc[enums.type_name == field.ARRAY_ITEMS_TYPE]
+                    for idx, evline in evals.iterrows():
+                        prop.add_enum_option(evline.enum)
+                    g3_obj.add_property(prop)
             else:
                 raise KeyError(field.TYPE)
 
