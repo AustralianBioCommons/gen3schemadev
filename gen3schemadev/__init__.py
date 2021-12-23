@@ -4,7 +4,7 @@ import oyaml as yaml
 from enum import Enum
 from .gen3properties import Gen3Property, Gen3DefinitionProperty, Gen3DatetimeProperty, Gen3JsonProperty, Gen3Enum, \
     Gen3Integer, Gen3Number, \
-    Gen3Boolean, Gen3String, Gen3WrapObject
+    Gen3Boolean, Gen3String, Gen3WrapObject, Gen3Array
 from typing import List
 from abc import abstractmethod
 import networkx as nx
@@ -485,6 +485,8 @@ class ConfigBundle:
                 the folder to dump the schema into. it is up to the implementer to ensure the folder is empty
         :return:
         """
+        if not os.path.isdir(folder):
+            os.mkdir(folder)
         for file in self.definitions:
             with open(os.path.join(folder, file), "w") as stream:
                 yaml.safe_dump(self.definitions[file], stream)
