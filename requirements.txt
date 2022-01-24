@@ -8,3 +8,6 @@ matplotlib
 ete3
 dictionaryutils~=3.0.0
 numpy~=1.22.1
+argparse
+numpy
+gen3
