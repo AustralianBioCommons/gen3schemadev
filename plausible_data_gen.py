@@ -8,6 +8,8 @@ from datetime import datetime
 from datetime import timedelta
 from random import randrange
 import copy
+import random
+import string
 
 import pandas as pd
 import numpy as np
@@ -53,6 +55,11 @@ def parse_values(values_path):
     else:
         values_table = pd.read_csv(values_path)
     return values_table
+
+
+def generate_random_string(length):
+    result = ''.join((random.choice(string.ascii_lowercase) for x in range(length)))  # run loop until the define length
+    return result
 
 
 def generate_mean_number(mean, sd, schema_type):
@@ -108,7 +115,8 @@ def replace_values(sim_data, table):
                     item[row['property']] = new_value
         elif row['data_type'] == "median":
             for item in sim_data[row['object']]:
-                new_value = generate_median_number(row['median'], row['first_quart'], row['third_quart'], row['schema_type'])
+                new_value = generate_median_number(row['median'], row['first_quart'], row['third_quart'],
+                                                   row['schema_type'])
                 item[row['property']] = new_value
 
 
@@ -130,7 +138,12 @@ def write_dummy_seq_files(sim_data, dict_name):
     dummy_index_file_name = None
     dummy_file_name = None
     index_files = []
-    for seq_file in sim_data['sequencing_file']:
+    for seq_file, sample, cmc in zip(sim_data['sequencing_file'], sim_data['sample'],
+                                     sim_data['core_metadata_collection']):
+        if 'samples' not in seq_file.keys():
+            seq_file['samples'] = {'submitter_id': sample['submitter_id']}
+        if 'core_metadata_collections' not in seq_file.keys():
+            seq_file['core_metadata_collections'] = {'submitter_id': cmc['submitter_id']}
         if seq_file['data_format'] in ['cram', 'crai']:
             dummy_file_name = "dummy_cram.cram"
             file_name = f"{seq_file['file_name']}.cram"
@@ -163,6 +176,21 @@ def write_dummy_seq_files(sim_data, dict_name):
             copied_seq_file['data_format'] = "bai"
             dummy_index_file_name = f"{dummy_file_name}.bai"
             copied_seq_file['file_name'] = f"{seq_file['file_name']}.bam.bai"
+            # add cmc file
+            cmc = {
+                "contributor": generate_random_string(10),
+                "coverage": generate_random_string(10),
+                "creator": generate_random_string(10),
+                "projects": {
+                    "code": sim_data['project']['code']
+                },
+                "source": generate_random_string(10),
+                "submitter_id": f"core_metadata_collection_{generate_random_string(10)}",
+                "title": generate_random_string(10),
+                "type": "core_metadata_collection"
+            }
+            sim_data['core_metadata_collection'].append(cmc)
+
         if dummy_file_name:
             shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_file_name),
                             os.path.join(write_dir, file_name))
@@ -174,8 +202,9 @@ def write_dummy_seq_files(sim_data, dict_name):
                             os.path.join(write_dir, copied_seq_file['file_name']))
             copied_seq_file['file_size'] = file_stats[dummy_index_file_name]['file_size']
             copied_seq_file['md5sum'] = file_stats[dummy_file_name]['md5']
+            copied_seq_file['core_metadata_collections'] = {'submitter_id': cmc['submitter_id']}
             index_files.append(copied_seq_file)
-    sim_data['sequencing_file'].append(index_files)
+    sim_data['sequencing_file'] = [*sim_data['sequencing_file'], *index_files]
 
 
 def write_dummy_lipid_files(sim_data, dict_name):
@@ -187,12 +216,29 @@ def write_dummy_lipid_files(sim_data, dict_name):
         file_stats = json.load(f)
     if not os.path.exists(write_dir):
         os.makedirs(write_dir)
-    for lipid_file in sim_data['lipidomics_file']:
+    for lipid_file, sample in zip(sim_data['lipidomics_file'], sim_data['sample']):
+        if 'samples' not in lipid_file.keys():
+            lipid_file['samples'] = {'submitter_id': sample['submitter_id']}
+        # make new CMC to link to
+        cmc = {
+            "contributor": generate_random_string(10),
+            "coverage": generate_random_string(10),
+            "creator": generate_random_string(10),
+            "projects": {
+                "code": sim_data['project']['code']
+            },
+            "source": generate_random_string(10),
+            "submitter_id": f"core_metadata_collection_{generate_random_string(10)}",
+            "title": generate_random_string(10),
+            "type": "core_metadata_collection"
+        }
+        sim_data['core_metadata_collection'].append(cmc)
+        lipid_file['core_metadata_collections'] = {'submitter_id': cmc['submitter_id']}
         lipid_file['data_format'] = "csv"
         lipid_file['data_type'] = "MS"
         lipid_file['data_category'] = "summarised results"
         lipid_file['mass_spectromatery_type'] = "LC-MS"
-        lipid_file['lipid_extraction_method'] = "shotgun"
+        lipid_file['lipid_extraction_method'] = "SIMS"
         lipid_file['file_name'] = f"{lipid_file['file_name']}.csv"
         lipid_file['md5sum'] = file_stats[dummy_lipids_file]['md5']
         lipid_file['file_size'] = file_stats[dummy_lipids_file]['file_size']
