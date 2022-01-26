@@ -3,6 +3,7 @@ from gen3.auth import Gen3Auth
 from gen3.submission import Gen3Submission
 import os
 import json
+import sys
 
 
 def parse_arguments():
@@ -13,43 +14,43 @@ def parse_arguments():
     parser.add_argument("--projects", nargs="*", default=["AusDiab", "FIELD", "BioHEART-CT"],
                         help="The names of the specific projects, space-delimited, which are sub-folders of the "
                              "--folder provided")
+    parser.add_argument("--delete_all_metadata", action="store_true",
+                        help="If specified, will delete all node metadata below the project level in order.")
     return parser.parse_args()
+
+
+def delete_metadata(project_name, folder_path):
+    with open(os.path.join(folder_path, project, "DataImportOrder.txt"), "r") as f:
+        import_order = [line.rstrip() for line in f]
+        import_order.remove("project")
+        import_order.remove("program")
+    import_order.reverse()
+    endpoint = "https://data.acdc.ozheart.org"
+    auth = Gen3Auth(endpoint=endpoint, refresh_file="_local/credentials.json")
+    sub = Gen3Submission(endpoint=endpoint, auth_provider=auth)
+    for node in import_order:
+        sub.delete_node("program1", project_name, node)
 
 
 if __name__ == "__main__":
     args = parse_arguments()
+    if args.delete_all_metadata:
+        proceed = input(f"Are you sure you want to delete all exising metadata for the projects: {args.projects}? y/n\n")
+        if proceed.lower() == "y":
+            "Ok, now proceeding to delete..."
+            for project in args.projects:
+                delete_metadata(project, args.folder)
+            print("Deletion completed, now exiting.")
+            sys.exit()
+        else:
+            print("ok, now exiting. Please remove --delete_all_metadata flag and rerun script")
+            sys.exit()
+
     for project in args.projects:
         print("Processing project: {}".format(project))
-        with open("{}/{}/edited_jsons/sample.json".format(args.folder, project), "r") as f:
-            sample_json = json.load(f)
-
-        with open("{}/{}/edited_jsons/core_metadata_collection.json".format(args.folder, project), "r") as f:
-            cmc_json = json.load(f)
-
-        with open("{}/{}/edited_jsons/sequencing_file.json".format(args.folder, project), "r") as f:
-            seq_file_json = json.load(f)
-
-        with open("{}/{}/edited_jsons/lipidomics_file.json".format(args.folder, project), "r") as f:
-            lip_file_json = json.load(f)
-
-        sample_ids = [x['submitter_id'] for x in sample_json]
-
-        cmc_ids = [x['submitter_id'] for x in cmc_json]
-
-        for index in range(len(sample_ids)):
-            seq_file_json[index]['samples'] = {'submitter_id': sample_ids[index]}
-            seq_file_json[index]['core_metadata_collections'] = {'submitter_id': cmc_ids[index]}
-            lip_file_json[index]['samples'] = {'submitter_id': sample_ids[index]}
-            lip_file_json[index]['core_metadata_collections'] = {'submitter_id': cmc_ids[index]}
-
-        with open("{}/{}/edited_jsons/sequencing_file.json".format(args.folder, project), "w+") as f:
-            json.dump(seq_file_json, f, indent=4, sort_keys=True)
-
-        with open("{}/{}/edited_jsons/lipidomics_file.json".format(args.folder, project), "w+") as f:
-            json.dump(seq_file_json, f, indent=4, sort_keys=True)
 
         folder = args.folder
-        endpoint = "https://gen3.biocommons.org.au"
+        endpoint = "https://data.acdc.ozheart.org"
         auth = Gen3Auth(endpoint=endpoint, refresh_file="_local/credentials.json")
         sub = Gen3Submission(endpoint=endpoint, auth_provider=auth)
 
