@@ -157,6 +157,20 @@ def write_dummy_seq_files(sim_data, dict_name):
             copied_seq_file['data_format'] = "crai"
             dummy_index_file_name = f"{dummy_file_name}.crai"
             copied_seq_file['file_name'] = f"{seq_file['file_name']}.cram.crai"
+            copied_seq_file['submitter_id'] = f"sequencing_file_{generate_random_string(10)}"
+            cmc = {
+                "contributor": generate_random_string(10),
+                "coverage": generate_random_string(10),
+                "creator": generate_random_string(10),
+                "projects": {
+                    "code": sim_data['project']['code']
+                },
+                "source": generate_random_string(10),
+                "submitter_id": f"core_metadata_collection_{generate_random_string(10)}",
+                "title": generate_random_string(10),
+                "type": "core_metadata_collection"
+            }
+            sim_data['core_metadata_collection'].append(cmc)
         elif seq_file['data_format'] == "VCF":
             dummy_file_name = "dummy_vcf.vcf.gz"
             file_name = f"{seq_file['file_name']}.vcf.gz"
@@ -176,6 +190,7 @@ def write_dummy_seq_files(sim_data, dict_name):
             copied_seq_file['data_format'] = "bai"
             dummy_index_file_name = f"{dummy_file_name}.bai"
             copied_seq_file['file_name'] = f"{seq_file['file_name']}.bam.bai"
+            copied_seq_file['submitter_id'] = f"sequencing_file_{generate_random_string(10)}"
             # add cmc file
             cmc = {
                 "contributor": generate_random_string(10),
