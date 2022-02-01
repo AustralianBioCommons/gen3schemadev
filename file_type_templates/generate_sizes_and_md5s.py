@@ -1,4 +1,4 @@
-
+# Deprecated, now reads this information from the indexed files in the system
 import hashlib
 import os
 import glob
