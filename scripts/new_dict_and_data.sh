@@ -4,6 +4,7 @@ SCHEMADEV_INSTALLATION=${HOME}/Documents/GitHub/gen3schemadev
 COMPOSE_SERVICES_INSTALLATION=${HOME}/Documents/GitHub/uwe-compose-services/compose-services
 projects="AusDiab FIELD BioHEART-CT"
 num_samples=10
+project=marion_acva
 
 echo "removing old schemas"
 rm ${UMCCR_SCHEMA_INSTALLATION}/dictionary/cad/gdcdictionary/schemas/*.yaml
@@ -31,7 +32,7 @@ for i in $projects; do
 	make simulate dd=cad project=$i samples=$num_samples
 	cd data/cad/$i
     source ${SCHEMADEV_INSTALLATION}/venv/bin/activate
-	python3 ${SCHEMADEV_INSTALLATION}/plausible_data_gen.py --gurl https://docs.google.com/spreadsheets/d/1AX9HLzIV6wtkVylLkwOr3kdKDaZf4ukeYACTJ7lYngk/edit#gid=1400179124 --path . --projects $projects --dummy-seq-files --dummy-lipid-files
+	python3 ${SCHEMADEV_INSTALLATION}/plausible_data_gen.py --gurl https://docs.google.com/spreadsheets/d/1AX9HLzIV6wtkVylLkwOr3kdKDaZf4ukeYACTJ7lYngk/edit#gid=1400179124 --path . --dummy-seq-files --dummy-lipid-files
     deactivate
 	cd ../../..
 done
@@ -74,4 +75,11 @@ aws s3 cp ${UMCCR_SCHEMA_INSTALLATION}/schema/cad.json s3://biocommons-gen3-sche
 echo "Making the schema.json public"
 aws s3api put-object-acl --bucket biocommons-gen3-schema --key cad/dev/cad.json --acl public-read
 
-echo "Now login to management ec2, reset the deployment, get new credentials, run the datas_submittor.py."
+echo "Now login to management ec2, reset the deployment, get new credentials, come back and continue when you are ready to run the datas_submittor.py."
+read
+
+source ${SCHEMADEV_INSTALLATION}/venv/bin/activate
+python3 ${SCHEMADEV_INSTALLATION}/datas_submittor.py --folder ${HOME}/Documents/GitHub/umccr-dictionary/data/cad --projects $projects --profile $profile
+deactivate
+
+echo "data and metadata uploaded. bye."
