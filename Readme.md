@@ -43,10 +43,12 @@ cd plausible_data_gen
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python3 main.py --path <PATH_TO_SIM_DATA> --values <PATH_TO_CSV>
+python3 main.py --path <PATH_TO_SIM_DATA> [--values <PATH_TO_CSV> | --gurl <PATH_TO_GOOGLE_SHEET>] --dummy_seq_files --dummy_lipid_files
 ```
 
 The program will write the modified json files to a directory called `edited_jsons`.
+
+If the `--dummy_sequencing_files` and/or `--dummy_lipid_files` flags are specified, files will be placed into a directory called `dummy_files`
 
 ## Format of CSV
 
