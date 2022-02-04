@@ -1,9 +1,9 @@
-gen3schemadev is an object mapper for a gen3 schema to allow programmatical generation.
+#This repository contains all tools used by Biocommons Australia to develop with gen3
 
+#gen3schemadev is an object relational mapper for gen3 schemas.
 ## Current Workflow for editing CAD Project Dictionary
 
 ### Local deployment (compose-services)
-
 1. Make schema edits to the `Harmonised Variables - v1 google sheet`
 2. All schema objects in the google sheet need to have a template schema in the `schema` folder (to be phased out when all info can be generated)
 3. Run `schema2yaml.py` which automatically reads the google sheets and parses the required information, writing the parsed schemas to the folder `schema_out` 
