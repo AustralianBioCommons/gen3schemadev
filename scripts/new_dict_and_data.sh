@@ -4,7 +4,7 @@ SCHEMADEV_INSTALLATION=${HOME}/Documents/GitHub/gen3schemadev
 COMPOSE_SERVICES_INSTALLATION=${HOME}/Documents/GitHub/uwe-compose-services/compose-services
 projects="AusDiab FIELD BioHEART-CT"
 num_samples=10
-project=marion_acva
+profile=marion_acva
 
 echo "removing old schemas"
 rm ${UMCCR_SCHEMA_INSTALLATION}/dictionary/cad/gdcdictionary/schemas/*.yaml
