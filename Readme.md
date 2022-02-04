@@ -1,6 +1,13 @@
-#This repository contains all tools used by Biocommons Australia to develop with gen3
+# Automated processes for Gen3 Data Dictionary, data simulation and submission automation
 
-#gen3schemadev is an object relational mapper for gen3 schemas.
+This repository contains all tools used and/or developed by Australian BioCommons to develop with gen3.
+
+## `gen3schemadev` is an object relational mapper library for gen3 schemas.
+
+The library can be used in order to convert a spreadsheet format into a complete set of the yaml files required to build a Gen3 Data Dictionary.
+
+An implementation of the library for generating the CAD dictionary is demonstrated by `sheet2yaml.py`.
+
 ## Current Workflow for editing CAD Project Dictionary
 
 ### Local deployment (compose-services)
@@ -38,6 +45,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 python3 main.py --path <PATH_TO_SIM_DATA> --values <PATH_TO_CSV>
 ```
+
 The program will write the modified json files to a directory called `edited_jsons`.
 
 ## Format of CSV
