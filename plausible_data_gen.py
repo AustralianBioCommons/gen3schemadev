@@ -249,7 +249,7 @@ def write_dummy_lipid_files(sim_data, dict_name):
         lipid_file['data_format'] = "csv"
         lipid_file['data_type'] = "MS"
         lipid_file['data_category'] = "summarised results"
-        lipid_file['mass_spectrometery_type'] = "LC-MS"
+        lipid_file['mass_spectrometry_type'] = "LC-MS"
         lipid_file['lipid_extraction_method'] = "SIMS"
         lipid_file['file_name'] = f"{lipid_file['file_name']}.csv"
         shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_lipids_file),
