@@ -24,6 +24,7 @@ This script automates the steps involved in
 8. uploads all metadata and data files to the production instance
 
 ### Prerequisites 
+- Docker must be installed and running before starting the script
 - The script assumes you have a virtual environment called `venv` in this git repo
 The following need to be configured in the script 
 - `UMCCR_SCHEMA_INSTALLATION` - the location where you have cloned the [`umccr-dictionary` repo](https://github.com/umccr/umccr-dictionary)

@@ -148,7 +148,7 @@ def write_dummy_seq_files(sim_data, dict_name):
                 seq_file['data_format'] = "cram"
             seq_file['file_name'] = f"{seq_file['file_name']}.cram"
             seq_file['data_type'] = "aligned reads"
-            seq_file['data_category'] = "sequencing Reads"
+            seq_file['data_category'] = "sequencing reads"
             seq_file['sequencing_assay'] = "WES"
             # add the index file
             index_seq_file = copy.deepcopy(seq_file)

@@ -2,8 +2,8 @@ CURRENT_DIR=`pwd`
 UMCCR_SCHEMA_INSTALLATION=${HOME}/Documents/GitHub/umccr-dictionary
 SCHEMADEV_INSTALLATION=${HOME}/Documents/GitHub/gen3schemadev
 COMPOSE_SERVICES_INSTALLATION=${HOME}/Documents/GitHub/uwe-compose-services/compose-services
-projects="AusDiab FIELD BioHEART-CT"
-num_samples=10
+projects=("AusDiab" "FIELD" "BioHEART-CT")
+num_samples=1000
 profile=marion_acva
 
 echo "removing old schemas"
@@ -28,12 +28,13 @@ make compile dd=cad project=sim samples=10
 # make a small project for testing local setup
 make simulate dd=cad project=jenkins samples=10
 
-for i in $projects; do
-	make simulate dd=cad project=$i samples=$num_samples
+for i in "${projects[@]}"; do
+  echo $i
+  make simulate dd=cad project=$i samples=$num_samples
 	cd data/cad/$i
-    source ${SCHEMADEV_INSTALLATION}/venv/bin/activate
+  source ${SCHEMADEV_INSTALLATION}/venv/bin/activate
 	python3 ${SCHEMADEV_INSTALLATION}/plausible_data_gen.py --gurl https://docs.google.com/spreadsheets/d/1AX9HLzIV6wtkVylLkwOr3kdKDaZf4ukeYACTJ7lYngk/edit#gid=1400179124 --path . --dummy-seq-files --dummy-lipid-files
-    deactivate
+  deactivate
 	cd ../../..
 done
 
