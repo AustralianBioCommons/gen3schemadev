@@ -64,7 +64,9 @@ if __name__ == "__main__":
             output, error = process.communicate()
 
         endpoint = "https://data.acdc.ozheart.org"
-        auth = Gen3Auth(endpoint=endpoint, refresh_file="_local/credentials.json")
+        script_path = os.path.abspath(os.path.dirname(__file__))
+        auth_path = os.path.join(script_path, "_local", "credentials.json")
+        auth = Gen3Auth(endpoint=endpoint, refresh_file=auth_path)
         sub = Gen3Submission(endpoint=endpoint, auth_provider=auth)
         index = Gen3Index(endpoint=endpoint, auth_provider=auth)
 
