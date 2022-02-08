@@ -6,6 +6,15 @@ this script will build both amd64 and arm64 versions using the dockerfile presen
 build_for_ecr.sh data_portal:2022.01
 ```
 
+## generate_and_submit_data.sh
+This script does a full workflow needed when making edits to the dictionary, it has a similar set of steps to `new_data_and_dict.sh` but uses the data-simulator ec2 for dummy file generation and upload to improve speed.
+
+Various parts of the script can be commented out if certain steps are not needed.
+
+Requires aws credentials to be setup with permissions to start, stop and login to the data-simulator ec2.
+
+(Would probably be better as a make/snakemake file eventually.)
+
 ## login-docker.sh
 This script will login the local docker instance to AWS ECR. your local aws client needs to be setup and have access rights to ECR for this script to work.
 ```shell
