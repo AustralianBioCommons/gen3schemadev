@@ -179,7 +179,7 @@ def write_dummy_seq_files(sim_data, dict_name):
             dummy_file_name = "dummy_fastq.fastq.gz"
             seq_file['file_name'] = f"{seq_file['file_name']}.fastq.gz"
             seq_file['data_type'] = "unaligned reads"
-            seq_file['data_category'] = "sequencing Reads"
+            seq_file['data_category'] = "sequencing reads"
             seq_file['sequencing_assay'] = "WES"
         elif seq_file['data_format'] in ['bam', 'bai']:
             if seq_file['data_format'] == 'bai':
