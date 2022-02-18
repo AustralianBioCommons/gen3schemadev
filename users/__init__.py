@@ -1,9 +1,14 @@
-import yaml
+import oyaml as yaml
 import inspect
+from functools import reduce
+from collections import OrderedDict
+
+
 
 class YamlObjectMapper:
     def __init__(self,data, context):
         self.data = data
+        self.drep = OrderedDict()
         self.context = context
         for key in data:
             if key not in self.__class__.fields:
@@ -12,14 +17,19 @@ class YamlObjectMapper:
     def __getattr__(self, item):
         if item in self.__class__.fields:
             obj = self.__class__.fields[item]
-            if inspect.isclass(obj) and issubclass(obj,YamlObjectMapper):
-                return obj(self.data.get(item,{}), self.context)
+            if item in self.drep:
+                retv = self.drep[item]
+            elif inspect.isclass(obj) and issubclass(obj,YamlObjectMapper):
+                retv = obj(self.data.get(item,OrderedDict()), self.context)
             elif isinstance(obj, CollectionOfYamlObjects):
-                return obj.convert_from_dict(self.data.get(item,[]), self.context)
+                retv = obj.convert_from_dict(self.data.get(item,[]), self.context)
             elif isinstance(obj, ListResolver):
-                return obj.list_to_items(self.context,self.data[item])
+                retv = obj.list_to_items(self.context,self.data[item])
             else:
-                return self.data.get(item,obj())
+                retv = self.data.get(item,obj())
+            if item not in self.drep:
+                self.drep[item] = retv
+            return retv
         else:
             return super().__getattr__(item)
 
@@ -39,6 +49,7 @@ class YamlObjectMapper:
             else:
                 raise NotImplemented
             try:
+                self.drep[key] = value
                 self.data[key] = val
             except AttributeError:
                 pass
@@ -52,10 +63,40 @@ class YamlObjectMapper:
         return self.__str__()
 
     def get_dict(self):
+        for key in self.drep:
+            val = self.drep[key]
+            if isinstance(val,list):
+                fobj = self.__class__.fields[key]
+                if inspect.isclass(fobj) and issubclass(fobj,list):
+                    self.data[key] = list(map(lambda x: x.get_dict() if isinstance(x,YamlObjectMapper) else x, val))
+                elif isinstance(fobj, CollectionOfYamlObjects):
+                    self.data[key] = fobj.convert_to_dict(val)
+                elif isinstance(fobj, ListResolver):
+                    self.data[key] = fobj.items_to_list(val)
+            elif isinstance(val,dict):
+                fobj = self.__class__.fields[key]
+                retv=OrderedDict()
+                if inspect.isclass(fobj) and issubclass(fobj, dict):
+                    for k in val:
+                        x = val[k]
+                        retv[k] = x.get_dict() if isinstance(x,YamlObjectMapper) else x
+                else:
+                    retv = fobj.convert_to_dict(val)
+                self.data[key] = retv
         return self.data
 
     def get_uid(self):
         return self.id
+
+    def resolve_attrs(self):
+        for k in self.data:
+            dat = self.__getattr__(k)
+            if isinstance(dat,list):
+                list(map(lambda x: x.resolve_attrs() if isinstance(x,YamlObjectMapper) else None,dat))
+            if isinstance(dat,dict):
+                list(map(lambda x: x.resolve_attrs() if isinstance(x,YamlObjectMapper) else None, dat.values()))
+            if isinstance(dat, YamlObjectMapper):
+                dat.resolve_attrs()
 
 
 class ListResolver:
@@ -94,19 +135,19 @@ class DictOfYamlObjects(CollectionOfYamlObjects):
     def convert_to_dict(self,l: dict):
         if l is None:
             return dict()
-        retv = {}
+        retv = OrderedDict()
         for k in l:
             retv[k] = l[k].get_dict()
         return retv
 
     def convert_from_dict(self, l: dict, context):
-        retv = {}
+        retv = OrderedDict()
         for i in l:
             retv[i] = self.obj(i,l[i],context)
         return retv
 
 class Action(YamlObjectMapper):
-    fields = {"service": str, "method": str}
+    fields = OrderedDict(service= str, method= str)
 
     def __init__(self,data,context):
         self.service = None
@@ -115,7 +156,7 @@ class Action(YamlObjectMapper):
 
 
 class Permission(YamlObjectMapper):
-    fields = {"id": str, "action": Action}
+    fields = OrderedDict(id= str, action= Action)
 
     def __init__(self,data,context):
         self.id = None
@@ -124,7 +165,7 @@ class Permission(YamlObjectMapper):
 
 
 class Role(YamlObjectMapper):
-    fields = {"id": str, "permissions": ListOfYamlObjects(Permission)}
+    fields = OrderedDict(id= str,description= str, permissions= ListOfYamlObjects(Permission))
 
     def __init__(self,data,context):
         self.id = None
@@ -133,7 +174,7 @@ class Role(YamlObjectMapper):
 
 
 class Resource(YamlObjectMapper):
-    fields = {"name": str, "description": str}
+    fields = OrderedDict(name= str, description= str)
 
     def __init__(self,data, context):
         if "subresources" not in Resource.fields:
@@ -157,7 +198,7 @@ class Resource(YamlObjectMapper):
 
 
 class Policy(YamlObjectMapper):
-    fields = {"id": str, "description": str, "resource_paths": ListResolver(Resource), "role_ids": list}
+    fields = OrderedDict(id= str, description= str, resource_paths= ListResolver(Resource), role_ids= ListResolver(Role))
 
     def __init__(self, data: dict,context):
         self.resource_paths = None
@@ -180,12 +221,12 @@ class KeyedYamlObjectMapper(YamlObjectMapper):
         super().__init__(data,context)
 
     def __str__(self):
-        d = {self.id: self.data}
+        d = OrderedDict({self.id: self.data})
         return yaml.dump(d)
 
 
 class User(KeyedYamlObjectMapper):
-    fields = {"policies": ListResolver(Policy), "tags": list}
+    fields = OrderedDict(policies= ListResolver(Policy), tags= dict)
 
     def __init__(self,id: str,data: dict, context):
         self.policies = None
@@ -194,7 +235,7 @@ class User(KeyedYamlObjectMapper):
 
 
 class Client(KeyedYamlObjectMapper):
-    fields = {"policies": list}
+    fields = OrderedDict(policies= ListResolver(Policy))
 
     def __init__(self, id: str, data: dict,context):
         self.policies = None
@@ -202,7 +243,7 @@ class Client(KeyedYamlObjectMapper):
 
 
 class Group(YamlObjectMapper):
-    fields = {"name": str, "policies": ListResolver(Policy), "users": ListResolver(User) }
+    fields = OrderedDict(name= str, policies= ListResolver(Policy), users= ListResolver(User) )
 
     def __init__(self,data, context):
         self.name = None
@@ -214,12 +255,12 @@ class Group(YamlObjectMapper):
         return self.name
 
 class Authz(YamlObjectMapper):
-    fields = {"anonymous_policies": ListResolver(Policy),
-              "all_users_policies": ListResolver(User),
-              "groups": ListOfYamlObjects(Group),
-              "resources": ListOfYamlObjects(Resource),
-              "policies": ListOfYamlObjects(Policy),
-              "roles": ListOfYamlObjects(Role) }
+    fields = OrderedDict(anonymous_policies= ListResolver(Policy),
+              all_users_policies= ListResolver(User),
+              groups= ListOfYamlObjects(Group),
+              resources= ListOfYamlObjects(Resource),
+              policies= ListOfYamlObjects(Policy),
+              roles= ListOfYamlObjects(Role) )
 
     def __init__(self, data, context):
         self.anonymous_policies = None
@@ -232,13 +273,14 @@ class Authz(YamlObjectMapper):
 
 
 class UserYaml(YamlObjectMapper):
-    fields= {"authz": Authz, "clients": DictOfYamlObjects(Client), "users": DictOfYamlObjects(User)}
+    fields= OrderedDict(authz= Authz, clients= DictOfYamlObjects(Client), users= DictOfYamlObjects(User))
 
     def __init__(self,data):
         self.authz = None
         self.clients = None
         self.users = None
         super().__init__(data, self)
+        self.resolve_attrs()
 
     def resolve(self,obj,l):
         objs = None
@@ -247,6 +289,8 @@ class UserYaml(YamlObjectMapper):
             objs = self.get_policies()
         if obj == User:
             objs = self.get_users().values()
+        if obj == Role:
+            objs = self.get_roles()
         if obj == Resource:
             retv = []
             for item in l:
@@ -262,6 +306,28 @@ class UserYaml(YamlObjectMapper):
             return list(filter(lambda x: x.get_uid() in l, objs))
         raise NotImplemented
 
+    def find_links_to(self,obj,base_obj):
+        cls = base_obj.__class__
+        mentions = []
+        if cls == obj.__class__:
+            if obj.get_uid() == base_obj.get_uid():
+                mentions.append(obj)
+        elif isinstance(base_obj, YamlObjectMapper):
+            for field in cls.fields:
+                target_class = cls.fields[field]
+                target_obj = base_obj.__getattr__(field)
+                if inspect.isclass(target_class):
+                    if issubclass(target_class,obj.__class__) and target_obj.get_uid() == obj.get_uid():
+                        mentions.append(target_obj)
+                    if issubclass(target_class,YamlObjectMapper):
+                        mentions.extend(self.find_links_to(obj,target_obj))
+                elif isinstance(target_class,CollectionOfYamlObjects) or isinstance(target_class,ListResolver):
+                    mentions.extend(self.find_links_to(obj,target_obj))
+        elif isinstance(base_obj, list):
+            mentions.extend(reduce(lambda x,y: x+y,map(lambda x: self.find_links_to(obj,x),base_obj),[]))
+        elif isinstance(base_obj, dict):
+            mentions.extend(reduce(lambda x, y: x + y, map(lambda x: self.find_links_to(obj, x), base_obj.values()), []))
+        return mentions
 
     def get_policies(self):
         return  self.authz.policies
