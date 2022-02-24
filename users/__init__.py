@@ -182,16 +182,28 @@ class Resource(YamlObjectMapper):
         self.name = None
         self.description = None
         self.subresources = None
+        self.parent = None
         super().__init__(data, context)
 
     def get_uid(self):
-        return self.name
+        return self.get_path()
+
+    def resolve_attrs(self):
+        super().resolve_attrs()
+        for sr in self.subresources:
+            sr.parent = self
+
+    def get_path(self):
+        if self.parent == None:
+            return ''
+        else:
+            return self.parent.get_path() + "/" + self.name
 
     def get_resources(self):
         return self.subresources
 
     def get_resource(self, name):
-        f = list(filter(lambda x: x.get_uid() == name, self.get_resources()))
+        f = list(filter(lambda x: x.name == name, self.get_resources()))
         if len(f) ==1:
             return f[0]
         return KeyError(name)
@@ -403,7 +415,7 @@ class UserYaml(YamlObjectMapper):
         return self.authz.resources
 
     def get_resource(self, name):
-        f = list(filter(lambda x: x.get_uid() == name, self.authz.resources))
+        f = list(filter(lambda x: x.name == name, self.authz.resources))
         if len(f) == 1:
             return f[0]
         else:
