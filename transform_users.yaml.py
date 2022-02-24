@@ -274,7 +274,9 @@ def add_ldap_users(uyml, server, user, password, search_dn):
     conn = Connection(server, user, password,read_only=True, client_strategy=SAFE_SYNC, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
     print("Connected, querying")
     status, result, response, _ = conn.search(search_dn, '(objectclass=voPerson)',attributes=ldap3.ALL_ATTRIBUTES)
-    print("Query finished")
+    if not status:
+        print(f"Query failsed: {result}")
+        exit(-1)
     for ldap_user in response:
         if "voPersonApplicationUID;app-gen3" not in ldap_user['raw_attributes']:
             continue
@@ -309,10 +311,10 @@ if __name__ == "__main__":
     args.ldap_password=os.environ.get("LDAP_PASSWORD")
     args.ldap_user=os.environ.get("LDAP_USER")
 
-    if args.ldap_password == "":
+    if args.ldap_password == "" or args.ldap_password is None:
         print("In order to login into the LDAP server you need to define LDAP_PASSWORD as environment variable")
         exit(-1)
-    if args.ldap_user == "":
+    if args.ldap_user == "" or args.ldap_user is None:
         print("In order to login into the LDAP server you need to define LDAP_USER as environment variable")
         exit(-1)
 
