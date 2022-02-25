@@ -119,7 +119,7 @@ def replace_values(sim_data, table):
                 item[row['property']] = new_value
 
 
-def write_dummy_seq_files(sim_data, dict_name):
+def write_dummy_seq_files(sim_data, dict_name, copy_files):
     """
     Big ugly method to generate dummy files with appropriate template and other metadata fields. All files are copies
     of the relevant file in `file_type_templates`.
@@ -127,11 +127,12 @@ def write_dummy_seq_files(sim_data, dict_name):
     :param dict_name:
     :return:
     """
-    cwd = os.getcwd()
-    write_dir = os.path.join(cwd, "dummy_files", dict_name)
-    script_path = os.path.abspath(os.path.dirname(__file__))
-    if not os.path.exists(write_dir):
-        os.makedirs(write_dir)
+    if copy_files:
+        cwd = os.getcwd()
+        write_dir = os.path.join(cwd, "dummy_files", dict_name)
+        script_path = os.path.abspath(os.path.dirname(__file__))
+        if not os.path.exists(write_dir):
+            os.makedirs(write_dir)
 
     index_files = []
     for seq_file, sample, cmc in zip(sim_data['sequencing_file'], sim_data['sample'],
@@ -142,92 +143,94 @@ def write_dummy_seq_files(sim_data, dict_name):
             seq_file['samples'] = {'submitter_id': sample['submitter_id']}
         if 'core_metadata_collections' not in seq_file.keys():
             seq_file['core_metadata_collections'] = {'submitter_id': cmc['submitter_id']}
-        if seq_file['data_format'] in ['cram', 'crai']:
-            dummy_file_name = "dummy_cram.cram"
-            if seq_file['data_format'] == "crai":
-                seq_file['data_format'] = "cram"
-            seq_file['file_name'] = f"{seq_file['file_name']}.cram"
-            seq_file['data_type'] = "aligned reads"
-            seq_file['data_category'] = "sequencing reads"
-            seq_file['sequencing_assay'] = "WES"
-            # add the index file
-            index_seq_file = copy.deepcopy(seq_file)
-            index_seq_file['data_format'] = "crai"
-            dummy_index_file_name = f"{dummy_file_name}.crai"
-            index_seq_file['file_name'] = f"{index_seq_file['file_name']}.crai"
-            index_seq_file['submitter_id'] = f"sequencing_file_{generate_random_string(10)}"
-            cmc = {
-                "contributor": generate_random_string(10),
-                "coverage": generate_random_string(10),
-                "creator": generate_random_string(10),
-                "projects": {
-                    "code": sim_data['project']['code']
-                },
-                "source": generate_random_string(10),
-                "submitter_id": f"core_metadata_collection_{generate_random_string(10)}",
-                "title": generate_random_string(10),
-                "type": "core_metadata_collection"
-            }
-            sim_data['core_metadata_collection'].append(cmc)
-        elif seq_file['data_format'] == "VCF":
-            dummy_file_name = "dummy_vcf.vcf.gz"
-            seq_file['file_name'] = f"{seq_file['file_name']}.vcf.gz"
-            seq_file['data_type'] = "variants annotation"
-            seq_file['data_category'] = "single nucleotide variation"
-            seq_file['sequencing_assay'] = "SNP Chip"
-        elif seq_file['data_format'] == "fastq":
-            dummy_file_name = "dummy_fastq.fastq.gz"
-            seq_file['file_name'] = f"{seq_file['file_name']}.fastq.gz"
-            seq_file['data_type'] = "unaligned reads"
-            seq_file['data_category'] = "sequencing reads"
-            seq_file['sequencing_assay'] = "WES"
-        elif seq_file['data_format'] in ['bam', 'bai']:
-            if seq_file['data_format'] == 'bai':
-                seq_file['data_format'] = "bam"
-            dummy_file_name = "dummy_bam.bam"
-            seq_file['file_name'] = f"{seq_file['file_name']}.bam"
-            seq_file['data_type'] = "aligned reads"
-            seq_file['data_category'] = "sequencing reads"
-            seq_file['sequencing_assay'] = "WES"
-            # add index file
-            index_seq_file = copy.deepcopy(seq_file)
-            index_seq_file['data_format'] = "bai"
-            dummy_index_file_name = "dummy_bam.bam.bai"
-            index_seq_file['file_name'] = f"{index_seq_file['file_name']}.bai"
-            index_seq_file['submitter_id'] = f"sequencing_file_{generate_random_string(10)}"
-            # add cmc file
-            cmc = {
-                "contributor": generate_random_string(10),
-                "coverage": generate_random_string(10),
-                "creator": generate_random_string(10),
-                "projects": {
-                    "code": sim_data['project']['code']
-                },
-                "source": generate_random_string(10),
-                "submitter_id": f"core_metadata_collection_{generate_random_string(10)}",
-                "title": generate_random_string(10),
-                "type": "core_metadata_collection"
-            }
-            sim_data['core_metadata_collection'].append(cmc)
+        if copy_files:
+            if seq_file['data_format'] in ['cram', 'crai']:
+                dummy_file_name = "dummy_cram.cram"
+                if seq_file['data_format'] == "crai":
+                    seq_file['data_format'] = "cram"
+                seq_file['file_name'] = f"{seq_file['file_name']}.cram"
+                seq_file['data_type'] = "aligned reads"
+                seq_file['data_category'] = "sequencing reads"
+                seq_file['sequencing_assay'] = "WES"
+                # add the index file
+                index_seq_file = copy.deepcopy(seq_file)
+                index_seq_file['data_format'] = "crai"
+                dummy_index_file_name = f"{dummy_file_name}.crai"
+                index_seq_file['file_name'] = f"{index_seq_file['file_name']}.crai"
+                index_seq_file['submitter_id'] = f"sequencing_file_{generate_random_string(10)}"
+                cmc = {
+                    "contributor": generate_random_string(10),
+                    "coverage": generate_random_string(10),
+                    "creator": generate_random_string(10),
+                    "projects": {
+                        "code": sim_data['project']['code']
+                    },
+                    "source": generate_random_string(10),
+                    "submitter_id": f"core_metadata_collection_{generate_random_string(10)}",
+                    "title": generate_random_string(10),
+                    "type": "core_metadata_collection"
+                }
+                sim_data['core_metadata_collection'].append(cmc)
+            elif seq_file['data_format'] == "VCF":
+                dummy_file_name = "dummy_vcf.vcf.gz"
+                seq_file['file_name'] = f"{seq_file['file_name']}.vcf.gz"
+                seq_file['data_type'] = "variants annotation"
+                seq_file['data_category'] = "single nucleotide variation"
+                seq_file['sequencing_assay'] = "SNP Chip"
+            elif seq_file['data_format'] == "fastq":
+                dummy_file_name = "dummy_fastq.fastq.gz"
+                seq_file['file_name'] = f"{seq_file['file_name']}.fastq.gz"
+                seq_file['data_type'] = "unaligned reads"
+                seq_file['data_category'] = "sequencing reads"
+                seq_file['sequencing_assay'] = "WES"
+            elif seq_file['data_format'] in ['bam', 'bai']:
+                if seq_file['data_format'] == 'bai':
+                    seq_file['data_format'] = "bam"
+                dummy_file_name = "dummy_bam.bam"
+                seq_file['file_name'] = f"{seq_file['file_name']}.bam"
+                seq_file['data_type'] = "aligned reads"
+                seq_file['data_category'] = "sequencing reads"
+                seq_file['sequencing_assay'] = "WES"
+                # add index file
+                index_seq_file = copy.deepcopy(seq_file)
+                index_seq_file['data_format'] = "bai"
+                dummy_index_file_name = "dummy_bam.bam.bai"
+                index_seq_file['file_name'] = f"{index_seq_file['file_name']}.bai"
+                index_seq_file['submitter_id'] = f"sequencing_file_{generate_random_string(10)}"
+                # add cmc file
+                cmc = {
+                    "contributor": generate_random_string(10),
+                    "coverage": generate_random_string(10),
+                    "creator": generate_random_string(10),
+                    "projects": {
+                        "code": sim_data['project']['code']
+                    },
+                    "source": generate_random_string(10),
+                    "submitter_id": f"core_metadata_collection_{generate_random_string(10)}",
+                    "title": generate_random_string(10),
+                    "type": "core_metadata_collection"
+                }
+                sim_data['core_metadata_collection'].append(cmc)
 
-        if dummy_file_name:
-            shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_file_name),
-                            os.path.join(write_dir, seq_file["file_name"]))
-        if dummy_index_file_name:
-            shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_index_file_name),
-                            os.path.join(write_dir, index_seq_file['file_name']))
-            index_seq_file['core_metadata_collections'] = {'submitter_id': cmc['submitter_id']}
-            index_files.append(index_seq_file)
-    sim_data['sequencing_file'] = [*sim_data['sequencing_file'], *index_files]
+            if dummy_file_name:
+                shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_file_name),
+                                os.path.join(write_dir, seq_file["file_name"]))
+            if dummy_index_file_name:
+                shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_index_file_name),
+                                os.path.join(write_dir, index_seq_file['file_name']))
+                index_seq_file['core_metadata_collections'] = {'submitter_id': cmc['submitter_id']}
+                index_files.append(index_seq_file)
+        sim_data['sequencing_file'] = [*sim_data['sequencing_file'], *index_files]
 
 
-def write_dummy_lipid_files(sim_data, dict_name):
+def write_dummy_lipid_files(sim_data, dict_name, copy_files):
     cwd = os.getcwd()
-    write_dir = os.path.join(cwd, "dummy_files", dict_name)
-    script_path = os.path.abspath(os.path.dirname(__file__))
-    dummy_lipids_file = "dummy_lipids.csv"
-    if not os.path.exists(write_dir):
-        os.makedirs(write_dir)
+    if copy_files:
+        write_dir = os.path.join(cwd, "dummy_files", dict_name)
+        script_path = os.path.abspath(os.path.dirname(__file__))
+        dummy_lipids_file = "dummy_lipids.csv"
+        if not os.path.exists(write_dir):
+            os.makedirs(write_dir)
     for lipid_file, sample in zip(sim_data['lipidomics_file'], sim_data['sample']):
         if 'samples' not in lipid_file.keys():
             lipid_file['samples'] = {'submitter_id': sample['submitter_id']}
@@ -252,8 +255,9 @@ def write_dummy_lipid_files(sim_data, dict_name):
         lipid_file['mass_spectrometry_type'] = "LC-MS"
         lipid_file['lipid_extraction_method'] = "SIMS"
         lipid_file['file_name'] = f"{lipid_file['file_name']}.csv"
-        shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_lipids_file),
-                        os.path.join(write_dir, lipid_file['file_name']))
+        if copy_files:
+            shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_lipids_file),
+                            os.path.join(write_dir, lipid_file['file_name']))
 
 
 def _write_files(sim_data, dict_name):
@@ -284,14 +288,10 @@ def main():
         name = os.path.basename(os.path.split(args.path)[0])
     else:
         name = args.name
-    if args.dummy_seq_files:
-        print("writing dummy seq files...")
-        write_dummy_seq_files(simulated_data, name)
-        print("done.")
-    if args.dummy_lipid_files:
-        print("writing dummy lipid files...")
-        write_dummy_lipid_files(simulated_data, name)
-        print("done.")
+    write_dummy_seq_files(simulated_data, name, args.dummy_seq_files)
+    print("done with seq files.")
+    write_dummy_lipid_files(simulated_data, name, args.dummy_lipid_files)
+    print("done with lipid files.")
     print("writing metadata jsons to file")
     _write_files(simulated_data, name)
     print("all done.")

@@ -23,7 +23,7 @@ def parse_arguments():
                         help="The name of your gen3-client profile, required for uploading data files to the portal.")
     parser.add_argument("--numparallel", action="store", default=2,
                         help="how many cores to use for uploading in parallel")
-    parser.add_argument("--add_subjects", action="store_true",
+    parser.add_argument("--add_subjects", action="store_true", default=False,
                         help="If specified, will skip program and project creation and will add nodes from subjects "
                              "onwards")
     return parser.parse_args()
