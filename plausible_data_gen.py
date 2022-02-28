@@ -32,7 +32,7 @@ def parse_arguments():
                         help="If specified, dummy text files will be generated for data_files.")
     parser.add_argument('--dummy-lipid-files', action='store_true', default=False, required=False,
                         help="Specify the type seq file to generate")
-    parser.add_argument('--num-files', action="store",
+    parser.add_argument('--num-files', action="store", type=int,
                         help="Specify a limit on the number of dummy files to generate per file type object.")
     args = parser.parse_args()
     return args
