@@ -17,13 +17,13 @@ def parse_arguments():
     parser.add_argument("--projects", nargs="*", default=["AusDiab", "FIELD", "BioHEART-CT"],
                         help="The names of the specific projects, space-delimited, which are sub-folders of the "
                              "--folder provided")
-    parser.add_argument("--delete_all_metadata", action="store_true",
+    parser.add_argument("--delete-all-metadata", action="store_true",
                         help="If specified, will delete all node metadata below the project level in order.")
     parser.add_argument("--profile", action="store",
                         help="The name of your gen3-client profile, required for uploading data files to the portal.")
     parser.add_argument("--numparallel", action="store", default=2,
                         help="how many cores to use for uploading in parallel")
-    parser.add_argument("--add_subjects", action="store_true", default=False,
+    parser.add_argument("--add-subjects", action="store_true", default=False,
                         help="If specified, will skip program and project creation and will add nodes from subjects "
                              "onwards")
     return parser.parse_args()
@@ -84,7 +84,11 @@ if __name__ == "__main__":
 
         for line in open(os.path.join(folder, project, "DataImportOrder.txt"), "r"):
             line = line.strip()
-            if line != "program" and line != "project":
+            if args.add_subjects:
+                skip_objects = ["program", "project", "acknowledgement", "publication"]
+            else:
+                skip_objects = ["program", "project"]
+            if line not in skip_objects:
                 print(f"uploading {line}")
                 jsn = json.load(open(os.path.join(folder, project, "edited_jsons", f"{line}.json")))
                 if line.endswith("file"):
