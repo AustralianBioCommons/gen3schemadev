@@ -219,7 +219,7 @@ def create_yaml_from_template():
     uyml.authz.policies=policies
     users=dict((map(lambda x:(x[0],User(x[0],x[1],uyml)),USERS)))
     uyml.users=users
-    uyml.authz.all_users_policies=list(filter(lambda x: x.get_uid() in ["program1_test1"],uyml.get_policies()))
+    uyml.authz.all_users_policies=list(filter(lambda x: x.get_uid() in ["program1_test1","access_workspace"],uyml.get_policies()))
 
 
     groups=[]
