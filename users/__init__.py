@@ -118,7 +118,7 @@ class YamlObjectMapper:
         """
         return self.id
 
-    def __resolve_attrs(self):
+    def _resolve_attrs(self):
         """
         this function is called internally to finalize the construction of objects from data dicts.
         :return:
@@ -126,11 +126,11 @@ class YamlObjectMapper:
         for k in self.data:
             dat = self.__getattr__(k)
             if isinstance(dat, list):
-                list(map(lambda x: x.__resolve_attrs() if isinstance(x, YamlObjectMapper) else None, dat))
+                list(map(lambda x: x._resolve_attrs() if isinstance(x, YamlObjectMapper) else None, dat))
             if isinstance(dat, dict):
-                list(map(lambda x: x.__resolve_attrs() if isinstance(x, YamlObjectMapper) else None, dat.values()))
+                list(map(lambda x: x._resolve_attrs() if isinstance(x, YamlObjectMapper) else None, dat.values()))
             if isinstance(dat, YamlObjectMapper):
-                dat.__resolve_attrs()
+                dat._resolve_attrs()
 
 
 class ListResolver:
@@ -267,7 +267,7 @@ class Resource(YamlObjectMapper):
         """
         return self.get_path()
 
-    def __resolve_attrs(self):
+    def _resolve_attrs(self):
         """hook into resolve atters and propagate the subresource tree, so that the eleements are aware of their parent."""
         super().__resolve_attrs()
         for sr in self.subresources:
@@ -428,7 +428,7 @@ class UserYaml(YamlObjectMapper):
         self.clients = None
         self.users = None
         super().__init__(data, self)
-        self.__resolve_attrs()
+        self._resolve_attrs()
 
     def resolve(self, obj, l):
         objs = None
