@@ -4,8 +4,8 @@ CURRENT_DIR=`pwd`
 UMCCR_SCHEMA_INSTALLATION=${HOME}/Documents/GitHub/umccr-dictionary
 SCHEMADEV_INSTALLATION=${HOME}/Documents/GitHub/gen3schemadev
 COMPOSE_SERVICES_INSTALLATION=${HOME}/Documents/GitHub/uwe-compose-services/compose-services
-projects=("AusDiab" "FIELD" "BioHEART-CT")
-num_samples=5
+projects=("test1")
+num_samples=10
 gen3_profile=marion_acva
 
 echo "removing old schemas"
@@ -28,7 +28,7 @@ make test dd=cad project=sim samples=10
 make validate dd=cad project=sim samples=10
 make compile dd=cad project=sim samples=10
 # make a small project for testing local setup
-make simulate dd=cad project=jenkins samples=10
+#make simulate dd=cad project=jenkins samples=10
 
 for i in "${projects[@]}"; do
   echo $i
@@ -95,7 +95,7 @@ done
 for project in "${projects[@]}"; do
   echo "Substituting metadata values and uploading metadata and files to the portal for project "$project
   export this_project=$project
-	ssh -i ${HOME}/.ssh/gen3-management.pem ubuntu@$ec2_home "source ~/.bash_profile; cd ~/data/cad/$this_project; python3 ~/gen3schemadev/plausible_data_gen.py --gurl https://docs.google.com/spreadsheets/d/1AX9HLzIV6wtkVylLkwOr3kdKDaZf4ukeYACTJ7lYngk/edit#gid=1400179124 --path . --dummy-seq-files --dummy-lipid-files; python3 ~/gen3schemadev/datas_submittor.py --folder ~/data/cad --projects $this_project --profile $gen3_profile; rm -r ~/data/cad/$this_project/dummy_files"
+	ssh -i ${HOME}/.ssh/gen3-management.pem ubuntu@$ec2_home "source ~/.bash_profile; cd ~/data/cad/$this_project; python3 ~/gen3schemadev/plausible_data_gen.py --gurl https://docs.google.com/spreadsheets/d/1AX9HLzIV6wtkVylLkwOr3kdKDaZf4ukeYACTJ7lYngk/edit#gid=1400179124 --path . --dummy-seq-files --dummy-lipid-files ; python3 ~/gen3schemadev/datas_submittor.py --folder ~/data/cad --projects $this_project --profile $gen3_profile ; rm -r ~/data/cad/$this_project/dummy_files"
 done
 
 echo "data and metadata uploaded."

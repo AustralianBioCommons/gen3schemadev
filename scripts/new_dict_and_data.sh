@@ -3,8 +3,8 @@ CURRENT_DIR=`pwd`
 UMCCR_SCHEMA_INSTALLATION=${HOME}/Documents/GitHub/umccr-dictionary
 SCHEMADEV_INSTALLATION=${HOME}/Documents/GitHub/gen3schemadev
 COMPOSE_SERVICES_INSTALLATION=${HOME}/Documents/GitHub/uwe-compose-services/compose-services
-projects=("AusDiab" "FIELD" "BioHEART-CT")
-num_samples=100
+projects=("AusDiab" "FIELD" "BioHEART-CT" "test1")
+num_samples=10
 profile=marion_acva
 
 echo "removing old schemas"
