@@ -99,12 +99,15 @@ if __name__ == "__main__":
                             file_md['md5sum'] = indexed_file['hashes']['md5']
                             file_md['file_size'] = indexed_file['size']
                         except KeyError as e:
+                            print(e)
                             print(f"{file_md['file_name']} data file not yet uploaded")
                         except requests.exceptions.HTTPError as e:
+                            print(e)
                             content = e.response.content
                             print(f"{file_md['file_name']} data file not yet uploaded")
                             pass
                         except TypeError as e:
+                            print(e)
                             print(f"{file_md['file_name']} data file not yet uploaded")
                 try:
                     sub.submit_record("program1", project, jsn)
