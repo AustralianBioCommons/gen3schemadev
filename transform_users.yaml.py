@@ -31,6 +31,7 @@ RESOURCES = [OrderedDict({'name': 'sower'}),
                           {'name': 'AusDiab'},
                           {'name': 'FIELD'},
                           {'name': 'BioHEART-CT'},
+                          {'name': "AusDiabSim"},
                           {'name': 'test1'},
                           {'name': 'test2'},
                           {"name": "test3"}]}
@@ -144,6 +145,12 @@ POLICIES=[{'id': 'access_workspace','description': 'be able to use workspace',
                '/programs/program1/projects/BioHEART-CT'
            ]
            },
+          {'id': 'program1_ausdiabsim',
+           'role_ids': ['creator', 'reader', 'updater', 'deleter', 'storage_writer', 'storage_reader'],
+           'resource_paths': [
+               '/programs/program1/projects/AusDiabSim'
+           ]
+           },
           {'id': 'program1_test1',
            'role_ids': ['creator', 'reader', 'updater', 'deleter', 'storage_writer', 'storage_reader'],
            'resource_paths': [
@@ -243,7 +250,8 @@ def create_yaml_from_template():
         "program1_ausdiab",
         "program1_field",
         "program1_bioheart_ct",
-        "program1_test1"],uyml.get_policies()))
+        "program1_test1",
+        "program1_ausdiabsim"],uyml.get_policies()))
     group.users=list(uyml.get_users().values())
     groups.append(group)
 
@@ -253,7 +261,7 @@ def create_yaml_from_template():
     group.users=list(uyml.get_users().values())
     groups.append(group)
 
-    for study in ["program1_simulated","program1_simulated2","program1_ausdiab","program1_field","program1_bioheart_ct","program1_test1"]:
+    for study in ["program1_simulated","program1_simulated2","program1_ausdiab","program1_field","program1_bioheart_ct","program1_test1","program1_ausdiabsim"]:
         group = Group({}, uyml)
         group.name = study
         group.policies = list(filter(lambda x: x.get_uid() in [study], uyml.get_policies()))
