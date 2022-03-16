@@ -75,9 +75,9 @@ def _upload_metadata_files(jsons_dict):
     sub = Gen3Submission(endpoint=endpoint, auth_provider=auth)
     upload_order = list(jsons_dict.keys())
     for node in upload_order:
-        if node in ["subject", "demographic", "laboratory_result", "exposure", "sample", "core_metadata_collection",
-                    "medical_history"]:
-            continue
+        # if node in ["subject", "demographic", "laboratory_result", "exposure", "sample", "core_metadata_collection",
+        #             "medical_history"]:
+        #     continue
         print(f"Uploading {node} metadata.")
         # find batch_size
         full_list_len = len(jsons_dict[node])
