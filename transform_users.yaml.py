@@ -85,7 +85,7 @@ ROLES=[{'id': 'upload_files', 'permissions': [
 
 POLICIES=[{'id': 'access_workspace','description': 'be able to use workspace',
            'role_ids': ['access_workspace'],
-           'resource_paths': ['/workspace', '/sower']},
+           'resource_paths': ['/workspace']},
           {'id': 'data_upload','description': 'upload raw data files to S3',
            'role_ids': ['upload_files'],
            'resource_paths': ['/data_file']},
@@ -187,7 +187,7 @@ def create_yaml_from_template():
     uyml.authz.policies=policies
     users=dict((map(lambda x:(x[0],User(x[0],x[1],uyml)),USERS)))
     uyml.users=users
-    uyml.authz.all_users_policies=list(filter(lambda x: x.get_uid() in ["program1_test1","access_workspace"],uyml.get_policies()))
+    uyml.authz.all_users_policies=list(filter(lambda x: x.get_uid() in ["program1_test1","access_workspace",'sower_user'],uyml.get_policies()))
 
 
     groups=[]
