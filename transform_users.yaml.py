@@ -85,7 +85,7 @@ ROLES=[{'id': 'upload_files', 'permissions': [
 
 POLICIES=[{'id': 'access_workspace','description': 'be able to use workspace',
            'role_ids': ['access_workspace'],
-           'resource_paths': ['/workspace']},
+           'resource_paths': ['/workspace', '/sower']},
           {'id': 'data_upload','description': 'upload raw data files to S3',
            'role_ids': ['upload_files'],
            'resource_paths': ['/data_file']},
