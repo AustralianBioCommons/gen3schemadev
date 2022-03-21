@@ -171,46 +171,7 @@ POLICIES=[{'id': 'access_workspace','description': 'be able to use workspace',
            },
           ]
 
-USERS=[('uwwint@gmail.com',
-  {'tags': OrderedDict([('name', 'Uwe Winter')]), 'policies': []}),
- ('uwe@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Uwe Winter')]), 'policies': []}),
- ('marion@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Marion Shadbolt')]), 'policies': []}),
- ('bernie@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Bernie Pope')]), 'policies': []}),
- ('tungvnguyen729@gmail.com',
-  {'tags': OrderedDict([('name', 'Tung Nguyen')]), 'policies': []}),
- ('jeanyusyd@gmail.com',
-  {'tags': OrderedDict([('name', 'Jean Yang')]), 'policies': []}),
- ('steven@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Steven Manos')]), 'policies': []}),
- ('jeff@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Jeff Christiansen')]), 'policies': []}),
- ('jess@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Jess Holliday')]), 'policies': []}),
- ('christina@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Christina Hall')]), 'policies': []}),
- ('melissa@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Melissa Burke')]), 'policies': []}),
- ('andrew@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Andrew Lonie')]), 'policies': []}),
- ('nigel@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Nigel Ward')]), 'policies': []}),
- ('rhys@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Rhys Francis')]), 'policies': []}),
- ('sarah@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Sarah Nisbet')]), 'policies': []}),
- ('tiff@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Tiff Nelson')]), 'policies': []}),
- ('johan@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Johan Gustaffson')]), 'policies': []}),
- ('fiona@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Fiona Kerr')]), 'policies': []}),
- ('pmeikle60@gmail.com',
-  {'tags': OrderedDict([('name', 'Peter Meikle')]), 'policies': []}),
- ('farah@biocommons.org.au',
-  {'tags': OrderedDict([('name', 'Farah Khan')]), 'policies': []})]
+USERS=[]
 
 def create_yaml_from_template():
     uyml = UserYaml({})
@@ -226,20 +187,20 @@ def create_yaml_from_template():
     uyml.authz.policies=policies
     users=dict((map(lambda x:(x[0],User(x[0],x[1],uyml)),USERS)))
     uyml.users=users
-    uyml.authz.all_users_policies=list(filter(lambda x: x.get_uid() in ["program1_test1","access_workspace"],uyml.get_policies()))
+    uyml.authz.all_users_policies=list(filter(lambda x: x.get_uid() in ["program1_test1","access_workspace",'sower_user'],uyml.get_policies()))
 
 
     groups=[]
     group=Group({},uyml)
     group.name="data_uploader"
     group.policies=list(filter(lambda x: x.get_uid() in ["data_upload","program_project_admin","metadata_service_user"],uyml.get_policies()))
-    group.users=list(filter(lambda x: x.get_uid() in ["uwe@biocommons.org.au","marion@biocommons.org.au"],uyml.get_users().values()))
+    group.users=[]
     groups.append(group)
 
     group=Group({},uyml)
     group.name="indexd_admin"
     group.policies=list(filter(lambda x: x.get_uid() in ["indexd_admin"],uyml.get_policies()))
-    group.users=list(filter(lambda x: x.get_uid() in ["uwe@biocommons.org.au","marion@biocommons.org.au"],uyml.get_users().values()))
+    group.users=[]
     groups.append(group)
 
     group=Group({},uyml)
@@ -252,13 +213,13 @@ def create_yaml_from_template():
         "program1_bioheart_ct",
         "program1_test1",
         "program1_ausdiabsim"],uyml.get_policies()))
-    group.users=list(uyml.get_users().values())
+    group.users=[]
     groups.append(group)
 
     group=Group({},uyml)
     group.name="workspace_user"
     group.policies=list(filter(lambda x: x.get_uid() in ["access_workspace","access_sower"],uyml.get_policies()))
-    group.users=list(uyml.get_users().values())
+    group.users=[]
     groups.append(group)
 
     for study in ["program1_simulated","program1_simulated2","program1_ausdiab","program1_field","program1_bioheart_ct","program1_test1","program1_ausdiabsim"]:
