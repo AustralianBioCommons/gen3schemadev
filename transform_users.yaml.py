@@ -211,9 +211,7 @@ def create_yaml_from_template():
         "program1_ausdiab",
         "program1_field",
         "program1_bioheart_ct",
-        "program1_test1",
-        "program1_test2",
-        "program1_test3",
+        "program1_test1"
         "program1_ausdiabsim"],uyml.get_policies()))
     group.users=[]
     groups.append(group)
@@ -224,7 +222,7 @@ def create_yaml_from_template():
     group.users=[]
     groups.append(group)
 
-    for study in ["program1_simulated","program1_simulated2","program1_ausdiab","program1_field","program1_bioheart_ct","program1_test1","program1_ausdiabsim"]:
+    for study in ["program1_simulated","program1_simulated2","program1_ausdiab","program1_field","program1_bioheart_ct","program1_test1","program1_test2","program1_test3","program1_ausdiabsim"]:
         group = Group({}, uyml)
         group.name = study
         group.policies = list(filter(lambda x: x.get_uid() in [study], uyml.get_policies()))
