@@ -212,6 +212,8 @@ def create_yaml_from_template():
         "program1_field",
         "program1_bioheart_ct",
         "program1_test1",
+        "program1_test2",
+        "program1_test3",
         "program1_ausdiabsim"],uyml.get_policies()))
     group.users=[]
     groups.append(group)
