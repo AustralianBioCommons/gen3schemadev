@@ -13,7 +13,7 @@ metadata = Gen3Metadata(auth)
 sub = Gen3Submission(auth)
 query_obj = Gen3Query(auth)
 
-flat_query = '{ project(accessibility: accessible) { name, full_name, code, _subjects_count, _sequencing_files_count, _lipidomics_files_count }}'
+flat_query = '{ project(accessibility: accessible) { name, full_name, code, data_access_url, _subjects_count, _sequencing_files_count, _lipidomics_files_count }}'
 flat_query_response = query_obj.graphql_query(flat_query)
 flat_dict = {x['code']: x for x in flat_query_response['data']['project']}
 
@@ -30,6 +30,7 @@ for project in project_info['data']['project']:
                                         "gen3_discovery": {"id": project['id'],
                                                            "code": project['code'],
                                                            "name": project['name'],
+                                                           "data_access_url": flat_dict[project['code']]['data_access_url'],
                                                            "project_description": project["project_description"],
                                                            "subjects_count": flat_dict[project['code']]['_subjects_count'],
                                                            "sequencing_files_count": flat_dict[project['code']]['_sequencing_files_count'],
@@ -78,5 +79,7 @@ for project in project_info['data']['project']:
 
 for k, v in summarised_dict.items():
     metadata.create(v['gen3_discovery']['id'], v, overwrite=True)
+
+# TODO: clean up any deleted projects:
 
 print(f"--- {str(time.time() - start_time)} seconds ---")
