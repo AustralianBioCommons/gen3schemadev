@@ -116,12 +116,15 @@ if __name__ == "__main__":
 
     bundle.dump("schema_out/")
 
-    #import networkx as nx
-    #columns=[]
-    #for object_name in list(nx.bfs_tree(g,"program")):
-    #obj = bundle.getObjectByID(object_name)
-    #req = a.get_required()
-    #columns.append((object_name,"object"))
-    #for attr in obj.get_properties():
-    #    if attr not in req and attr != '$ref':
-    #        columns.append((attr,"Attribute"))
+    # import networkx as nx
+    # g=bundle.getDependencyGraph()
+    # columns=[]
+    # for object_name in list(nx.bfs_tree(g,"program")):
+    #     if object_name in ["program","project"]:
+    #         continue
+    #     obj = bundle.getObjectByID(object_name)
+    #     req = obj.get_required()
+    #     columns.append((object_name,"object"))
+    #     for attr in obj.get_properties():
+    #         if attr not in req and attr not in ['$ref',"id","type","authz","consent_codes"]:
+    #             columns.append((attr,"Attribute"))
