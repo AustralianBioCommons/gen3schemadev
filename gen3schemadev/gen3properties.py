@@ -56,6 +56,19 @@ class Gen3Property(Gen3WrapObject):
         return self.data["termDef"]
 
 
+class Gen3DefinitionProperty(Gen3Property):
+    def __init__(self, name, ref):
+        super().__init__(name)
+        self.data["$ref"] = ref
+        null_values = []
+        for k, v in self.data.items():
+            if not v:
+                null_values.append(k)
+        for k in null_values:
+            del self.data[k]
+        del self.data['termDef']
+
+
 class Gen3DatetimeProperty(Gen3Property):
     def __init__(self, name, description="", termdef=None, source=None, term_id=None, term_version=None):
         super().__init__(name, description, termdef, source, term_id, term_version)
@@ -138,6 +151,36 @@ class Gen3String(Gen3JsonProperty):
 class Gen3Boolean(Gen3JsonProperty):
     def __init__(self, name, description="", termdef=None, source=None, term_id=None, term_version=None):
         super().__init__(name, "boolean", description, termdef, source, term_id, term_version)
+
+
+class Gen3Array(Gen3JsonProperty):
+    def __init__(self, name, description, items_type, pattern=None, termdef=None, source=None,
+                 term_id=None, term_version=None):
+        super().__init__(name, "array", description, termdef, source, term_id, term_version)
+        self.data['items'] = items_type
+        if self.data['items'] == "enum":
+            enum_dict = {"enum": []}
+            self.data['items'] = enum_dict
+        if pattern:
+            self.set_pattern(pattern)
+
+    def get_pattern(self):
+        return self.data.get('pattern')
+
+    def set_pattern(self, pattern):
+        self.data['pattern'] = pattern
+
+    def get_enum_options(self):
+        return self.data['items']['enum'].copy()
+
+    def set_enum_options(self, enum_options):
+        self.data['items']['enum'] = enum_options
+
+    def add_enum_option(self, name):
+        if name not in self.data["items"]["enum"]:
+            self.data["items"]["enum"].append(name)
+        else:
+            raise ValueError(name)
 
 
 class Gen3Enum(Gen3Property):

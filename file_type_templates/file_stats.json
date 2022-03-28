@@ -1,0 +1,30 @@
+{
+    "dummy_bam.bam": {
+        "file_size": 73929997,
+        "md5": "26f7bf48a296bea9391aa84bcc2094c9"
+    },
+    "dummy_bam.bam.bai": {
+        "file_size": 110088,
+        "md5": "931df25a7b4e9f947e017a5147bc43eb"
+    },
+    "dummy_clinical.txt": {
+        "file_size": 939262,
+        "md5": "446ea26c83486de77f07a2a52ed1dfee"
+    },
+    "dummy_cram.cram": {
+        "file_size": 32914430,
+        "md5": "36a9805d17efc696b03fe61d791c07e0"
+    },
+    "dummy_cram.cram.crai": {
+        "file_size": 2605,
+        "md5": "8bb4374137252fd6bf75160b6facfb8e"
+    },
+    "dummy_lipids.csv": {
+        "file_size": 46666,
+        "md5": "d4fbbf20bb932d6b49d42089545661b1"
+    },
+    "dummy_vcf.vcf.gz": {
+        "file_size": 755,
+        "md5": "fc5f258934b7cf9c7d88944d00d21480"
+    }
+}

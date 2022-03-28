@@ -1,0 +1,44 @@
+{
+  "drage_00": {
+    "property_key": "subject.demographic.baseline_age"
+  },
+  "drsex_00_n": {
+    "property_key": "subject.demographic.sex",
+    "enum_map": {
+      "0": "male",
+      "1": "female"
+    }
+  },
+  "bmi_00": {
+    "property_key": "subject.demographic.bmi_baseline"
+  },
+  "chol_00": {
+    "property_key": "subject.laboratory_result.total_cholesterol"
+  },
+  "hdl_00": {
+    "property_key": "subject.laboratory_result.hdl"
+  },
+  "trig_00": {
+    "property_key": "subject.laboratory_result.triglycerides"
+  },
+  "smokstat_00_n": {
+    "property_key": "subject.exposure.smoking_status",
+    "enum_map": {
+      "0": "never",
+      "1": "current"
+    }
+  },
+  "diabstat_00_n": {
+    "property_key": "subject.medical_history.diabetes",
+    "enum_map": {
+      "0": "no",
+      "1": "yes"
+    }
+  },
+  "fbg_00": {
+    "property_key": "subject.laboratory_result.glucose_fasting"
+  },
+  "hba1c_00": {
+    "property_key": "subject.laboratory_result.hba1c_ngsp"
+  }
+}
