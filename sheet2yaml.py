@@ -75,7 +75,9 @@ if __name__ == "__main__":
         # parse property definitions
         object_fields = properties.loc[properties.OBJECT == row.ID]
         for idx, field in object_fields.iterrows():
-            if field.TYPE == "datetime":
+            if field.OBJECT == "deprecated":
+                continue
+            elif field.TYPE == "datetime":
                 g3_obj.add_property(gen3schemadev.Gen3DatetimeProperty(field.VARIABLE_NAME, field.DESCRIPTION))
             elif field.TYPE == "integer":
                 g3_obj.add_property(
