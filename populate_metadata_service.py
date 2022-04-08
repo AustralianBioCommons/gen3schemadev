@@ -13,7 +13,7 @@ metadata = Gen3Metadata(auth)
 sub = Gen3Submission(auth)
 query_obj = Gen3Query(auth)
 
-flat_query = '{ project(accessibility: accessible) { name, full_name, code, data_access_url, _subjects_count, _sequencing_files_count, _lipidomics_files_count }}'
+flat_query = '{ project(accessibility: accessible) { name, full_name, code, data_access_url, _subjects_count, _sequencing_files_count, _lipidomics_files_count, acknowledgees }}'
 flat_query_response = query_obj.graphql_query(flat_query)
 flat_dict = {x['code']: x for x in flat_query_response['data']['project']}
 
@@ -35,6 +35,7 @@ for project in project_info['data']['project']:
                                                            "subjects_count": flat_dict[project['code']]['_subjects_count'],
                                                            "sequencing_files_count": flat_dict[project['code']]['_sequencing_files_count'],
                                                            "lipidomics_files_count": flat_dict[project['code']]['_lipidomics_files_count'],
+                                                           "acknowledgees": flat_dict[project['code']]['acknowledgees'],
                                                            "tags": []},
                                         }
     if summarised_dict[project['code']]['gen3_discovery']['sequencing_files_count'] > 0:
