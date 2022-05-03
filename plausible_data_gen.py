@@ -125,7 +125,7 @@ def replace_values(sim_data, table):
     for index, row in table.iterrows():
         if row['property'] == "baseline_age":
             for item in sim_data[row['object']]:
-                calculated_age = calculate_age(item['year_birth'], item['month_birth'], item['baseline_year'])
+                calculated_age = calculate_age(item['year_birth'], item['month_birth'], 2000)
                 item['baseline_age'] = calculated_age
         if row['property'] == "cigarettes_per_day":
             for item in sim_data[row['object']]:
