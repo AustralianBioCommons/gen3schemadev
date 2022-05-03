@@ -541,6 +541,8 @@ def main():
             del simulated_data[f"{file_type}_assay"]
     if "aligned_reads" in ungenerated_files and "variant" in ungenerated_files:
         del simulated_data['genomics_assay']
+    if "aligned_reads" in ungenerated_files:
+        del simulated_data['aligned_reads_index_file']
 
     print("writing metadata jsons to file")
     del simulated_data['acknowledgement']
