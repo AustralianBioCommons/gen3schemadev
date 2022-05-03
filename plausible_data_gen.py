@@ -209,6 +209,8 @@ def write_dummy_reads_files(sim_data, dict_name, copy_files, num_files):
                 reads_file['data_category'] = "sequencing reads"
                 reads_file['reference_genome_build'] = "GRCh37"
                 index_file['data_format'] = "bai"
+                index_file['data_category'] = "sequencing reads"
+                index_file['data_type'] = "aligned reads"
                 dummy_index_file_name = "dummy_bam.bam.bai"
                 index_file['file_name'] = f"{reads_file['file_name']}.bai"
 
@@ -230,7 +232,7 @@ def write_dummy_reads_files(sim_data, dict_name, copy_files, num_files):
         "submitter_id": "genomics_assay_4ed12374e5",
         "type": "genomics_assay"
     }
-    sim_data['genomics_assay'] = [genomics_assay]
+    sim_data['genomics_assay'].append(genomics_assay)
 
 
 def write_dummy_variant_files(sim_data, dict_name, copy_files, num_files):
@@ -265,6 +267,8 @@ def write_dummy_variant_files(sim_data, dict_name, copy_files, num_files):
         variant_file['data_category'] = "single nucleotide variation"
         variant_file['reference_genome_build'] = "GRCh37"
         variant_file['core_metadata_collections'] = {'submitter_id': variants_cmc}
+        if 'aligned_reads_files' in variant_file.keys():
+            del variant_file['aligned_reads_files']
 
         if copy_files and i < num_files:
             shutil.copyfile(os.path.join(script_path, "file_type_templates", dummy_file_name),
@@ -501,21 +505,43 @@ def main():
     if args.generate_files:
         del simulated_data['core_metadata_collection']
         simulated_data['core_metadata_collection'] = []
-        write_dummy_reads_files(simulated_data, name, args.generate_files,
-                                args.num_files if args.num_files else len(simulated_data['aligned_reads_file']))
-        write_dummy_variant_files(simulated_data, name, args.generate_files,
-                                  args.num_files if args.num_files else len(simulated_data['aligned_reads_file']))
-        print("done with genomics files.")
+        if "aligned_reads" in args.file_types:
+            print("generating aligned reads files")
+            simulated_data['genomics_assay'] = []
+            write_dummy_reads_files(simulated_data, name, args.generate_files,
+                                    args.num_files if args.num_files else len(simulated_data['aligned_reads_file']))
+        if "variant" in args.file_types:
+            print("generating variant files")
+            if len(simulated_data['genomics_assay']) > 1:
+                simulated_data['genomics_assay'] = []
+            write_dummy_variant_files(simulated_data, name, args.generate_files,
+                                      args.num_files if args.num_files else len(simulated_data['aligned_reads_file']))
+        if "lipidomics" in args.file_types:
+            print("generating lipid files")
+            write_dummy_lipid_files(simulated_data, name, args.generate_files,
+                                    args.num_files if args.num_files else len(simulated_data["lipidomics_file"]))
+            print("done with lipid files.")
+        if "metabolomics" in args.file_types:
+            print("generating metabolomics files")
+            write_dummy_metabolomics_files(simulated_data, name, args.generate_files,
+                                           args.num_files if args.num_files else len(simulated_data["metabolomics_file"]))
+        if "proteomics" in args.file_types:
+            print("generating proteomics files")
+            write_dummy_proteomics_files(simulated_data, name, args.generate_files,
+                                         args.num_files if args.num_files else len(simulated_data["proteomics_file"]))
+        if "serum_marker" in args.file_types:
+            print("serum marker files")
+            write_dummy_serum_marker_files(simulated_data, name, args.generate_files,
+                                           args.num_files if args.num_files else len(simulated_data["serum_marker_file"]))
+    full_file_set = set(["aligned_reads", "variant", "metabolomics", "proteomics", "lipidomics", "serum_marker"])
+    ungenerated_files = full_file_set.difference(set(args.file_types))
+    for file_type in ungenerated_files:
+        del simulated_data[f"{file_type}_file"]
+        if f"{file_type}_assay" in simulated_data.keys():
+            del simulated_data[f"{file_type}_assay"]
+    if "aligned_reads" in ungenerated_files and "variant" in ungenerated_files:
+        del simulated_data['genomics_assay']
 
-        write_dummy_lipid_files(simulated_data, name, args.generate_files,
-                                args.num_files if args.num_files else len(simulated_data["lipidomics_file"]))
-        print("done with lipid files.")
-        write_dummy_metabolomics_files(simulated_data, name, args.generate_files,
-                                       args.num_files if args.num_files else len(simulated_data["metabolomics_file"]))
-        write_dummy_proteomics_files(simulated_data, name, args.generate_files,
-                                     args.num_files if args.num_files else len(simulated_data["proteomics_file"]))
-        write_dummy_serum_marker_files(simulated_data, name, args.generate_files,
-                                       args.num_files if args.num_files else len(simulated_data["serum_marker_file"]))
     print("writing metadata jsons to file")
     del simulated_data['acknowledgement']
     del simulated_data['publication']

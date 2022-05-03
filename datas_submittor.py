@@ -87,7 +87,7 @@ if __name__ == "__main__":
             if args.add_subjects:
                 skip_objects = ["program", "project", "acknowledgement", "publication"]
             else:
-                skip_objects = ["program", "project"]
+                skip_objects = ["program", "project", "acknowledgement", "publication"]
             if line not in skip_objects:
                 print(f"uploading {line}")
                 jsn = json.load(open(os.path.join(folder, project, "edited_jsons", f"{line}.json")))
