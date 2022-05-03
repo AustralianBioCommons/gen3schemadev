@@ -90,31 +90,34 @@ if __name__ == "__main__":
                 skip_objects = ["program", "project", "acknowledgement", "publication"]
             if line not in skip_objects:
                 print(f"uploading {line}")
-                jsn = json.load(open(os.path.join(folder, project, "edited_jsons", f"{line}.json")))
-                if line.endswith("file"):
-                    for file_md in jsn:
-                        try:
-                            indexed_file = index.get_with_params({"file_name": file_md['file_name']})
-                            file_md['object_id'] = indexed_file['did']
-                            file_md['md5sum'] = indexed_file['hashes']['md5']
-                            file_md['file_size'] = indexed_file['size']
-                        except KeyError as e:
-                            print(e)
-                            print(f"{file_md['file_name']} data file not yet uploaded")
-                        except requests.exceptions.HTTPError as e:
-                            print(e)
-                            content = e.response.content
-                            print(f"{file_md['file_name']} data file not yet uploaded")
-                            pass
-                        except TypeError as e:
-                            print(e)
-                            print(f"{file_md['file_name']} data file not yet uploaded")
                 try:
-                    sub.submit_record("program1", project, jsn)
-                except requests.exceptions.HTTPError as e:
-                    content = e.response.content
+                    jsn = json.load(open(os.path.join(folder, project, "edited_jsons", f"{line}.json")))
+                    if line.endswith("file"):
+                        for file_md in jsn:
+                            try:
+                                indexed_file = index.get_with_params({"file_name": file_md['file_name']})
+                                file_md['object_id'] = indexed_file['did']
+                                file_md['md5sum'] = indexed_file['hashes']['md5']
+                                file_md['file_size'] = indexed_file['size']
+                            except KeyError as e:
+                                print(e)
+                                print(f"{file_md['file_name']} data file not yet uploaded")
+                            except requests.exceptions.HTTPError as e:
+                                print(e)
+                                content = e.response.content
+                                print(f"{file_md['file_name']} data file not yet uploaded")
+                                pass
+                            except TypeError as e:
+                                print(e)
+                                print(f"{file_md['file_name']} data file not yet uploaded")
                     try:
-                        content = json.dumps(json.loads(content), indent=4, sort_keys=True)
-                    except:
-                        pass
-                    raise requests.exceptions.HTTPError(content,response=e.response)
+                        sub.submit_record("program1", project, jsn)
+                    except requests.exceptions.HTTPError as e:
+                        content = e.response.content
+                        try:
+                            content = json.dumps(json.loads(content), indent=4, sort_keys=True)
+                        except:
+                            pass
+                        raise requests.exceptions.HTTPError(content,response=e.response)
+                except FileNotFoundError as e:
+                    print(f"{line} json not found, skipping")
