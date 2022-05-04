@@ -34,13 +34,17 @@ for project in project_info['data']['project']:
                                         "gen3_discovery": {"id": project['id'],
                                                            "code": project['code'],
                                                            "name": project['name'],
-                                                           "data_access_url": flat_dict[project['code']]['data_access_url'],
+                                                           "data_access_url": flat_dict[project['code']][
+                                                               'data_access_url'],
                                                            "project_description": project["project_description"],
-                                                           "subjects_count": flat_dict[project['code']]['_subjects_count'],
-                                                           "aligned_reads_files_count": flat_dict[project['code']]['_aligned_reads_files_count'],
+                                                           "subjects_count": flat_dict[project['code']][
+                                                               '_subjects_count'],
+                                                           "aligned_reads_files_count": flat_dict[project['code']][
+                                                               '_aligned_reads_files_count'],
                                                            "variant_files_count": flat_dict[project['code']][
                                                                '_variant_files_count'],
-                                                           "lipidomics_files_count": flat_dict[project['code']]['_lipidomics_files_count'],
+                                                           "lipidomics_files_count": flat_dict[project['code']][
+                                                               '_lipidomics_files_count'],
                                                            "metabolomics_files_count": flat_dict[project['code']][
                                                                '_metabolomics_files_count'],
                                                            "proteomics_files_count": flat_dict[project['code']][
