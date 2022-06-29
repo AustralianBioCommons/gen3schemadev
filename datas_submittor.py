@@ -66,7 +66,7 @@ if __name__ == "__main__":
         print(f"Processing project: {project}")
         folder = args.folder
 
-        if not args.only_metadata:
+        if not args.metadata_only:
             if args.profile and os.path.exists(os.path.join(folder, project, "dummy_files")):
                 upload_path = os.path.join(folder, project, "dummy_files")
                 bash_command = f"gen3-client upload --upload-path={upload_path} --profile={args.profile} " \
@@ -98,7 +98,7 @@ if __name__ == "__main__":
                 print(f"uploading {line}")
                 try:
                     jsn = json.load(open(os.path.join(folder, project, "edited_jsons", f"{line}.json")))
-                    if not args.only_metadata:
+                    if not args.metadata_only:
                         if line.endswith("file"):
                             for file_md in jsn:
                                 try:
