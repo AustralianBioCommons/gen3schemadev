@@ -100,7 +100,13 @@ for project in project_info['data']['project']:
                                 full_key = f"{key}.{k2}"
                                 summarised_dict[project['code']]["gen3_discovery"][full_key] += 1
         min_index = max_index
-        max_index = min(batch_size + max_index, total_subjects )
+        max_index = min(batch_size + max_index, total_subjects)
+    collected_variables = []
+    for k, v in summarised_dict[project['code']]['gen3_discovery'].items():
+        if type(v) == int:
+            if v > 0:
+                collected_variables.append(k)
+    summarised_dict[project['code']]['gen3_discovery']["collected_variables"] = collected_variables
 
 for k, v in summarised_dict.items():
     metadata.create(v['gen3_discovery']['id'], v, overwrite=True)
