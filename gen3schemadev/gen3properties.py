@@ -26,18 +26,55 @@ class Gen3Property(Gen3WrapObject):
     def set_name(self, name):
         self.name = name
 
-    def _remove_null(self):
-        data_copy = self.data.copy()
+    @staticmethod
+    def _cleanup_list(l: list):
+        data_copy = l.copy()
+        delidx = []
+        for idx, item in enumerate(data_copy):
+            if not item:
+                delidx.append(idx)
+            if isinstance(item,list):
+                newval = Gen3Property._cleanup_list(item)
+                if newval == []:
+                    delidx.append(idx)
+                else:
+                    data_copy[idx] = newval
+            if isinstance(item, dict):
+                newval = Gen3Property._cleanup_dict(item)
+                if newval == {}:
+                    delidx.append(idx)
+                else:
+                    data_copy[idx] = newval
+        delidx.reverse()
+        for idx in delidx:
+            del data_copy[idx]
+        return data_copy
+
+    @staticmethod
+    def _cleanup_dict(d: dict):
+        data_copy = d.copy()
         marked_for_deletion = []
         for key, value in data_copy.items():
             if not value:
                 marked_for_deletion.append(key)
+            elif isinstance(value,dict):
+                new_value = Gen3Property._cleanup_dict(value)
+                if new_value == {}:
+                    marked_for_deletion.append(key)
+                else:
+                    data_copy[key] = new_value
+            elif isinstance(value,list):
+                new_value = Gen3Property._cleanup_list(value)
+                if new_value == []:
+                    marked_for_deletion.append(key)
+                else:
+                    data_copy[key] = new_value
         for key in marked_for_deletion:
             del data_copy[key]
         return data_copy
 
     def get_data(self):
-        return self._remove_null()
+        return Gen3Property._cleanup_dict(self.data)
 
     def set_description(self, description):
         self.data["description"] = description
@@ -46,7 +83,7 @@ class Gen3Property(Gen3WrapObject):
         return self.data["description"]
 
     def set_definition(self, termdef=None, source=None, term_id=None, term_version=None):
-        if not isinstance(term_version, str):
+        if not isinstance(term_version, str) and term_version is not None:
             term_version = str(term_version)
         self.data["termDef"] = [{"term": termdef, "source": source, "term_id": term_id, "term_version": term_version}]
 
