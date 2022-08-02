@@ -157,8 +157,7 @@ class Gen3Array(Gen3JsonProperty):
         super().__init__(name, "array", description, termdef, source, term_id, term_version)
         self.data['items'] = items_type
         if self.data['items'] == "enum":
-            enum_dict = {"enum": []}
-            self.data['items'] = enum_dict
+            self.data['items'] = {"enum": Gen3Enum(name)}
         if pattern:
             self.set_pattern(pattern)
 
@@ -169,16 +168,16 @@ class Gen3Array(Gen3JsonProperty):
         self.data['pattern'] = pattern
 
     def get_enum_options(self):
-        return self.data['items']['enum'].copy()
+        return self.data['items']['enum'].get_values()
 
     def set_enum_options(self, enum_options):
         self.data['items']['enum'] = enum_options
 
-    def add_enum_option(self, name):
-        if name not in self.data["items"]["enum"]:
-            self.data["items"]["enum"].append(name)
-        else:
-            raise ValueError(name)
+    def add_enum_option(self, name, source=None, term_id=None, version=None):
+        self.data['items']['enum'].add_enum_option(name, source=None, term_id=None, version=None)
+
+    def add_enum_def(self, name, source=None, term_id=None, version=None):
+        self.data['items']['enum'].set_enum_term_def(name, source=source, term_id=term_id, version=version)
 
 
 class Gen3Enum(Gen3Property):
