@@ -104,11 +104,14 @@ if __name__ == "__main__":
                 g3_obj.add_property(prop)
             elif field.TYPE == "array":
                 if field.ARRAY_ITEMS_TYPE.startswith("enum"):
-                    prop = gen3schemadev.Gen3Array(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
-                                                   items_type="enum")
+                    tmpenum = gen3schemadev.Gen3Enum("","")
+
                     evals = enums.loc[enums.type_name == field.ARRAY_ITEMS_TYPE]
                     for idx, evline in evals.iterrows():
-                        prop.add_enum_option(evline.enum)
+                        tmpenum.add_enum_option(evline.enum)
+
+                    prop = gen3schemadev.Gen3Array(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
+                                                   items_type=tmpenum)
                     g3_obj.add_property(prop)
             else:
                 raise KeyError(field.TYPE)

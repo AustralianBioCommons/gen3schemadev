@@ -152,32 +152,16 @@ class Gen3Boolean(Gen3JsonProperty):
 
 
 class Gen3Array(Gen3JsonProperty):
-    def __init__(self, name, description, items_type, pattern=None, termdef=None, source=None,
+    def __init__(self, name, description, items_type: Gen3Property, termdef=None, source=None,
                  term_id=None, term_version=None):
         super().__init__(name, "array", description, termdef, source, term_id, term_version)
-        self.data['items'] = items_type
-        if self.data['items'] == "enum":
-            self.data['items'] = {"enum": Gen3Enum(name)}
-        if pattern:
-            self.set_pattern(pattern)
+        self.data['items'] = items_type.get_data()
 
-    def get_pattern(self):
-        return self.data.get('pattern')
+    def get_items_type(self):
+         return wrap_obj(self.data['items'])
 
-    def set_pattern(self, pattern):
-        self.data['pattern'] = pattern
-
-    def get_enum_options(self):
-        return self.data['items']['enum'].get_values()
-
-    def set_enum_options(self, enum_options):
-        self.data['items']['enum'] = enum_options
-
-    def add_enum_option(self, name, source=None, term_id=None, version=None):
-        self.data['items']['enum'].add_enum_option(name, source=None, term_id=None, version=None)
-
-    def add_enum_def(self, name, source=None, term_id=None, version=None):
-        self.data['items']['enum'].set_enum_term_def(name, source=source, term_id=term_id, version=version)
+    def set_items_type(self, items_type: Gen3Property):
+        self.data["items"] = items_type.get_data()
 
 
 class Gen3Enum(Gen3Property):
@@ -219,3 +203,39 @@ class Gen3Enum(Gen3Property):
                 "term_id": term_id,
                 "version": version
             })
+
+def wrap_obj(datadict: dict):
+    retv= None
+    #see if type is in this, if not try to identify vie $ref
+    if "type" in datadict:
+        tn = datadict['type']
+        if tn == "number":
+            retv = Gen3Number("","")
+            retv.init_from_dict(datadict)
+        elif tn == "integer":
+            retv = Gen3Integer("","")
+            retv.init_from_dict(datadict)
+        elif tn == "string":
+            retv = Gen3String("","")
+            retv.init_from_dict(datadict)
+        elif tn == "boolean":
+            retv = Gen3Boolean("","")
+            retv.init_from_dict(datadict)
+        elif tn == "array":
+            retv = Gen3Array("","")
+            retv.init_from_dict(datadict)
+        else:
+            raise NotImplemented(f"Type {tn} not implemented")
+    elif "$ref" in datadict:
+        if datadict["$ref"] == "_definitions.yaml#/datetime":
+            retv = Gen3DatetimeProperty("","")
+            retv.init_from_dict(datadict)
+        else:
+            retv = Gen3DefinitionProperty("","")
+            retv.init_from_dict(datadict)
+    elif "enum" in datadict:
+        pass
+    return retv
+
+
+
