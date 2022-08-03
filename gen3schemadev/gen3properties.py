@@ -28,18 +28,55 @@ class Gen3Property(Gen3WrapObject):
     def set_name(self, name):
         self.name = name
 
-    def _remove_null(self):
-        data_copy = self.data.copy()
+    @staticmethod
+    def _cleanup_list(l: list):
+        data_copy = l.copy()
+        delidx = []
+        for idx, item in enumerate(data_copy):
+            if not item:
+                delidx.append(idx)
+            if isinstance(item,list):
+                newval = Gen3Property._cleanup_list(item)
+                if newval == []:
+                    delidx.append(idx)
+                else:
+                    data_copy[idx] = newval
+            if isinstance(item, dict):
+                newval = Gen3Property._cleanup_dict(item)
+                if newval == {}:
+                    delidx.append(idx)
+                else:
+                    data_copy[idx] = newval
+        delidx.reverse()
+        for idx in delidx:
+            del data_copy[idx]
+        return data_copy
+
+    @staticmethod
+    def _cleanup_dict(d: dict):
+        data_copy = d.copy()
         marked_for_deletion = []
         for key, value in data_copy.items():
             if not value:
                 marked_for_deletion.append(key)
+            elif isinstance(value,dict):
+                new_value = Gen3Property._cleanup_dict(value)
+                if new_value == {}:
+                    marked_for_deletion.append(key)
+                else:
+                    data_copy[key] = new_value
+            elif isinstance(value,list):
+                new_value = Gen3Property._cleanup_list(value)
+                if new_value == []:
+                    marked_for_deletion.append(key)
+                else:
+                    data_copy[key] = new_value
         for key in marked_for_deletion:
             del data_copy[key]
         return data_copy
 
     def get_data(self):
-        return self._remove_null()
+        return Gen3Property._cleanup_dict(self.data)
 
     def set_description(self, description):
         self.data["description"] = description
@@ -48,7 +85,7 @@ class Gen3Property(Gen3WrapObject):
         return self.data["description"]
 
     def set_definition(self, termdef=None, source=None, term_id=None, term_version=None):
-        if not isinstance(term_version, str):
+        if not isinstance(term_version, str) and term_version is not None:
             term_version = str(term_version)
         self.data["termDef"] = [{"term": termdef, "source": source, "term_id": term_id, "term_version": term_version}]
 
@@ -154,33 +191,16 @@ class Gen3Boolean(Gen3JsonProperty):
 
 
 class Gen3Array(Gen3JsonProperty):
-    def __init__(self, name, description, items_type, pattern=None, termdef=None, source=None,
+    def __init__(self, name, description, items_type: Gen3Property, termdef=None, source=None,
                  term_id=None, term_version=None):
         super().__init__(name, "array", description, termdef, source, term_id, term_version)
-        self.data['items'] = items_type
-        if self.data['items'] == "enum":
-            enum_dict = {"enum": []}
-            self.data['items'] = enum_dict
-        if pattern:
-            self.set_pattern(pattern)
+        self.data['items'] = items_type.get_data()
 
-    def get_pattern(self):
-        return self.data.get('pattern')
+    def get_items_type(self):
+         return wrap_obj(self.data['items'])
 
-    def set_pattern(self, pattern):
-        self.data['pattern'] = pattern
-
-    def get_enum_options(self):
-        return self.data['items']['enum'].copy()
-
-    def set_enum_options(self, enum_options):
-        self.data['items']['enum'] = enum_options
-
-    def add_enum_option(self, name):
-        if name not in self.data["items"]["enum"]:
-            self.data["items"]["enum"].append(name)
-        else:
-            raise ValueError(name)
+    def set_items_type(self, items_type: Gen3Property):
+        self.data["items"] = items_type.get_data()
 
 
 class Gen3Enum(Gen3Property):
@@ -222,3 +242,39 @@ class Gen3Enum(Gen3Property):
                 "term_id": term_id,
                 "version": version
             })
+
+def wrap_obj(datadict: dict):
+    retv= None
+    #see if type is in this, if not try to identify vie $ref
+    if "type" in datadict:
+        tn = datadict['type']
+        if tn == "number":
+            retv = Gen3Number("","")
+            retv.init_from_dict(datadict)
+        elif tn == "integer":
+            retv = Gen3Integer("","")
+            retv.init_from_dict(datadict)
+        elif tn == "string":
+            retv = Gen3String("","")
+            retv.init_from_dict(datadict)
+        elif tn == "boolean":
+            retv = Gen3Boolean("","")
+            retv.init_from_dict(datadict)
+        elif tn == "array":
+            retv = Gen3Array("","")
+            retv.init_from_dict(datadict)
+        else:
+            raise NotImplemented(f"Type {tn} not implemented")
+    elif "$ref" in datadict:
+        if datadict["$ref"] == "_definitions.yaml#/datetime":
+            retv = Gen3DatetimeProperty("","")
+            retv.init_from_dict(datadict)
+        else:
+            retv = Gen3DefinitionProperty("","")
+            retv.init_from_dict(datadict)
+    elif "enum" in datadict:
+        pass
+    return retv
+
+
+

@@ -1,43 +1,32 @@
 import numpy as np
 import pandas as pd
-import argparse
 
 import gen3schemadev
 
-
-def parse_arguments():
-    parser = argparse.ArgumentParser("Generate Gen3 Schema YAMLs from a google sheet.")
-    parser.add_argument('--google-id', type=str, action='store', required=True,
-                        help="The alpha-numeric identifier for the sheet e.g. 1G5mVh0KGR4PvXEr1Q-Mg68bEkv8N_Usl92dCmj1yeAk")
-    parser.add_argument('--objects-gid', type=str, action='store', required=True,
-                        help="The numeric identifier for the `object_definitions` tab in the google sheet")
-    parser.add_argument('--links-gid', type=str, action='store', required=True,
-                        help="The numeric identifier for the `link_definitions` tab in the google sheet")
-    parser.add_argument('--properties-gid', type=str, action='store', required=True,
-                        help="The numeric identifier for the `property_definitions` tab in the google sheet")
-    parser.add_argument('--enums-gid', type=str, action='store', required=True,
-                        help="The numeric identifier for the `enum_definitions` sheet in the google sheet")
-    args = parser.parse_args()
-    return args
 
 def main():
     pass
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    url = f"https://docs.google.com/spreadsheets/d/{args.google_id}/export?format=csv&gid={args.objects_gid}"
+    sheet_id = "1_7-qWCW_ulZWXwyKb3wjZMDYl1OAMwKODTUnHihwd4k"
+
+    objects_gid = "0"
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={objects_gid}"
     objects = pd.read_csv(url)
 
-    url = f"https://docs.google.com/spreadsheets/d/{args.google_id}/export?format=csv&gid={args.links_gid}"
+    links_gid = "177590138"
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={links_gid}"
     links = pd.read_csv(url)
     links.replace({np.nan: None}, inplace=True)
 
-    url = f"https://docs.google.com/spreadsheets/d/{args.google_id}/export?format=csv&gid={args.properties_gid}"
+    properties_gid = "975070208"
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={properties_gid}"
     properties = pd.read_csv(url)
     properties.replace({np.nan: None}, inplace=True)
 
-    url = f"https://docs.google.com/spreadsheets/d/{args.google_id}/export?format=csv&gid={args.enums_gid}"
+    enums_gid = "570383750"
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={enums_gid}"
     enums = pd.read_csv(url)
     enums.replace({np.nan: None}, inplace=True)
 
@@ -119,36 +108,16 @@ if __name__ == "__main__":
 
                     evals = enums.loc[enums.type_name == field.ARRAY_ITEMS_TYPE]
                     for idx, evline in evals.iterrows():
-                        tmpenum.add_enum_option(evline.enum, source=evline.source, term_id=evline.term_id,
-                                                version=evline.version)
+                        tmpenum.add_enum_option(evline.enum)
 
                     prop = gen3schemadev.Gen3Array(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
-                                                   items_type=tmpenum, termdef=field.TERM_REF, source=field.TERM_SOURCE,
-                                                   term_id=field.TERM_ID, term_version=field.TERM_VERSION)
+                                                   items_type=tmpenum)
                     g3_obj.add_property(prop)
                 elif field.ARRAY_ITEMS_TYPE == "string":
                     tmpstring = gen3schemadev.Gen3String(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
-                                                         pattern=field.PATTERN, termdef=field.TERM_REF,
-                                                         source=field.TERM_SOURCE, term_id=field.TERM_ID,
-                                                         term_version=field.TERM_VERSION)
+                                                         pattern=field.PATTERN)
                     prop = gen3schemadev.Gen3Array(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
                                                    items_type=tmpstring)
-                    g3_obj.add_property(prop)
-                elif field.ARRAY_ITEMS_TYPE == "number":
-                    tmpnumber = gen3schemadev.Gen3Number(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
-                                                         termdef=field.TERM_REF, source=field.TERM_SOURCE,
-                                                         term_id=field.TERM_ID, term_version=field.TERM_VERSION)
-                    prop = gen3schemadev.Gen3Array(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
-                                                   items_type=tmpnumber)
-                    g3_obj.add_property(prop)
-                elif field.ARRAY_ITEMS_TYPE == "integer":
-                    tmpnumber = gen3schemadev.Gen3Integer(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
-                                                          termdef=field.TERM_REF, source=field.TERM_SOURCE,
-                                                          term_id=field.TERM_ID, term_version=field.TERM_VERSION)
-                    tmpnumber.set_minimum(field.NUM_MIN)
-                    tmpnumber.set_maximum(field.NUM_MAX)
-                    prop = gen3schemadev.Gen3Array(name=field.VARIABLE_NAME, description=field.DESCRIPTION,
-                                                   items_type=tmpnumber)
                     g3_obj.add_property(prop)
             else:
                 raise KeyError(field.TYPE)
