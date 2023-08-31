@@ -13,3 +13,5 @@ samtools index dummy_cram.cram
 samtools view -b -h dummy_cram.cram -o dummy_bam.bam
 samtools index dummy_bam.bam
 ```
+
+The `generate_sizes_and_md5s.py` script calculates the sizes and md5s and saves them as `file_stats.json` which is useful when uploading data to the gen3. It only needs to be re-run if these files change.
