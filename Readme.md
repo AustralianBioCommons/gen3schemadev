@@ -1,6 +1,6 @@
 # Automated processes for Gen3 Data Dictionary, data simulation and submission automation
 
-This repository contains all tools used and/or developed by Australian BioCommons to develop with gen3.
+This repository contains all tools used and/or developed by Australian BioCommons to help automate routine tasks with gen3.
 
 ## `gen3schemadev` is an object relational mapper library for gen3 schemas.
 
@@ -10,7 +10,7 @@ An implementation of the library for generating the CAD dictionary is demonstrat
 
 ## Current Workflow for editing CAD Project Dictionary
 
-### Local deployment (compose-services)
+### Local deployment (compose-services) hard-coded google sheet
 1. Make schema edits to the `Harmonised Variables - v1 google sheet`
 2. All schema objects in the google sheet need to have a template schema in the `schema` folder (to be phased out when all info can be generated)
 3. Run `schema2yaml.py` which automatically reads the google sheets and parses the required information, writing the parsed schemas to the folder `schema_out` 
@@ -25,6 +25,14 @@ An implementation of the library for generating the CAD dictionary is demonstrat
    5. upload the simulated data against the new dictionary
    6. re-enable and restart indexing services and re-run etl index (`guppy_setup.sh`)
 
+### sheet2yaml-CLI.py
+
+`sheet2yaml-CLI.py` is a similar script where inputs are specified as command line arguments rather than hard-coded into the script. 
+
+To use this script, one needs to provide identifiers for the google sheet as well as to each tab of the google sheet that needs to be read.
+
+Each google sheet must follow the expected format as specified in the [template sheet](https://docs.google.com/spreadsheets/d/1qEL6bx_Pmif-h6GL_U-k6eotwIhIxCxYIjLecGk2TV8/edit#gid=0).
+
 ## Todo:
 - make link generation work
 - implement reference mangling
@@ -38,13 +46,17 @@ A fairly simple python script that takes as input a path to a set of json files 
 
 Clone this repo 
 
+Example usage:
+
 ```shell
-cd plausible_data_gen
+cd gen3schemadev
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python3 main.py --path <PATH_TO_SIM_DATA> [--values <PATH_TO_CSV> | --gurl <PATH_TO_GOOGLE_SHEET>] --dummy_seq_files --dummy_lipid_files
+python3 plausible_data_gen.py --path <PATH_TO_SIM_DATA> [--values <PATH_TO_CSV> | --gurl <PATH_TO_GOOGLE_SHEET>] --generate-files --file-types aligned_reads
 ```
+
+The code snippet above would generate plausible data 
 
 The program will write the modified json files to a directory called `edited_jsons`.
 
