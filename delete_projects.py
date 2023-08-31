@@ -1,3 +1,5 @@
+"""Script to delete projects using their project names"""
+
 import argparse
 from gen3.auth import Gen3Auth
 from gen3.submission import Gen3Submission

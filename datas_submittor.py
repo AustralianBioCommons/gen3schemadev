@@ -1,3 +1,8 @@
+"""
+Script to submit data and metadata to a gen3 instance using the sdk and command line tool
+"""
+
+
 import argparse
 from gen3.auth import Gen3Auth
 from gen3.submission import Gen3Submission

@@ -1,4 +1,7 @@
-### this script will go through the current dictionary and fix up the links...
+"""
+Script to fix links between objects
+"""
+
 import json
 
 with open("../edited_jsons/sample.json", "r") as f:

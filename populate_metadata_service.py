@@ -1,3 +1,6 @@
+"""
+Script to populate the metadata service with summary level counts for each projects and field using the Gen3 SDK.
+"""
 
 from gen3.auth import Gen3Auth
 from gen3.submission import Gen3Submission

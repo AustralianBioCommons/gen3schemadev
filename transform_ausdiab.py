@@ -1,3 +1,7 @@
+"""
+Script to transform the simulated AusDiab data into Gen3 compatible jsons. Based on the mapping file: configs/mapping.json
+"""
+
 import pandas as pd
 import numpy as np
 import shutil
