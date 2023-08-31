@@ -33,14 +33,11 @@ To use this script, one needs to provide identifiers for the google sheet as wel
 
 Each google sheet must follow the expected format as specified in the [template sheet](https://docs.google.com/spreadsheets/d/1qEL6bx_Pmif-h6GL_U-k6eotwIhIxCxYIjLecGk2TV8/edit#gid=0).
 
-## Todo:
-- make link generation work
-- implement reference mangling
-- add unit tests
+run `python sheet2yaml-CLI.py -h` to see required arguments.
 
 # Plausible Data Generator
 
-A fairly simple python script that takes as input a path to a set of json files and a csv file describing plausible values and replaces the random numbers generated out of gen3 software with ones from a defined distrbution or range.
+A fairly simple python script that takes as input a path to a set of json files and a csv file describing plausible values and replaces the random numbers generated out of gen3 software with ones from a defined distribution or range.
 
 ## Usage
 
