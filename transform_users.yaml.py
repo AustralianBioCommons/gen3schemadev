@@ -238,7 +238,7 @@ def add_ldap_users(uyml, server, user, password, search_dn):
     glookup = dict(zip(groupnames,groups))
 
     tls = Tls(version=ssl.PROTOCOL_TLS, validate=ssl.CERT_REQUIRED)
-    server = Server(server,port=389,use_ssl=True,tls=tls)
+    server = Server(server,use_ssl=True,tls=tls)
     print("Connecting to LDAP")
     conn = Connection(server, user, password,read_only=True, client_strategy=SAFE_SYNC, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
     print("Connected, querying")
