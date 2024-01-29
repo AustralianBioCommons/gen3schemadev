@@ -238,16 +238,19 @@ def add_ldap_users(uyml, server, user, password, search_dn):
     glookup = dict(zip(groupnames,groups))
 
     tls = Tls(version=ssl.PROTOCOL_TLS, validate=ssl.CERT_REQUIRED)
-    server = Server(server,use_ssl=True,tls=tls)
+    server = Server(server,port=636)#,use_ssl=True,tls=tls)
     print("Connecting to LDAP")
     conn = Connection(server, user, password,read_only=True, client_strategy=SAFE_SYNC, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
     print("Connected, querying")
     status, result, response, _ = conn.search(search_dn, '(objectclass=voPerson)',attributes=ldap3.ALL_ATTRIBUTES)
     if not status:
-        print(f"Query failsed: {result}")
+        print(f"Query failed: {result}")
         exit(-1)
     for ldap_user in response:
         if "voPersonApplicationUID;app-gen3" not in ldap_user['raw_attributes']:
+            continue
+        if "cn" not in ldap_user["raw_attributes"]:
+            print(f"""Skipping User {ldap_user["raw_attributes"]}""")
             continue
         name=ldap_user['raw_attributes']['cn'][0].decode("utf-8")
         uname=ldap_user['raw_attributes']['voPersonApplicationUID;app-gen3'][0].decode("utf-8")
@@ -271,7 +274,7 @@ def upload_to_s3(uyml,bucket,target):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Transforms the groups on an LDAP server into group access in gen3")
-    parser.add_argument('--ldap-server',type=str,action="store",default='ldap://ldap-test.cilogon.org', help="the ldap server where the groups are set")
+    parser.add_argument('--ldap-server',type=str,action="store",default='ldaps://ldap-test.cilogon.aaf.edu.au', help="the ldap server where the groups are set")
     parser.add_argument('--ldap-search-dn',type=str,default='ou=people,o=CAD,o=CO,dc=biocommons,dc=org,dc=au',help="the DN on which the search is based")
     parser.add_argument('--s3-bucket',type=str,action='store',default='biocommons-gen3-user', help='the S3 bucket to which the data is uploaded')
     parser.add_argument('--targetfile',type=str,action='store',default='cad/users.yaml',help='the file the user yaml is uploaded to')
