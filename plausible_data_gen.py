@@ -497,7 +497,7 @@ def main():
     else:
         print("Either 'values' or 'gurl' should be specified. See usage.")
         sys.exit()
-    replace_values(simulated_data, values_table)
+        replace_values(simulated_data, values_table)
     if not args.name:
         name = os.path.basename(os.path.split(args.path)[0])
     else:
