@@ -7,3 +7,4 @@ edited_jsons/*
 split_file/*
 transformed_jsons/*
 .venv
+synthetic_data
