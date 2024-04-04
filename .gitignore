@@ -8,3 +8,6 @@ split_file/*
 transformed_jsons/*
 .venv
 synthetic_data
+build
+dist
+gen3schemadev.egg-info
