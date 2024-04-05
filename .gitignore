@@ -6,3 +6,8 @@ dummy_files/*
 edited_jsons/*
 split_file/*
 transformed_jsons/*
+.venv/
+build/
+dist/
+gen3schemadev.egg-info/
+synthetic_data/
