@@ -523,7 +523,7 @@ def main():
         values_table = parse_values(args.gurl)
     else:
         values_table = parse_values(args.values)
-    replace_values(simulated_data, values_table)
+        replace_values(simulated_data, values_table)
     if not args.name:
         name = os.path.basename(os.path.split(args.path)[0])
     else:
