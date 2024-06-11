@@ -79,3 +79,9 @@ The CSV needs to have the following columns (see the [plausible values tab](http
 | range_end   | Required if 'data_type' is 'range', generates a random number between 'range_end' and this number                | number                                  |
 | source      | Reference where the information was found                                                                        | free text                               |
 | enum        | [NOT CURRENTLY USED]                                                                                             |                                         |
+
+***
+
+# Metadata Validator
+- [User Guide](./docs/metadata_validator.md)
+- [Example Notebook](metadata_validator.ipynb)

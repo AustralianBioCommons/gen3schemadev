@@ -3,6 +3,8 @@ from jsonschema import ValidationError, Draft4Validator, exceptions
 import jsonschema
 import os
 import shutil
+import matplotlib.pyplot as plt
+import pandas as pd
 
 class SchemaResolver:
     def __init__(self, base_path: str, bundle_json_path: str):
@@ -17,6 +19,17 @@ class SchemaResolver:
         self.bundle_json_path = bundle_json_path
 
     def split_bundle_json(self, write_dir: str, return_dict: bool = False):
+        """
+        Split the bundle JSON file into individual JSON files and save them in the specified directory.
+
+        Args:
+            write_dir (str): The directory path where the individual JSON files will be saved.
+            return_dict (bool, optional): Whether to return the dictionary of individual JSON files. Defaults to False.
+
+        Returns:
+            dict or None: If return_dict is True, returns a dictionary containing the individual JSON files.
+                Otherwise, returns None.
+        """
         # opening bundle json
         with open(self.bundle_json_path, 'r') as f:
             bundle_json = json.load(f)
@@ -195,6 +208,8 @@ class SchemaValidator:
         self.data = data
         self.schema_fn = schema_fn
         self.schema = self.read_schema()
+        self.results = self.validate_schema()
+        self.errors = self.results['error_messages']
      
     def read_schema(self):
         with open(self.schema_fn, 'r') as f:
@@ -260,4 +275,69 @@ class SchemaValidator:
             "fail_count": fail_count,
             "error_messages": error_messages
         }
+
+    def print_errors(self):
+        """
+        Print the error messages from the validation results.
+
+        This function takes no parameters.
+
+        Returns:
+            None
+        """
+        return print(json.dumps(self.results['error_messages'], indent=4))
+    
+    
+    def print_summary(self):
+        """
+        Print the summary of the validation results.
+
+        This function prints the total number of data objects, the number of successful validations, and the number of failed validations.
+
+        Parameters:
+            self (object): The instance of the class.
+
+        Returns:
+            None
+        """
+        validation_results = self.results
+        print("\n=== VALIDATION RESULTS ===\nTotal number of data objects:", validation_results["total_count"])
+        print("Number of successful validations:", validation_results["success_count"])
+        print("Number of failed validations:", validation_results["fail_count"])
+
+
+    def plot_invalid_keys(self):
+        """
+        Plot the frequency of invalid keys from the validation results.
+
+        This function extracts the "Invalid key" values from the validation results and creates a DataFrame.
+        It then counts the occurrences of each invalid key and plots a bar graph to visualize the frequency.
+
+        Parameters:
+            self (object): The instance of the class.
+
+        Returns:
+            None
+
+        Raises:
+            None
+        """
+        invalid_keys = []
+        for idx, error in self.errors.items():
+            invalid_keys.extend(error.get("Invalid key", []))
         
+        # Creating a DataFrame for the invalid keys
+        df = pd.DataFrame(invalid_keys, columns=["Invalid Key"])
+        
+        # Counting occurrences of each invalid key
+        key_counts = df["Invalid Key"].value_counts()
+        
+        # Plotting the bar graph
+        plt.figure(figsize=(10, 6))
+        key_counts.plot(kind='bar')
+        plt.title('Frequency of Invalid Keys')
+        plt.xlabel('Invalid Key')
+        plt.ylabel('Frequency')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
