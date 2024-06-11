@@ -1,6 +1,5 @@
 import json
-from jsonschema import Draft4Validator, exceptions
-import yaml
+from jsonschema import validate, ValidationError, Draft4Validator
 import os
 import shutil
 
@@ -53,6 +52,25 @@ class SchemaValidator:
         print(f'{json_path} successfully saved')
 
     def resolve_references(self, schema):
+        """
+        Recursively resolves references in a JSON node.
+
+        This function takes a JSON node as input and recursively resolves any references found in the node.
+        If the node is a dictionary and contains a key '$ref', the function splits the value of '$ref' into
+        two parts: the reference file path and the reference key. It then opens the reference file (if it exists)
+        and loads its content. The function then traverses the reference key to find the corresponding content
+        in the reference file. The resolved content is then merged with the current node, excluding the '$ref' key.
+
+        If the node is a list, the function recursively resolves each item in the list.
+
+        If the node is neither a dictionary nor a list, the function returns the node as is.
+
+        Parameters:
+        - schema (dict): The JSON node to resolve references in.
+
+        Returns:
+        - dict: The resolved JSON node with references resolved.
+        """
         def resolve_node(node):
             if isinstance(node, dict):
                 if '$ref' in node:
@@ -107,7 +125,7 @@ class SchemaValidator:
 
         return replace_refs(schema)
 
-    def resolve_refs(self, schema_fn, ref_fn):
+    def resolve_refs(self, schema_fn):
         """
         Resolves references in a JSON schema file using definitions from another JSON file.
 
@@ -120,7 +138,7 @@ class SchemaValidator:
         """
         # Read JSON files
         schema_obj = self.read_json(schema_fn)
-        ref_obj = self.read_json(ref_fn)
+        # ref_obj = self.read_json(ref_fn) # not needed, resolve_refs already looks up the reference
 
         # Redefine $ref paths in schema_obj if necessary
         if '_definitions.json' in schema_fn:
@@ -152,3 +170,32 @@ class SchemaValidator:
         ref_files = [f for f in os.listdir(self.base_path) if '[resolved].json' in f]
         for f in ref_files:
             shutil.move(os.path.join(self.base_path, f), os.path.join(target_dir, f))
+            
+    
+    # def validate_schema(self, schema_fn: str, data: dict):
+    #     """
+    #     Validates a JSON schema against a data dictionary.
+
+    #     Args:
+    #     - schema_fn (str): The name of the JSON schema file.
+    #     - data (dict): The data dictionary to validate against the schema.
+
+    #     Returns:
+    #     - bool: True if the schema is valid, False otherwise.
+    #     """
+    #     # Loading schema 
+    #     schema = self.read_json(schema_fn)
+        
+    #     # Create a validator with the resolver
+    #     validator = Draft4Validator(resolved_schema)
+
+    #     # Validate the data
+    #     try:
+    #         validator.validate(data_to_validate)
+    #         print("Validation successful.")
+    #     except jsonschema.exceptions.ValidationError as e:
+    #         print(f"Invalid key: {list(e.path)}")
+    #         print(f"Schema path: {list(e.schema_path)}")
+    #         print(f"Validator: {e.validator}")
+    #         print(f"Validator value: {e.validator_value}")
+    #         print(f"Validation error: {e.message}")
