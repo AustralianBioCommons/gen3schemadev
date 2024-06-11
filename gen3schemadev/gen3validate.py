@@ -1,9 +1,10 @@
 import json
-from jsonschema import validate, ValidationError, Draft4Validator
+from jsonschema import ValidationError, Draft4Validator, exceptions
+import jsonschema
 import os
 import shutil
 
-class SchemaValidator:
+class SchemaResolver:
     def __init__(self, base_path: str, bundle_json_path: str):
         """
         Initializes the SchemaValidator with a base path and bundle JSON path.
@@ -188,30 +189,75 @@ class SchemaValidator:
             shutil.move(os.path.join(self.base_path, f), os.path.join(target_dir, f))
             
     
-    # def validate_schema(self, schema_fn: str, data: dict):
-    #     """
-    #     Validates a JSON schema against a data dictionary.
 
-    #     Args:
-    #     - schema_fn (str): The name of the JSON schema file.
-    #     - data (dict): The data dictionary to validate against the schema.
+class SchemaValidator:
+    def __init__(self, data: list, schema_fn: str):
+        self.data = data
+        self.schema_fn = schema_fn
+        self.schema = self.read_schema()
+     
+    def read_schema(self):
+        with open(self.schema_fn, 'r') as f:
+            schema = json.load(f)
+        print(f'{self.schema_fn} successfully loaded')
+        return schema
+    
+    def validate_schema(self):
+        """
+        Validates a JSON schema against a data dictionary.
 
-    #     Returns:
-    #     - bool: True if the schema is valid, False otherwise.
-    #     """
-    #     # Loading schema 
-    #     schema = self.read_json(schema_fn)
+        Args:
+        - schema_fn (str): The relative path of the [resolved] JSON schema file.
+        - data (dict): The data dictionary to validate against the schema.
+
+        Returns:
+        - dict: A results object containing the number of successful and failed validations, and error messages for failed objects.
+        """
+        # Create a validator with the resolver
+        validator = Draft4Validator(self.schema)
         
-    #     # Create a validator with the resolver
-    #     validator = Draft4Validator(resolved_schema)
+        # Initialize counters and error storage
+        success_count = 0
+        fail_count = 0
+        error_messages = {}
 
-    #     # Validate the data
-    #     try:
-    #         validator.validate(data_to_validate)
-    #         print("Validation successful.")
-    #     except jsonschema.exceptions.ValidationError as e:
-    #         print(f"Invalid key: {list(e.path)}")
-    #         print(f"Schema path: {list(e.schema_path)}")
-    #         print(f"Validator: {e.validator}")
-    #         print(f"Validator value: {e.validator_value}")
-    #         print(f"Validation error: {e.message}")
+        # Function to validate per object
+        def validate_object(obj, idx):
+            try:
+                validator.validate(obj)
+                print("=== SUCCESS ===")
+                return True
+            except jsonschema.exceptions.ValidationError as e:
+                error_messages[idx] = {
+                    "Invalid key": list(e.path),
+                    "Schema path": list(e.schema_path),
+                    "Validator": e.validator,
+                    "Validator value": e.validator_value,
+                    "Validation error": e.message
+                }
+                print(f"Invalid key: {list(e.path)}")
+                print(f"Schema path: {list(e.schema_path)}")
+                print(f"Validator: {e.validator}")
+                print(f"Validator value: {e.validator_value}")
+                print(f"Validation error: {e.message}")
+                print('=== FAIL ===')
+                return False
+        
+        try:
+            total = len(self.data)
+            for idx, item in enumerate(self.data, start=1):
+                print(f"=== Validating item {idx} of {total} ===")
+                if validate_object(item, idx):
+                    success_count += 1
+                else:
+                    fail_count += 1
+        except Exception as e:
+            print(f"An error occurred during validation: {e}")
+
+        return {
+            "total_count": total,
+            "success_count": success_count,
+            "fail_count": fail_count,
+            "error_messages": error_messages
+        }
+        
