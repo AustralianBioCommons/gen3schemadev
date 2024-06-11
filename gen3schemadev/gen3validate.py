@@ -51,7 +51,7 @@ class SchemaValidator:
             json.dump(schema, f, indent=4)
         print(f'{json_path} successfully saved')
 
-    def resolve_references(self, schema):
+    def resolve_references(self, schema, ref_fn: str):
         """
         Recursively resolves references in a JSON node.
 
@@ -71,21 +71,34 @@ class SchemaValidator:
         Returns:
         - dict: The resolved JSON node with references resolved.
         """
-        def resolve_node(node):
+        # loading reference file 
+        if ref_fn:
+            try:
+                ref_file_path = os.path.join(self.base_path, ref_fn)
+                with open(ref_file_path, 'r') as f:
+                    ref_input_content = json.load(f)
+                    print(f'Reference file: {ref_file_path} successfully loaded')
+            except FileNotFoundError:
+                print(f'Reference file: {ref_file_path} not found')
+                ref_input_content = {}
+
+
+        def resolve_node(node, manual_ref_content=ref_input_content):
             if isinstance(node, dict):
                 if '$ref' in node:
                     ref_path = node['$ref']
                     ref_file, ref_key = ref_path.split('#')
                     ref_file = ref_file.strip()
                     ref_key = ref_key.strip('/')
-
+                    # print(f'Resolving $ref: {ref_file}#{ref_key}')
+                
+                    # if a reference file is in the reference, load the pre-defined reference, if no file exists, then use the schema itself as reference
                     if ref_file:
-                        ref_file_path = os.path.join(self.base_path, ref_file)
-                        with open(ref_file_path, 'r') as f:
-                            ref_content = json.load(f)
+                        ref_content = manual_ref_content
                     else:
                         ref_content = schema
-
+                    
+                    
                     for part in ref_key.split('/'):
                         ref_content = ref_content[part]
 
@@ -125,7 +138,7 @@ class SchemaValidator:
 
         return replace_refs(schema)
 
-    def resolve_refs(self, schema_fn):
+    def resolve_refs(self, schema_fn, reference_fn: str):
         """
         Resolves references in a JSON schema file using definitions from another JSON file.
 
@@ -138,17 +151,20 @@ class SchemaValidator:
         """
         # Read JSON files
         schema_obj = self.read_json(schema_fn)
-        # ref_obj = self.read_json(ref_fn) # not needed, resolve_refs already looks up the reference
 
         # Redefine $ref paths in schema_obj if necessary
         if '_definitions.json' in schema_fn:
             schema_obj = self.redefine_ref_path('_terms.yaml', '_terms.json', schema_obj)
+            # print("$ref paths redefined: '_terms.yaml' to '_terms.json'")
         else:
             schema_obj = self.redefine_ref_path('_definitions.yaml', '_definitions_[resolved].json', schema_obj)
+            # print("$ref paths redefined: '_definitions.yaml' to '_definitions_[resolved].json'")
             schema_obj = self.redefine_ref_path('.yaml', '.json', schema_obj)
+            # print("$ref paths redefined: '.yaml' to '.json'")
+
 
         # Resolve references
-        resolved_schema = self.resolve_references(schema_obj)
+        resolved_schema = self.resolve_references(schema_obj, ref_fn=reference_fn)
         
         # Write resolved schema
         resolved_schema_file = schema_fn.replace('.json', '_[resolved].json')
