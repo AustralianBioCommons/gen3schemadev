@@ -11,3 +11,5 @@ build/
 dist/
 gen3schemadev.egg-info/
 synthetic_data/
+.DS_Store
+
