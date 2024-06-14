@@ -287,6 +287,16 @@ class SchemaValidator:
         """
         return print(json.dumps(self.results['error_messages'], indent=4))
     
+    def return_errors(self):
+        """
+        Print the error messages from the validation results.
+
+        This function takes no parameters.
+
+        Returns:
+            None
+        """
+        return json.dumps(self.results['error_messages'], indent=4)
     
     def print_summary(self):
         """
