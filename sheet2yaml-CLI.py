@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import argparse
+import os
+import subprocess
 
 import gen3schemadev
 
@@ -17,8 +19,36 @@ def parse_arguments():
                         help="The numeric identifier for the `property_definitions` tab in the google sheet")
     parser.add_argument('--enums-gid', type=str, action='store', required=True,
                         help="The numeric identifier for the `enum_definitions` sheet in the google sheet")
+    parser.add_argument('--download', action='store_true', required=False,
+                        help="Whether to download the google sheet or not")
+    parser.add_argument('--output-dir', type=str, action='store', required=False,
+                        help="The directory to save the downloaded Google Sheets")
     args = parser.parse_args()
     return args
+
+def download_gsheet(google_base_link: str, output_dir: str, object_gid: str, link_gid: str, prop_gid: str, enum_gid: str):
+    # Making dirs
+    os.makedirs(f'{output_dir}/xlsx', exist_ok=True)
+    os.makedirs(f'{output_dir}/csv', exist_ok=True)
+    print('created dirs: ', output_dir)
+   
+    # storing gids
+    gid_dict = {'object': object_gid, 'link': link_gid, 'prop': prop_gid, 'enum': enum_gid}
+    
+    # building command list
+    cmd_list = []
+    for key, gid in gid_dict.items():
+        dl_link_xlsx = google_base_link + '/export?format=xlsx&gid=' + gid
+        dl_link_csv = google_base_link + '/export?format=csv&gid=' + gid
+        cmd = f'wget -O "{output_dir}/xlsx/{key}_def.xlsx" "{dl_link_xlsx}"'
+        cmd_csv = f'wget -O "{output_dir}/csv/{key}_def.csv" "{dl_link_csv}"'
+        cmd_list.append(cmd)
+        cmd_list.append(cmd_csv)
+    
+    # running commands
+    for command in cmd_list:
+        result = subprocess.run(command, shell=True, check=True)
+        print(result)
 
 def main():
     pass
@@ -26,6 +56,19 @@ def main():
 
 if __name__ == "__main__":
     args = parse_arguments()
+    
+    # Download Google Sheets
+    if args.download:
+        if args.output_dir:
+            print('=== downloading google sheets ===')
+            google_base_link = f"https://docs.google.com/spreadsheets/d/{args.google_id}"
+            download_gsheet(google_base_link, args.output_dir, args.objects_gid, args.links_gid, args.properties_gid, args.enums_gid)
+            print('=== successfully downloaded google sheets ===')
+        elif args.output_dir is None:
+            print('=== please provide an output directory ===')
+            exit(1)
+
+    
     url = f"https://docs.google.com/spreadsheets/d/{args.google_id}/export?format=csv&gid={args.objects_gid}"
     objects = pd.read_csv(url)
 
