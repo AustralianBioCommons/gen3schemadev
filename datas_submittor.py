@@ -54,7 +54,9 @@ def delete_metadata(project_name, folder_path, api_endpoint, credentials_path):
 
 
 if __name__ == "__main__":
+    # Parsing Args
     args = parse_arguments()
+    # Deleting metadata
     if args.delete_all_metadata:
         proceed = input(f"Are you sure you want to delete all existing metadata for the projects: {args.projects}? y/n\n")
         if proceed.lower() == "y":
@@ -67,10 +69,11 @@ if __name__ == "__main__":
             print("ok, now exiting. Please remove --delete_all_metadata flag and rerun script.")
             sys.exit()
 
+    # Running below code for each project
     for project in args.projects:
         print(f"Processing project: {project}")
         folder = args.folder
-
+        # Uploading dummy files if metadata only = False
         if not args.metadata_only:
             if args.profile and os.path.exists(os.path.join(folder, project, "dummy_files")):
                 upload_path = os.path.join(folder, project, "dummy_files")
