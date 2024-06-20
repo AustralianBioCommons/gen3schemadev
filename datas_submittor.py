@@ -54,9 +54,11 @@ def delete_metadata(project_name, folder_path, api_endpoint, credentials_path):
 
 
 if __name__ == "__main__":
+    
     # Parsing Args
     args = parse_arguments()
-    # Deleting metadata
+    
+    ####### Deleting current metadata #######
     if args.delete_all_metadata:
         proceed = input(f"Are you sure you want to delete all existing metadata for the projects: {args.projects}? y/n\n")
         if proceed.lower() == "y":
@@ -69,6 +71,7 @@ if __name__ == "__main__":
             print("ok, now exiting. Please remove --delete_all_metadata flag and rerun script.")
             sys.exit()
 
+    ####### Uploading dummy data files to S3 #######
     # Running below code for each project
     for project in args.projects:
         print(f"Processing project: {project}")
@@ -82,20 +85,24 @@ if __name__ == "__main__":
                 process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
                 output, error = process.communicate()
 
+        ####### Creating gen3 sdk class objects for auth, submission, and indexing #######
         script_path = os.path.abspath(os.path.dirname(__file__))
         auth = Gen3Auth(endpoint=args.api_endpoint, refresh_file=args.credentials)
         sub = Gen3Submission(endpoint=args.api_endpoint, auth_provider=auth)
         index = Gen3Index(endpoint=args.api_endpoint, auth_provider=auth)
 
+        # Creating the project under program
         if not args.add_subjects:
+            # hard coding program1
             sub.create_program({
                 "dbgap_accession_number": "prg123",
                 "name": "program1",
                 "type": "program"
             })
             proj = json.load(open(os.path.join(folder, project, "edited_jsons", "project.json")))
-            sub.create_project("program1", proj)
+            sub.create_project("program1", proj) #creating new project within project1
 
+        ###### Adding Index Properties to Metadata Jsons #######
         for line in open(os.path.join(folder, project, "DataImportOrder.txt"), "r"):
             line = line.strip()
             if args.add_subjects:
@@ -106,11 +113,14 @@ if __name__ == "__main__":
                 print(f"uploading {line}")
                 try:
                     jsn = json.load(open(os.path.join(folder, project, "edited_jsons", f"{line}.json")))
+                    # if you are uploading metdata and dummy files, and the json ends with "file", then try find the file in gen3 S3 and get index properties
                     if not args.metadata_only:
                         if line.endswith("file"):
                             for file_md in jsn:
                                 try:
+                                    # Getting index properties of the data file from the gen3 index class
                                     indexed_file = index.get_with_params({"file_name": file_md['file_name']})
+                                    # writing index properties to the key values
                                     file_md['object_id'] = indexed_file['did']
                                     file_md['md5sum'] = indexed_file['hashes']['md5']
                                     file_md['file_size'] = indexed_file['size']
@@ -125,8 +135,10 @@ if __name__ == "__main__":
                                 except TypeError as e:
                                     print(e)
                                     print(f"{file_md['file_name']} data file not yet uploaded")
+                    
+                    ####### Submitting updated data file index metadata #######
                     try:
-                        sub.submit_record("program1", project, jsn)
+                        sub.submit_record("program1", project, jsn) # submitting 
                     except requests.exceptions.HTTPError as e:
                         content = e.response.content
                         try:
