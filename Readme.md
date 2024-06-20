@@ -85,3 +85,9 @@ The CSV needs to have the following columns (see the [plausible values tab](http
 # Metadata Validator
 - [User Guide](./docs/metadata_validator.md)
 - [Example Notebook](metadata_validator.ipynb)
+
+***
+
+# Gen3 Data Submitter
+- [User Guide](./docs/data_submitter.md)
+- [Script](datas_submittor.py)
