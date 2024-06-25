@@ -1,0 +1,79 @@
+dummy_vcf.vcf.gz:
+  - VCF
+  - vcf
+  - variant
+  - variant file
+  - variant_file
+dummy_clinical.txt:
+  - clinical
+  - extra clinical file
+  - extra_clinical_file
+dummy_cram.cram:
+  - CRAM
+  - genome
+  - genomic
+  - genomics
+  - compressed
+  - cram
+  - alignment
+  - aligned_read_file
+  - aligned read file
+  - aligned reads
+  - aligned reads file
+  - aligned_reads_file
+dummy_crami.cram.crai:
+  - crami 
+  - index
+  - crai
+dummy_lipids.csv:
+  - lipid
+  - lipids
+  - lipidomics
+  - lipidome
+  - lipidomic
+  - csv
+dummy_fastq.fastq.gz:
+  - unaligned
+  - genomic
+  - genomics
+  - genome
+  - fastq
+  - fastq.gz
+  - uncompressed
+  - raw
+  - raw fastq
+dummy_bam.bam:
+  - BAM
+  - genomic
+  - genomics
+  - genome
+  - bam
+  - compressed
+  - alignment
+  - aligned_read_file
+  - aligned read file
+  - aligned reads
+  - aligned reads file
+  - aligned_reads_file
+dummy_bami.bam.bai:
+  - bami 
+  - index
+  - bai
+dummy_metab.wiff:
+  - metabolomics
+  - metabolome
+  - metab
+  - metabolic
+  - wiff
+dummy_prot.mgf:
+  - proteomics
+  - proteome
+  - proteomic
+  - protein
+  - prot
+  - mgf
+dummy_serum.csv:
+  - serum
+  - serum marker
+  - serum markers
+  - csv
