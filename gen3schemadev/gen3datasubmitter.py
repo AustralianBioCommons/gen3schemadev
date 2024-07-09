@@ -2,6 +2,7 @@ from gen3.index import Gen3Index
 import json
 import os
 import shutil
+from datetime import datetime
 
 
 class Gen3IndexdUpdateMetadata:
@@ -76,3 +77,64 @@ class Gen3IndexdUpdateMetadata:
         os.makedirs(f"{self.metadata_dir}/{output_dir}", exist_ok=True)
         print(f"Writing metadata to: {self.metadata_dir}/{output_dir}/{file_path}")
         self.write_metadata(f"{output_dir}/{file_path}", metadata)
+
+
+# Functions
+def extract_gen3_guids(log_path, project_id, output_dir):
+    """
+    Extracts filenames and object_ids from a gen3-client log file and writes them to an object manifest file.
+
+    Args:
+        log_path (str): The path to the gen3-client log file.
+        project_id (str): The project identifier.
+        output_dir (str): The directory to save the output manifest file.
+
+    Returns:
+        list: A list of dictionaries, each containing 'filename' and 'object_id' keys.
+    """
+    log_file_path = f"{log_path}/{project_id}_succeeded_log.json"
+    
+    if not os.path.exists(log_path):
+        print(f"{log_path} does not exist.")
+        return []
+    
+    print(f"Extracting data from {log_file_path}")
+    with open(log_file_path, 'r') as file:
+        log_data = json.load(file)
+
+    extracted_data = [
+        {
+            "date_time": datetime.now().isoformat(),
+            "project_id": project_id,
+            "file_name": key.split(f"{project_id}/")[1],
+            "object_id": value.split("PREFIX/")[1]
+        }
+        for key, value in log_data.items()
+    ]
+    
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Create output filename
+    date_time = datetime.now().strftime("%Y%m%d")
+    output_fn = f"{output_dir}/{date_time}_{project_id}_succeeded_log.json"
+    
+    # Check if output file already exists
+    if os.path.exists(output_fn):
+        user_input = input(f"The output file {output_fn} already exists. Do you want to overwrite it? (yes/no): ").strip().lower()
+        if user_input == 'yes':
+            print(f"Overwriting {output_fn}")
+        elif user_input == 'no':
+            print("Operation aborted by the user.")
+            return []
+        else:
+            print("Invalid input. Operation aborted.")
+            return []
+    
+    # Write data to output file
+    print(f"Writing data to {output_fn}")
+    with open(output_fn, 'w') as file:
+        json.dump(extracted_data, file, indent=4)
+    print(f"Manifest file written to {output_fn}")
+
+    return extracted_data
