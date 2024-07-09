@@ -13,7 +13,7 @@ class Gen3IndexdUpdateMetadata:
     
     def pull_indexd_param(self, file_name: str):
         try:
-            output = self.index.get_with_params({'file_name': file_name})
+            output = self.index.get_records({'file_name': file_name})
             if output:
                 print(f"SUCCESS: pulled indexd parameters for: {file_name}")
             return {
@@ -80,7 +80,7 @@ class Gen3IndexdUpdateMetadata:
 
 
 # Functions
-def extract_gen3_guids(log_path, project_id, output_dir):
+def extract_gen3_guids(log_path, project_id, output_dir, prefix: str = "PREFIX"):
     """
     Extracts filenames and object_ids from a gen3-client log file and writes them to an object manifest file.
 
@@ -107,11 +107,10 @@ def extract_gen3_guids(log_path, project_id, output_dir):
             "date_time": datetime.now().isoformat(),
             "project_id": project_id,
             "file_name": key.split(f"{project_id}/")[1],
-            "object_id": value.split("PREFIX/")[1]
+            "object_id": f"{prefix}/{value.split(f'{prefix}/')[1]}"
         }
         for key, value in log_data.items()
     ]
-    
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
     
