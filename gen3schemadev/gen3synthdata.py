@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import yaml
+import uuid
 
 
 class gen3SynthFiles:
@@ -70,9 +71,10 @@ class gen3SynthFiles:
     def synth_data_file_gen(self):
         for data_object in self.data_list:
             print(f"\nProcessing data object: {data_object}")  # Debugging print
-            file_name = data_object['file_name']
+            # file_name = data_object['file_name']
             file_format = data_object['data_format']
             synth_file = self.find_dummy_file(file_format)
-            final_file_name = f'{file_name}.{file_format}'
+            uuid_filename = str(uuid.uuid4())
+            final_file_name = f'{uuid_filename}.{file_format}'
             self.copy_file(synth_file, final_file_name)
             print(f"SUCCESS: Completed processing for file: {final_file_name}")  # Debugging print
