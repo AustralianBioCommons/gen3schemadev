@@ -16,7 +16,7 @@ class Gen3IndexdUpdateMetadata:
     def pull_indexd_param(self, guid: str):
         # time.sleep(2) # sleep for 2 seconds to give indexd time to process
         try:
-            output = self.index.get_records([f"{guid}"])[0]
+            output = self.index.get(guid)
             if output:
                 print(f"SUCCESS: pulled indexd parameters for: {guid}")
             return {
