@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 from datetime import datetime
+import time
 
 
 class Gen3IndexdUpdateMetadata:
@@ -13,6 +14,7 @@ class Gen3IndexdUpdateMetadata:
         self.indexd_guid_path = indexd_guid_path
     
     def pull_indexd_param(self, guid: str):
+        time.sleep(2) # sleep for 2 seconds to give indexd time to process
         try:
             output = self.index.get_records([f"{guid}"])[0]
             if output:
@@ -97,10 +99,8 @@ class Gen3IndexdUpdateMetadata:
                 print(f"Skipping {filename} Could not pull GUID.")
 
         # writing metadata
-        if os.path.exists(f"{self.metadata_dir}/{output_dir}"):
-            print(f"Deleting output dir: {self.metadata_dir}/{output_dir}")
-            shutil.rmtree(f"{self.metadata_dir}/{output_dir}")
-        os.makedirs(f"{self.metadata_dir}/{output_dir}", exist_ok=True)
+        if not os.path.exists(f"{self.metadata_dir}/{output_dir}"):
+            os.makedirs(f"{self.metadata_dir}/{output_dir}", exist_ok=True)
         print(f"Writing metadata to: {self.metadata_dir}/{output_dir}/{file_path}")
         self.write_metadata(f"{output_dir}/{file_path}", metadata)
 
