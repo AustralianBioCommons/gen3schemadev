@@ -7,15 +7,16 @@ from datetime import datetime
 
 class Gen3IndexdUpdateMetadata:
     
-    def __init__(self, auth, metadata_dir: str):
+    def __init__(self, auth, metadata_dir: str, indexd_guid_path: str):
         self.index = Gen3Index(auth)
         self.metadata_dir = metadata_dir
+        self.indexd_guid_path = indexd_guid_path
     
-    def pull_indexd_param(self, file_name: str):
+    def pull_indexd_param(self, guid: str):
         try:
-            output = self.index.get_records({'file_name': file_name})
+            output = self.index.get_records([f"{guid}"])[0]
             if output:
-                print(f"SUCCESS: pulled indexd parameters for: {file_name}")
+                print(f"SUCCESS: pulled indexd parameters for: {guid}")
             return {
                 'file_name': output['file_name'],
                 'object_id': output['did'],
@@ -23,7 +24,7 @@ class Gen3IndexdUpdateMetadata:
                 'md5sum': output['hashes']['md5']
             }
         except Exception as e:
-            print(f"ERROR: No metadata found for: {file_name} | Check S3 | {e}")
+            print(f"ERROR: No metadata found for GUID: {guid} | Check S3 | {e}")
             return None
     
     def read_metadata(self, file_path: str):
@@ -50,6 +51,29 @@ class Gen3IndexdUpdateMetadata:
             print(f"Unexpected error: {e} in entry {entry}")
             return None
     
+    def pull_gen3_guid(self, indexd_guid_path: str, file_name: str):
+        """
+        Pulls the object_id from a JSON file for a matching file_name.
+
+        Args:
+            indexd_guid_path (str): The path to the JSON file.
+            file_name (str): The file name to match.
+            
+        Returns:
+            str: The object_id if found, else None.
+        """
+        try:
+            with open(indexd_guid_path, "r") as f:
+                data = json.load(f)
+                for entry in data:
+                    if entry.get("file_name") == file_name:
+                        return entry.get("object_id")
+            print(f"No matching file_name found for: {file_name}")
+            return None
+        except Exception as e:
+            print(f"Error reading JSON file: {indexd_guid_path} | {e}")
+            return None
+    
     def update_metadata(self, file_path: str, output_dir: str):
         print(f"\n\n\n=======================================================\n=======================================================")
         print(f"UPDATING METADATA: {file_path}")
@@ -57,8 +81,10 @@ class Gen3IndexdUpdateMetadata:
         metadata = self.read_metadata(file_path)
         for entry in metadata:
             filename = self.pull_filename(entry)
-            if filename:
-                indexes = self.pull_indexd_param(filename)
+            guid = self.pull_gen3_guid(f"{self.indexd_guid_path}", filename)
+            print(f"Filename: {filename} | GUID: {guid}")
+            if guid:
+                indexes = self.pull_indexd_param(guid)
                 if indexes:
                     print(f"Appending metadata: {indexes}")
                     entry['file_name'] = indexes['file_name']
@@ -66,9 +92,9 @@ class Gen3IndexdUpdateMetadata:
                     entry['file_size'] = indexes['file_size']
                     entry['md5sum'] = indexes['md5sum']
                 else:
-                    print(f"Skipping {filename} due to missing metadata.")
+                    print(f"Skipping {filename} Could not pull indexd parameters.")
             else:
-                print(f"Skipping {filename} due to missing metadata.")
+                print(f"Skipping {filename} Could not pull GUID.")
 
         # writing metadata
         if os.path.exists(f"{self.metadata_dir}/{output_dir}"):
@@ -137,3 +163,22 @@ def extract_gen3_guids(log_path, project_id, output_dir, prefix: str = "PREFIX")
     print(f"Manifest file written to {output_fn}")
 
     return extracted_data
+
+
+def check_unlinked_objects(file_path):
+    # read json file
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+        print(f"Metadata read from: {file_path}")
+    
+    # for each object in the array, check if object_id key exists, if not, pull the value of filename, and append to unlinked_list
+    unlinked_list = []
+    n_objects = len(data)
+    unlinked_count = 0
+    for entry in data:
+        if 'object_id' not in entry:
+            filename = f"{entry['file_name']}.{entry['data_format']}"
+            unlinked_list.append(filename)
+            unlinked_count += 1
+    print(f"Unlinked objects: {unlinked_count}/{n_objects}")
+    return unlinked_list
