@@ -14,7 +14,7 @@ class Gen3IndexdUpdateMetadata:
         self.indexd_guid_path = indexd_guid_path
     
     def pull_indexd_param(self, guid: str):
-        time.sleep(2) # sleep for 2 seconds to give indexd time to process
+        # time.sleep(2) # sleep for 2 seconds to give indexd time to process
         try:
             output = self.index.get_records([f"{guid}"])[0]
             if output:
