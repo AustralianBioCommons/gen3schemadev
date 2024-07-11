@@ -4,6 +4,7 @@ import os
 import shutil
 from datetime import datetime
 import time
+import uuid
 
 
 class Gen3IndexdUpdateMetadata:
@@ -103,6 +104,39 @@ class Gen3IndexdUpdateMetadata:
             os.makedirs(f"{self.metadata_dir}/{output_dir}", exist_ok=True)
         print(f"Writing metadata to: {self.metadata_dir}/{output_dir}/{file_path}")
         self.write_metadata(f"{output_dir}/{file_path}", metadata)
+        
+
+    def create_manifest_from_folder(self, project_id):
+        """
+        Reads the files in the specified folder and creates a JSON manifest file.
+
+        Args:
+            project_id (str): The ID of the project.
+        """
+        
+        folder_path = f"{self.metadata_dir}/{project_id}"
+        output_path = f"{self.metadata_dir}/../../../manifests"
+        
+        files = os.listdir(folder_path)
+        # print(f"Found {files} files in the folder.")
+        manifest = [
+            {
+                "file_name": file,
+                "object_id": f"temp_{str(uuid.uuid4())}"
+            }
+            for file in files
+        ]
+        # print(f"Manifest: {manifest}")
+        
+        date_time = datetime.now().strftime("%Y%m%d")
+        
+        if not os.path.exists(output_path):
+            os.makedirs(output_path, exist_ok=True)
+        
+        with open(f"{output_path}/{date_time}_{project_id}_manifest.json", 'w') as manifest_file:
+            json.dump(manifest, manifest_file, indent=4)
+        
+        print(f"Manifest file created at: {output_path}")
 
 
 # Functions
