@@ -118,6 +118,20 @@ dummy_serum.tsv:
   - tsv
   - serum marker
   - serum markers
+dummy_image.dcm:
+  - dcm
+  - dicom
+  - image
+  - medical image
+  - medical_image
+dummy_image.nii:
+  - nii
+  - nii.gz
+  - neuroimaging
+  - neuro
+  - imaging
+  - medical image
+  - medical_image
 file_stats.json:
   - file
   - stats
