@@ -396,3 +396,49 @@ def submit_metadata_and_files(base_dir: str, project_id: str, api_endpoint: str,
                     print(f"=== Error importing {node}: {e} ===")
         else:
             print(f"Skipping {node} due to previous errors.")
+
+         
+def delete_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"]):
+    """
+    Deletes metadata json files from the gen3 api endpoint. Deletion depends on a DataImportOrder.txt file, which defines the order of the nodes to be deleted.
+
+    Args:
+        base_dir (str): The path to the folder containing the metadata .json files. Should not contain project_id or indexd folder
+        project_id (str): The ID of the project.
+        api_endpoint (str): Gen3 API endpoint.
+        credentials (str): The path to the file containing the API credentials.
+        exclude_nodes (list): A list of node names to exclude from the deletion. Default is ["project", "program", "acknowledgement", "publication"].
+
+    Returns:
+        None
+    """
+    
+    def get_import_order(project_name, folder_path):
+        try:
+            with open(os.path.join(folder_path, project_name, "indexd", "DataImportOrder.txt"), "r") as f:
+                import_order = [line.rstrip() for line in f]
+                import_order = [node for node in import_order if node not in exclude_nodes]
+            return import_order
+        except FileNotFoundError:
+            print(f"Error: DataImportOrder.txt not found in {os.path.join(folder_path, project_name)}")
+            return []
+
+    ordered_import_nodes = get_import_order(project_id, base_dir)
+    auth = Gen3Auth(refresh_file=credentials)
+    sub = Gen3Submission(endpoint=api_endpoint, auth_provider=auth)
+    
+    final_ordered_import_nodes = [node for node in ordered_import_nodes if node not in exclude_nodes]
+    final_ordered_import_nodes.reverse()  # Reverse the order for deletion
+
+    confirm = input("Do you want to delete the metadata? (yes/no): ").strip().lower()
+    if confirm != 'yes':
+        print("Deletion cancelled by user.")
+        return
+    
+    for node in final_ordered_import_nodes:
+        print(f"\n\n=== Deleting: {node} ===")
+        try:
+            sub.delete_nodes("program1", project_id, [node])
+            print(f"=== Successfully Deleted: {node} ===")
+        except Exception as e:
+            print(f"=== Error deleting {node}: {e} ===")
