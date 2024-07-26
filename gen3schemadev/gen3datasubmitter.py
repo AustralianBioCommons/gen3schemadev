@@ -1,9 +1,7 @@
 from gen3.index import Gen3Index
 import json
 import os
-import shutil
 from datetime import datetime
-import time
 import uuid
 
 
@@ -15,7 +13,6 @@ class Gen3IndexdUpdateMetadata:
         self.indexd_guid_path = indexd_guid_path
     
     def pull_indexd_param(self, guid: str):
-        # time.sleep(2) # sleep for 2 seconds to give indexd time to process
         try:
             output = self.index.get(guid)
             if output:
@@ -199,20 +196,210 @@ def extract_gen3_guids(log_path, project_id, output_dir, prefix: str = "PREFIX")
     return extracted_data
 
 
-def check_unlinked_objects(file_path):
-    # read json file
-    with open(file_path, 'r') as f:
-        data = json.load(f)
-        print(f"Metadata read from: {file_path}")
+def create_manifest_from_folder(folder_path, project_id, output_path):
+    """
+    Reads the files in the specified folder and creates a JSON manifest file.
+
+    Args:
+        folder_path (str): The path to the folder containing the files.
+        project_id (str): The ID of the project.
+        output_path (str): The path where the manifest file will be saved.
+    """
     
-    # for each object in the array, check if object_id key exists, if not, pull the value of filename, and append to unlinked_list
-    unlinked_list = []
-    n_objects = len(data)
-    unlinked_count = 0
-    for entry in data:
-        if 'object_id' not in entry:
-            filename = f"{entry['file_name']}.{entry['data_format']}"
-            unlinked_list.append(filename)
-            unlinked_count += 1
-    print(f"Unlinked objects: {unlinked_count}/{n_objects}")
-    return unlinked_list
+    files = os.listdir(f"{folder_path}/{project_id}")
+    # print(f"Found {files} files in the folder.")
+    manifest = [
+        {
+            "file_name": file,
+            "object_id": f"temp_{str(uuid.uuid4())}"
+        }
+        for file in files
+    ]
+    # print(f"Manifest: {manifest}")
+    
+    date_time = datetime.now().strftime("%Y%m%d")
+    
+    outpath_dir = os.path.dirname(output_path)
+    if not os.path.exists(outpath_dir):
+        os.makedirs(outpath_dir, exist_ok=True)
+    
+    with open(f"{output_path}/{date_time}_{project_id}_manifest.json", 'w') as manifest_file:
+        json.dump(manifest, manifest_file, indent=4)
+    
+    return (f"Manifest file created at: {output_path}")
+
+
+# def check_unlinked_objects(file_path):
+#     # read json file
+#     with open(file_path, 'r') as f:
+#         data = json.load(f)
+#         print(f"Metadata read from: {file_path}")
+    
+#     # for each object in the array, check if object_id key exists, if not, pull the value of filename, and append to unlinked_list
+#     unlinked_list = []
+#     n_objects = len(data)
+#     unlinked_count = 0
+#     for entry in data:
+#         if 'object_id' not in entry:
+#             filename = f"{entry['file_name']}.{entry['data_format']}"
+#             unlinked_list.append(filename)
+#             unlinked_count += 1
+#     print(f"Unlinked objects: {unlinked_count}/{n_objects}")
+#     return unlinked_list
+
+
+#     def update_and_copy_metadata(base_dir, auth_file, indexd_guid_file):
+#         import sys
+#         import os
+#         from gen3.auth import Gen3Auth
+#         from gen3.index import Gen3Index
+#         sys.path.append(os.path.abspath('gen3schemadev'))
+#         # Refresh the gen3schemadev library
+#         import importlib
+#         import gen3schemadev
+#         importlib.reload(gen3schemadev)
+#         import shutil
+#         import glob
+
+#         # Check if base directory exists
+#         if not os.path.exists(base_dir):
+#             print(f"Error: Base directory {base_dir} does not exist.")
+#             return
+
+#         # Check if auth file exists
+#         if not os.path.isfile(auth_file):
+#             print(f"Error: Auth file {auth_file} does not exist.")
+#             return
+
+#         # Check if indexd guid file exists
+#         if not os.path.isfile(indexd_guid_file):
+#             print(f"Error: Indexd GUID file {indexd_guid_file} does not exist.")
+#             return
+
+#         # Creating indexd linked metadata files for all file nodes
+#         data_import_nodes = os.listdir(f"{base_dir}/")
+#         file_nodes = [node for node in data_import_nodes if node.endswith('_file.json')]
+#         non_file_nodes = [node for node in data_import_nodes if not node.endswith('_file.json')]
+
+#         print(f"Found {len(file_nodes)} file nodes and {len(non_file_nodes)} non-file nodes in {base_dir}")
+
+#         # Adding indexd guids to file node metadata
+#         auth = Gen3Auth(refresh_file=auth_file)
+#         index_meta = gen3schemadev.gen3datasubmitter.Gen3IndexdUpdateMetadata(auth, f"{base_dir}", indexd_guid_file)
+#         for fn in file_nodes:
+#             print(f"Updating metadata for file node: {fn}")
+#             index_meta.update_metadata(f"{fn}", "indexd")
+
+#         # Ensure the indexd directory exists
+#         indexd_dir = f"{base_dir}/indexd"
+#         if not os.path.exists(indexd_dir):
+#             os.makedirs(indexd_dir, exist_ok=True)
+#             print(f"Created directory: {indexd_dir}")
+
+#         # Copying non-file nodes to the indexd folder
+#         for node in non_file_nodes:
+#             print(f"Copying non-file node: {node} to {indexd_dir}")
+#             shutil.copy(f"{base_dir}/{node}", f"{indexd_dir}/{node}")
+
+#         data_import_order_file = f"{base_dir}/DataImportOrder.txt"
+#         if os.path.isfile(data_import_order_file):
+#             print(f"Copying DataImportOrder.txt to {indexd_dir}")
+#             shutil.copy(data_import_order_file, f"{indexd_dir}/DataImportOrder.txt")
+#         else:
+#             print(f"Warning: DataImportOrder.txt does not exist in {base_dir}")
+
+class MetadataManager:
+    def __init__(self, base_dir, auth_file, indexd_guid_file):
+        """
+        Initializes a new instance of the MetadataManager class.
+
+        Args:
+            base_dir (str): The base directory path.
+            auth_file (str): The path to the authentication file.
+            indexd_guid_file (str): The path to the indexd GUID file.
+
+        Initializes the following instance variables:
+            - base_dir (str): The base directory path.
+            - auth_file (str): The path to the authentication file.
+            - indexd_guid_file (str): The path to the indexd GUID file.
+            - auth (None): The authentication object.
+            - index_meta (None): The index metadata object.
+        """
+        self.base_dir = base_dir
+        self.auth_file = auth_file
+        self.indexd_guid_file = indexd_guid_file
+        self.auth = None
+        self.index_meta = None
+
+    def initialize_gen3_auth(self):
+        from gen3.auth import Gen3Auth
+        from gen3.index import Gen3Index
+        import sys
+        import os
+        sys.path.append(os.path.abspath('gen3schemadev'))
+        import importlib
+        import gen3schemadev
+        importlib.reload(gen3schemadev)
+
+        # Check if base directory exists
+        if not os.path.exists(self.base_dir):
+            raise FileNotFoundError(f"Base directory {self.base_dir} does not exist.")
+
+        # Check if auth file exists
+        if not os.path.isfile(self.auth_file):
+            raise FileNotFoundError(f"Auth file {self.auth_file} does not exist.")
+
+        # Check if indexd guid file exists
+        if not os.path.isfile(self.indexd_guid_file):
+            raise FileNotFoundError(f"Indexd GUID file {self.indexd_guid_file} does not exist.")
+
+        self.auth = Gen3Auth(refresh_file=self.auth_file)
+        self.index_meta = gen3schemadev.gen3datasubmitter.Gen3IndexdUpdateMetadata(self.auth, self.base_dir, self.indexd_guid_file)
+
+    def check_unlinked_objects(self, file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            print(f"Metadata read from: {file_path}")
+
+        unlinked_list = []
+        n_objects = len(data)
+        unlinked_count = 0
+        for entry in data:
+            if 'object_id' not in entry:
+                filename = f"{entry['file_name']}.{entry['data_format']}"
+                unlinked_list.append(filename)
+                unlinked_count += 1
+        print(f"Unlinked objects: {unlinked_count}/{n_objects}")
+        return unlinked_list
+
+    def update_and_copy_metadata(self):
+        import shutil
+        import os
+
+        self.initialize_gen3_auth()
+
+        data_import_nodes = os.listdir(f"{self.base_dir}/")
+        file_nodes = [node for node in data_import_nodes if node.endswith('_file.json')]
+        non_file_nodes = [node for node in data_import_nodes if not node.endswith('_file.json')]
+
+        print(f"Found {len(file_nodes)} file nodes and {len(non_file_nodes)} non-file nodes in {self.base_dir}")
+
+        for fn in file_nodes:
+            print(f"Updating metadata for file node: {fn}")
+            self.index_meta.update_metadata(f"{fn}", "indexd")
+
+        indexd_dir = f"{self.base_dir}/indexd"
+        if not os.path.exists(indexd_dir):
+            os.makedirs(indexd_dir, exist_ok=True)
+            print(f"Created directory: {indexd_dir}")
+
+        for node in non_file_nodes:
+            print(f"Copying non-file node: {node} to {indexd_dir}")
+            shutil.copy(f"{self.base_dir}/{node}", f"{indexd_dir}/{node}")
+
+        data_import_order_file = f"{self.base_dir}/DataImportOrder.txt"
+        if os.path.isfile(data_import_order_file):
+            print(f"Copying DataImportOrder.txt to {indexd_dir}")
+            shutil.copy(data_import_order_file, f"{indexd_dir}/DataImportOrder.txt")
+        else:
+            print(f"Warning: DataImportOrder.txt does not exist in {self.base_dir}")
