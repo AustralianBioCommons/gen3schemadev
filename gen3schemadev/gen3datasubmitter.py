@@ -329,7 +329,7 @@ def copy_remaining_metadata(base_dir):
         print(f"Warning: DataImportOrder.txt does not exist in {base_dir}")
         
 
-def submit_metadata_and_files(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False):
+def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False):
     """
     Submits metadata json files to the gen3 api endpoint. Submission depends on a DataImportOrder.txt file, which defines the order of the nodes to be imported.
 
