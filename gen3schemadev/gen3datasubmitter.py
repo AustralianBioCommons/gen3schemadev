@@ -398,12 +398,12 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
             print(f"Skipping {node} due to previous errors.")
 
          
-def delete_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"]):
+def delete_metadata(import_order_file: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"]):
     """
     Deletes metadata json files from the gen3 api endpoint. Deletion depends on a DataImportOrder.txt file, which defines the order of the nodes to be deleted.
 
     Args:
-        base_dir (str): The path to the folder containing the metadata .json files. Should not contain project_id or indexd folder
+        import_order_file (str): The path to the import order file
         project_id (str): The ID of the project.
         api_endpoint (str): Gen3 API endpoint.
         credentials (str): The path to the file containing the API credentials.
@@ -413,17 +413,17 @@ def delete_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         None
     """
     
-    def get_import_order(project_name, folder_path):
+    def get_import_order(import_order_file):
         try:
-            with open(os.path.join(folder_path, project_name, "indexd", "DataImportOrder.txt"), "r") as f:
+            with open(import_order_file, "r") as f:
                 import_order = [line.rstrip() for line in f]
                 import_order = [node for node in import_order if node not in exclude_nodes]
             return import_order
         except FileNotFoundError:
-            print(f"Error: DataImportOrder.txt not found in {os.path.join(folder_path, project_name)}")
+            print(f"Error: DataImportOrder.txt not found in {import_order_file}")
             return []
 
-    ordered_import_nodes = get_import_order(project_id, base_dir)
+    ordered_import_nodes = get_import_order(import_order_file)
     auth = Gen3Auth(refresh_file=credentials)
     sub = Gen3Submission(endpoint=api_endpoint, auth_provider=auth)
     
