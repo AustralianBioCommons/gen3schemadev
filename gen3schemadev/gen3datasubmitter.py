@@ -26,19 +26,24 @@ class AddIndexdMetadata:
         self.metadata_dir = metadata_dir
         self.indexd_guid_path = indexd_guid_path
     
-    def pull_indexd_param(self, guid: str):
+    def pull_indexd_param(self, guid: str, file_name: str):
         try:
             output = self.index.get(guid)
             if output:
-                print(f"SUCCESS: pulled indexd parameters for: {guid}")
-            return {
-                'file_name': output['file_name'],
-                'object_id': output['did'],
-                'file_size': output['size'],
-                'md5sum': output['hashes']['md5']
-            }
+                try:
+                    output_jsn = {
+                        'file_name': output['file_name'],
+                        'object_id': output['did'],
+                        'file_size': output['size'],
+                        'md5sum': output['hashes']['md5']
+                    }
+                    print(f"{file_name}\t| SUCCESS | pulled indexd parameters for: {guid}")
+                    return output_jsn
+                except KeyError as e:
+                    print(f"{file_name}\t| ERROR | Missing required key {e} in output for GUID: {guid}")
+                    return None
         except Exception as e:
-            print(f"ERROR: No metadata found for GUID: {guid} | Check S3 | {e}")
+            # print(f"{file_name} | ERROR | No metadata found for GUID: {guid} | Check S3 | {e}")
             return None
     
     def read_metadata(self, file_path: str):
@@ -96,19 +101,19 @@ class AddIndexdMetadata:
         for entry in metadata:
             filename = self.pull_filename(entry)
             guid = self.pull_gen3_guid(f"{self.indexd_guid_path}", filename)
-            print(f"Filename: {filename} | GUID: {guid}")
+            print(f"{filename}\t| GUID | {guid}")
             if guid:
-                indexes = self.pull_indexd_param(guid)
+                indexes = self.pull_indexd_param(guid, filename)
                 if indexes:
-                    print(f"Appending metadata: {indexes}")
+                    print(f"{filename}\t| UPDATING | Appending metadata: {indexes}")
                     entry['file_name'] = indexes['file_name']
                     entry['object_id'] = indexes['object_id']
                     entry['file_size'] = indexes['file_size']
                     entry['md5sum'] = indexes['md5sum']
                 else:
-                    print(f"Skipping {filename} Could not pull indexd parameters.")
+                    print(f"{filename}\t| SKIPPING | Could not pull indexd parameters.")
             else:
-                print(f"Skipping {filename} Could not pull GUID.")
+                print(f"{filename}\t| SKIPPING | Could not pull GUID.")
 
         # writing metadata
         if not os.path.exists(f"{self.metadata_dir}/{output_dir}"):
