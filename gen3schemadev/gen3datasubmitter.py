@@ -98,7 +98,10 @@ class AddIndexdMetadata:
         print(f"UPDATING METADATA: {file_path}")
         print(f"=======================================================\n=======================================================")
         metadata = self.read_metadata(file_path)
-        for entry in metadata:
+        num_objects = len(metadata)
+        print(f"Number of objects in JSON array: {num_objects}")
+        for index, entry in enumerate(metadata):
+            print(f"\n{index+1}/{num_objects} | {entry['file_name']}")
             filename = self.pull_filename(entry)
             guid = self.pull_gen3_guid(f"{self.indexd_guid_path}", filename)
             print(f"{filename}\t| GUID | {guid}")
