@@ -41,6 +41,7 @@ dummy_cram.cram:
 dummy_crami.cram.crai:
   - crami
   - crai
+  - cram.crai
   - index
 dummy_lipids.csv:
   - lipids
@@ -89,6 +90,7 @@ dummy_bam.bam:
 dummy_bami.bam.bai:
   - bami 
   - bai
+  - bam.bai
   - index
 dummy_metab.wiff:
   - metab
@@ -132,19 +134,3 @@ dummy_image.nii:
   - imaging
   - medical image
   - medical_image
-file_stats.json:
-  - file
-  - stats
-  - json
-generate_sizes_and_md5s.py:
-  - generate
-  - sizes
-  - md5s
-  - script
-  - python
-synthetic_file_index.yaml:
-  - synthetic
-  - file
-  - index
-  - yaml
-  - config

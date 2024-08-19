@@ -198,6 +198,9 @@ class gen3SynthFiles:
                 for data_object in metadata:
                     file_format = data_object['data_format']
                     synth_filename = self.find_dummy_file(file_format)
+                    print(f"synth_filename: {synth_filename}")
+                    synth_filename = synth_filename.split('.')[0]
+                    print(f"updated synth_filename: {synth_filename}")
                     data_object['file_name'] = synth_filename
                 
                 self.write_json_file(metadata, os.path.join(self.output_dir, project, filename))
