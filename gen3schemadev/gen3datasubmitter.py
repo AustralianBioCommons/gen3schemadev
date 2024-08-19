@@ -93,7 +93,7 @@ class AddIndexdMetadata:
             print(f"Error reading JSON file: {indexd_guid_path} | {e}")
             return None
     
-    def update_metadata_with_indexd(self, file_path: str, output_dir: str, n_file_progress: int, n_file_total: int):
+    def update_metadata_with_indexd(self, file_path: str, output_dir: str, project_id: str, n_file_progress: int, n_file_total: int):
         print(f"\n\n\n=======================================================\n=======================================================")
         print(f"UPDATING METADATA: {file_path}")
         print(f"=======================================================\n=======================================================")
@@ -101,7 +101,7 @@ class AddIndexdMetadata:
         num_objects = len(metadata)
         print(f"Number of objects in JSON array: {num_objects}")
         for index, entry in enumerate(metadata):
-            print(f"\nFILE | {n_file_progress}/{n_file_total} | {file_path}")
+            print(f"\nFILE | {project_id} | {n_file_progress}/{n_file_total} | {file_path}")
             print(f"{index+1}/{num_objects} | {entry['file_name']}")
             filename = self.pull_filename(entry)
             guid = self.pull_gen3_guid(f"{self.indexd_guid_path}", filename)
@@ -258,7 +258,7 @@ def check_unlinked_objects(file_path):
 
 
 
-def update_metadata(base_dir, auth_file, indexd_guid_file):
+def update_metadata(base_dir, auth_file, indexd_guid_file, project_id: str = None):
     """
     Update metadata files for all file nodes in the given base directory by adding indexd guids to their metadata.
     
@@ -300,7 +300,7 @@ def update_metadata(base_dir, auth_file, indexd_guid_file):
     index_meta = AddIndexdMetadata(auth, f"{base_dir}", indexd_guid_file)
     for index, fn in enumerate(file_nodes):
         print(f"Updating metadata for file node: {fn}")
-        index_meta.update_metadata_with_indexd(f"{fn}", "indexd", n_file_progress=index, n_file_total=total_file_nodes)
+        index_meta.update_metadata_with_indexd(f"{fn}", "indexd", n_file_progress=index, n_file_total=total_file_nodes, project_id=project_id)
         
         
 def copy_remaining_metadata(base_dir):
