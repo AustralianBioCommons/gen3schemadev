@@ -93,7 +93,7 @@ class AddIndexdMetadata:
             print(f"Error reading JSON file: {indexd_guid_path} | {e}")
             return None
     
-    def update_metadata(self, file_path: str, output_dir: str):
+    def update_metadata_with_indexd(self, file_path: str, output_dir: str, n_file_progress: int, n_file_total: int):
         print(f"\n\n\n=======================================================\n=======================================================")
         print(f"UPDATING METADATA: {file_path}")
         print(f"=======================================================\n=======================================================")
@@ -101,7 +101,8 @@ class AddIndexdMetadata:
         num_objects = len(metadata)
         print(f"Number of objects in JSON array: {num_objects}")
         for index, entry in enumerate(metadata):
-            print(f"\n{index+1}/{num_objects} | {entry['file_name']}")
+            print(f"\nFILE | {n_file_progress}/{n_file_total} | {file_path}")
+            print(f"{index+1}/{num_objects} | {entry['file_name']}")
             filename = self.pull_filename(entry)
             guid = self.pull_gen3_guid(f"{self.indexd_guid_path}", filename)
             print(f"{filename}\t| GUID | {guid}")
@@ -151,12 +152,12 @@ def extract_gen3_guids(log_path, project_id, output_dir, prefix: str = "PREFIX")
     print(f"Extracting data from {log_file_path}")
     with open(log_file_path, 'r') as file:
         log_data = json.load(file)
-
+    
     extracted_data = [
         {
             "date_time": datetime.now().isoformat(),
             "project_id": project_id,
-            "file_name": key.split(f"{project_id}/")[1],
+            "file_name": os.path.basename(key),
             "object_id": f"{prefix}/{value.split(f'{prefix}/')[1]}"
         }
         for key, value in log_data.items()
@@ -189,18 +190,31 @@ def extract_gen3_guids(log_path, project_id, output_dir, prefix: str = "PREFIX")
     return extracted_data
 
 
-def create_manifest_from_folder(folder_path, project_id, output_path):
+def create_manifest_from_folder(folder_path, project_id=None, output_path=None, exclude_extension: list = None):
     """
-    Reads the files in the specified folder and creates a JSON manifest file.
+    Reads the files in the specified folder and creates a JSON manifest file. If project_id is not specified, the folder name is used.
 
     Args:
         folder_path (str): The path to the folder containing the files.
         project_id (str): The ID of the project.
         output_path (str): The path where the manifest file will be saved.
-    """
+        exclude_extension (list): A list of file extensions to exclude from the manifest.
     
-    files = os.listdir(f"{folder_path}/{project_id}")
-    # print(f"Found {files} files in the folder.")
+    Returns:
+        str: The path to the created manifest file or an error message.
+    """
+    date_time = datetime.now().strftime("%Y%m%d")
+    
+    if not project_id:
+        files = os.listdir(folder_path)
+        manifest_path = f"{output_path}/{date_time}_manifest.json"
+    else:
+        files = os.listdir(os.path.join(folder_path, project_id))
+        manifest_path = f"{output_path}/{date_time}_{project_id}_manifest.json"
+    
+    if exclude_extension:
+        files = [file for file in files if not any(file.endswith(ext) for ext in exclude_extension)]
+    
     manifest = [
         {
             "file_name": file,
@@ -208,18 +222,19 @@ def create_manifest_from_folder(folder_path, project_id, output_path):
         }
         for file in files
     ]
-    # print(f"Manifest: {manifest}")
-    
-    date_time = datetime.now().strftime("%Y%m%d")
     
     outpath_dir = os.path.dirname(output_path)
     if not os.path.exists(outpath_dir):
         os.makedirs(outpath_dir, exist_ok=True)
     
-    with open(f"{output_path}/{date_time}_{project_id}_manifest.json", 'w') as manifest_file:
-        json.dump(manifest, manifest_file, indent=4)
+    try:
+        with open(manifest_path, 'w') as manifest_file:
+            json.dump(manifest, manifest_file, indent=4)
+    except IOError as e:
+        print(f"Error writing to file {manifest_path}: {e}")
+        return f"Error writing to file {manifest_path}: {e}"
     
-    return (f"Manifest file created at: {output_path}")
+    return f"Manifest file created at: {manifest_path}"
 
 
 def check_unlinked_objects(file_path):
@@ -277,14 +292,15 @@ def update_metadata(base_dir, auth_file, indexd_guid_file):
     # Creating indexd linked metadata files for all file nodes
     data_import_nodes = os.listdir(f"{base_dir}/")
     file_nodes = [node for node in data_import_nodes if node.endswith('_file.json')]
+    total_file_nodes = len(file_nodes)
     print(f"Found {len(file_nodes)} file nodes in {base_dir}")
     
     # Adding indexd guids to file node metadata
     auth = Gen3Auth(refresh_file=auth_file)
     index_meta = AddIndexdMetadata(auth, f"{base_dir}", indexd_guid_file)
-    for fn in file_nodes:
+    for index, fn in enumerate(file_nodes):
         print(f"Updating metadata for file node: {fn}")
-        index_meta.update_metadata(f"{fn}", "indexd")
+        index_meta.update_metadata_with_indexd(f"{fn}", "indexd", n_file_progress=index, n_file_total=total_file_nodes)
         
         
 def copy_remaining_metadata(base_dir):
