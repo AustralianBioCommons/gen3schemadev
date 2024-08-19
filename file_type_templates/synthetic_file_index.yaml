@@ -1,7 +1,10 @@
 dummy_vcf.vcf.gz:
-  - vcf
   - vcf.gz
-  - VCF
+  - variant
+  - variant file
+  - variant_file
+dummy_vcf.vcf:
+  - vcf
   - variant
   - variant file
   - variant_file
@@ -39,9 +42,10 @@ dummy_cram.cram:
   - aligned reads file
   - aligned_reads_file
 dummy_crami.cram.crai:
-  - crami
-  - crai
   - cram.crai
+  - index
+dummy_crami.crai:
+  - crai
   - index
 dummy_lipids.csv:
   - lipids
@@ -87,9 +91,19 @@ dummy_bam.bam:
   - aligned reads
   - aligned reads file
   - aligned_reads_file
-dummy_bami.bam.bai:
-  - bami 
+dummy_bami.bai:
   - bai
+  - genomic
+  - genomics
+  - genome
+  - compressed
+  - alignment
+  - aligned_read_file
+  - aligned read file
+  - aligned reads
+  - aligned reads file
+  - aligned_reads_file
+dummy_bami.bam.bai:
   - bam.bai
   - index
 dummy_metab.wiff:
