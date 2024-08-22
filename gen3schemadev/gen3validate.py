@@ -351,3 +351,7 @@ class SchemaValidator:
         plt.xticks(rotation=45)
         plt.tight_layout()
         plt.show()
+        
+        
+class ValidationReporter:
+    # this will provide functions and methods to report validation results
