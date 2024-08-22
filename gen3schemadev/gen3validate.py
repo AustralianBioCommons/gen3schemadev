@@ -204,6 +204,11 @@ class SchemaResolver:
     
 
 class SchemaValidator:
+    
+    
+    
+class ValidationReporter:
+    # this class will provide tools and methods to report validation results
     def __init__(self, data: list, schema_fn: str):
         self.data = data
         self.schema_fn = schema_fn
