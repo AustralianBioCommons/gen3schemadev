@@ -58,6 +58,13 @@ class SchemaResolver:
             schema = json.load(f)
         print(f'{json_path} successfully loaded')
         return schema
+    
+    def read_json_abs(self, json_fn: str):
+        json_path = json_fn
+        with open(json_path, 'r') as f:
+            schema = json.load(f)
+        print(f'{json_path} successfully loaded')
+        return schema
 
     def write_json(self, json_fn: str, schema: dict):
         json_path = os.path.join(self.base_path, json_fn)
@@ -275,6 +282,95 @@ class SchemaValidator:
             "fail_count": fail_count,
             "error_messages": error_messages
         }
+        
+import pandas as pd
+
+class SchemaValidatorDataFrame:
+    def __init__(self, data: list, schema_fn: str):
+        self.data = data
+        self.schema_fn = schema_fn
+        self.schema = self.read_schema()
+        self.results, self.metrics = self.validate_schema()
+        self.errors = self.results[self.results['Validation Result'] == 'FAIL']
+     
+    def read_schema(self):
+        with open(self.schema_fn, 'r') as f:
+            schema = json.load(f)
+        print(f'{self.schema_fn} successfully loaded')
+        return schema
+    
+    def validate_schema(self):
+        """
+        Validates a JSON schema against a data dictionary.
+
+        Args:
+        - schema_fn (str): The relative path of the [resolved] JSON schema file.
+        - data (dict): The data dictionary to validate against the schema.
+
+        Returns:
+        - list: A list containing two DataFrames, one for validation results and one for metrics.
+        """
+        # Create a validator with the resolver
+        validator = Draft4Validator(self.schema)
+        
+        # Initialize counters and error storage
+        success_count = 0
+        fail_count = 0
+        validation_results = []
+
+        # Function to validate per object
+        def validate_object(obj, idx):
+            errors = list(validator.iter_errors(obj))
+            if not errors:
+                validation_results.append({
+                    "Index": idx,
+                    "Validation Result": "SUCCESS",
+                    "Invalid key": None,
+                    "Schema path": None,
+                    "Validator": None,
+                    "Validator value": None,
+                    "Validation error": None
+                })
+                print("=== SUCCESS ===")
+                return True
+            else:
+                for error in errors:
+                    validation_results.append({
+                        "Index": idx,
+                        "Validation Result": "FAIL",
+                        "Invalid key": list(error.path),
+                        "Schema path": list(error.schema_path),
+                        "Validator": error.validator,
+                        "Validator value": error.validator_value,
+                        "Validation error": error.message
+                    })
+                    print(f"Invalid key: {list(error.path)}")
+                    print(f"Schema path: {list(error.schema_path)}")
+                    print(f"Validator: {error.validator}")
+                    print(f"Validator value: {error.validator_value}")
+                    print(f"Validation error: {error.message}")
+                    print('=== FAIL ===')
+                return False
+        
+        try:
+            total = len(self.data)
+            for idx, item in enumerate(self.data, start=1):
+                print(f"=== Validating item {idx} of {total} ===")
+                if validate_object(item, idx):
+                    success_count += 1
+                else:
+                    fail_count += 1
+        except Exception as e:
+            print(f"An error occurred during validation: {e}")
+
+        results_df = pd.DataFrame(validation_results)
+        metrics_df = pd.DataFrame([{
+            "total_count": total,
+            "success_count": success_count,
+            "fail_count": fail_count
+        }])
+
+        return [results_df, metrics_df]
 
     def print_errors(self):
         """
@@ -356,3 +452,5 @@ class SchemaValidator:
 class ValidationReporter:
     # this will provide functions and methods to report validation results
     print("hello world")
+    
+    
