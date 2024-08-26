@@ -1,22 +1,27 @@
 import json
 from jsonschema import ValidationError, Draft4Validator, exceptions
-import jsonschema
 import os
 import shutil
 import matplotlib.pyplot as plt
 import pandas as pd
 
 class SchemaResolver:
-    def __init__(self, base_path: str, bundle_json_path: str):
+    def __init__(self, bundle_json_path: str, unresolved_dir: str, resolved_output_dir: str, definitions_fn: str, terms_fn: str):
         """
-        Initializes the SchemaValidator with a base path and bundle JSON path.
+        Initializes the SchemaValidator with a bundle JSON path and other required paths.
 
         Args:
-        - base_path (str): The base directory path where JSON schemas are located.
         - bundle_json_path (str): The path to the bundle JSON file.
+        - unresolved_dir (str): Bundled json will be split into this folder
+        - resolved_output_dir (str): Directory where the resolved schemas will be moved.
+        - definitions_fn (str): The filename of the definitions JSON file.
+        - terms_fn (str): The filename of the terms JSON file.
         """
-        self.base_path = base_path
         self.bundle_json_path = bundle_json_path
+        self.unresolved_dir = unresolved_dir
+        self.resolved_output_dir = resolved_output_dir
+        self.definitions_fn = definitions_fn
+        self.terms_fn = terms_fn
 
     def split_bundle_json(self, write_dir: str, return_dict: bool = False):
         """
@@ -35,6 +40,16 @@ class SchemaResolver:
             bundle_json = json.load(f)
         bundle_json_keys = list(bundle_json.keys())
         
+        # Check if the write directory exists
+        if os.path.exists(write_dir):
+            # If it exists, delete the directory and its contents
+            shutil.rmtree(write_dir)
+            print(f'{write_dir} already exists. Deleting the directory and its contents.')
+
+        # Create the write directory
+        os.makedirs(write_dir)
+        print(f'{write_dir} created successfully.')
+        
         # saving individual jsons
         out_jsons = {}
         for bundle_key in bundle_json_keys:
@@ -52,27 +67,18 @@ class SchemaResolver:
         if return_dict:
             return out_jsons
 
-    def read_json(self, json_fn: str):
-        json_path = os.path.join(self.base_path, json_fn)
+    def read_json(self, json_path: str):
         with open(json_path, 'r') as f:
             schema = json.load(f)
         print(f'{json_path} successfully loaded')
         return schema
     
-    def read_json_abs(self, json_fn: str):
-        json_path = json_fn
-        with open(json_path, 'r') as f:
-            schema = json.load(f)
-        print(f'{json_path} successfully loaded')
-        return schema
-
-    def write_json(self, json_fn: str, schema: dict):
-        json_path = os.path.join(self.base_path, json_fn)
+    def write_json(self, json_path: str, schema: dict):
         with open(json_path, 'w') as f:
             json.dump(schema, f, indent=4)
         print(f'{json_path} successfully saved')
 
-    def resolve_references(self, schema, ref_fn: str):
+    def resolve_references(self, schema, ref_path: str):
         """
         Recursively resolves references in a JSON node.
 
@@ -93,14 +99,13 @@ class SchemaResolver:
         - dict: The resolved JSON node with references resolved.
         """
         # loading reference file 
-        if ref_fn:
+        if ref_path:
             try:
-                ref_file_path = os.path.join(self.base_path, ref_fn)
-                with open(ref_file_path, 'r') as f:
+                with open(ref_path, 'r') as f:
                     ref_input_content = json.load(f)
-                    print(f'Reference file: {ref_file_path} successfully loaded')
+                    print(f'Reference file: {ref_path} successfully loaded')
             except FileNotFoundError:
-                print(f'Reference file: {ref_file_path} not found')
+                print(f'Reference file: {ref_path} not found')
                 ref_input_content = {}
 
 
@@ -159,22 +164,22 @@ class SchemaResolver:
 
         return replace_refs(schema)
 
-    def resolve_refs(self, schema_fn, reference_fn: str):
+    def resolve_refs(self, schema_path: str, reference_path: str):
         """
         Resolves references in a JSON schema file using definitions from another JSON file.
 
         Args:
-        - schema_fn (str): The name of the schema JSON file to resolve.
-        - ref_fn (str): The name of the JSON file with the reference definitions.
+        - schema_path (str): The path of the schema JSON file to resolve.
+        - reference_path (str): The path of the JSON file with the reference definitions.
 
         Returns:
         - dict: The resolved JSON schema.
         """
         # Read JSON files
-        schema_obj = self.read_json(schema_fn)
+        schema_obj = self.read_json(schema_path)
 
         # Redefine $ref paths in schema_obj if necessary
-        if '_definitions.json' in schema_fn:
+        if '_definitions.json' in schema_path:
             schema_obj = self.redefine_ref_path('_terms.yaml', '_terms.json', schema_obj)
             # print("$ref paths redefined: '_terms.yaml' to '_terms.json'")
         else:
@@ -185,69 +190,68 @@ class SchemaResolver:
 
 
         # Resolve references
-        resolved_schema = self.resolve_references(schema_obj, ref_fn=reference_fn)
+        resolved_schema = self.resolve_references(schema_obj, ref_path=reference_path)
         
         # Write resolved schema
-        resolved_schema_file = schema_fn.replace('.json', '_[resolved].json')
+        resolved_schema_file = schema_path.replace('.json', '_[resolved].json')
         self.write_json(resolved_schema_file, resolved_schema)
 
         if resolved_schema is not None:
-            return print(f'=== {schema_fn} successfully resolved ===')
+            return print(f'=== {schema_path} successfully resolved ===')
         else:
-            return print(f'=== {schema_fn} failed to resolve ===')
+            return print(f'=== {schema_path} failed to resolve ===')
 
-    def move_resolved_schemas(self, target_dir: str):
+    def move_resolved_schemas(self, source_dir: str, target_dir: str):
         """
         Moves resolved schemas to a new directory.
 
         Args:
+        - source_dir (str): The directory where the resolved schemas are currently located.
         - target_dir (str): The target directory where the resolved schemas should be moved.
         """
         os.makedirs(target_dir, exist_ok=True)
-        ref_files = [f for f in os.listdir(self.base_path) if '[resolved].json' in f]
+        ref_files = [f for f in os.listdir(source_dir) if '[resolved].json' in f]
         for f in ref_files:
-            shutil.move(os.path.join(self.base_path, f), os.path.join(target_dir, f))
-    
-    
-    def resolve_bundled_schema(self, output_dir):
-        """
-        Split the bundled JSON and write as individual json nodes. It then resolves references in the definition file first, then uses this resolved definition file to resolve all the other schemas.
+            shutil.move(os.path.join(source_dir, f), os.path.join(target_dir, f))
 
-        Parameters:
-            output_dir (str): Directory where the unresolved schemas will be stored. (note a resolved directory will be created at the same level)
+    def resolve_schemas(self):
+        """
+        Split the bundled JSON and write as individual json nodes. It then resolves references in the definition file first,
+        then uses this resolved definition file to resolve all the other schemas.
 
         Returns:
             None
         """
         try:
-            if os.path.exists(output_dir):
-                print(f"Output directory {output_dir} exists. Removing it.")
-                shutil.rmtree(output_dir, ignore_errors=True)
+            if os.path.exists(self.unresolved_dir):
+                print(f"Schema directory {self.unresolved_dir} exists. Removing it.")
+                shutil.rmtree(self.unresolved_dir, ignore_errors=True)
             else:
-                print(f"Output directory {output_dir} does not exist. Creating it.")
-            os.makedirs(output_dir, exist_ok=True)
-            print(f"Output directory {output_dir} created.")
+                print(f"Schema directory {self.unresolved_dir} does not exist. Creating it.")
+            os.makedirs(self.unresolved_dir, exist_ok=True)
+            print(f"Schema directory {self.unresolved_dir} created.")
 
             print("Splitting bundle JSON into individual JSON files.")
-            self.split_bundle_json(write_dir=output_dir)
-            print("Resolving references in '_definitions.json' using '_terms.json'.")
-            self.resolve_refs('_definitions.json', reference_fn='_terms.json')
+            self.split_bundle_json(write_dir=self.unresolved_dir)
+            definitions_path = os.path.join(self.unresolved_dir, self.definitions_fn)
+            terms_path = os.path.join(self.unresolved_dir, self.terms_fn)
+            print(f"Resolving references in '{definitions_path}' using '{terms_path}'.")
+            self.resolve_refs(definitions_path, reference_path=terms_path)
 
-            json_files = [fn for fn in os.listdir(output_dir) if not fn.startswith('_')]
-            ref_file = '_definitions_[resolved].json'
+            json_files = [fn for fn in os.listdir(self.unresolved_dir) if not fn.startswith('_')]
+            ref_file = definitions_path.replace('.json', '_[resolved].json')
             print(f"Found JSON files to resolve: {json_files}")
             for fn in json_files:
-                print(f"Resolving references in {fn} using {ref_file}.")
-                self.resolve_refs(fn, ref_file)
+                full_path = os.path.join(self.unresolved_dir, fn)
+                print(f"Resolving references in {full_path} using {ref_file}.")
+                self.resolve_refs(full_path, ref_file)
 
-            target_dir = os.path.join(output_dir, '../resolved')
-            os.makedirs(target_dir, exist_ok=True)
-            print(f"Target directory for resolved schemas: {target_dir}")
-            self.move_resolved_schemas(target_dir=target_dir)
+            os.makedirs(self.resolved_output_dir, exist_ok=True)
+            print(f"Resolved output directory: {self.resolved_output_dir}")
+            self.move_resolved_schemas(self.unresolved_dir, self.resolved_output_dir)
             print("Resolved schemas moved successfully.")
         except Exception as e:
-            print(f"An error occurred: {e}")
-    
+            print(f"An error occurred: {e}")   
 
 class SchemaValidatorSynth:
     def __init__(self, data: list, schema_fn: str):
