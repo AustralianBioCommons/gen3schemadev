@@ -69,10 +69,17 @@ class SchemaResolver:
             return out_jsons
 
     def read_json(self, json_path: str):
-        with open(json_path, 'r') as f:
-            schema = json.load(f)
-        print(f'{json_path} successfully loaded')
-        return schema
+        try:
+            with open(json_path, 'r') as f:
+                schema = json.load(f)
+            return schema
+        except FileNotFoundError:
+            print(f"Error: The file {json_path} was not found.")
+        except json.JSONDecodeError:
+            print(f"Error: The file {json_path} is not a valid JSON file.")
+        except Exception as e:
+            print(f"An unexpected error occurred while reading {json_path}: {e}")
+        return None
     
     def write_json(self, json_path: str, schema: dict):
         with open(json_path, 'w') as f:
@@ -274,7 +281,7 @@ class SchemaValidatorSynth:
         try:
             with open(self.schema_fn, 'r') as f:
                 schema = json.load(f)
-            print(f'{self.schema_fn} successfully loaded')
+            # print(f'{self.schema_fn} successfully loaded')
             return schema
         except FileNotFoundError:
             print(f"Error: The file {self.schema_fn} was not found.")
@@ -289,7 +296,7 @@ class SchemaValidatorSynth:
         Validates a JSON schema against a data dictionary.
 
         Returns:
-        - dict: A results object containing the number of successful and failed validations, and error messages for failed objects.
+        - dict: A results object containing the number of successful and failed validations, error messages for failed objects, and log messages.
         """
         # Create a validator with the resolver
         validator = jsonschema.Draft4Validator(self.schema)
@@ -298,12 +305,13 @@ class SchemaValidatorSynth:
         success_count = 0
         fail_count = 0
         error_messages = {}
+        log_messages = []
 
         # Function to validate per object
         def validate_object(obj, idx):
             try:
                 validator.validate(obj)
-                print("=== SUCCESS ===")
+                log_messages.append("=== SUCCESS ===")
                 return True
             except jsonschema.exceptions.ValidationError as e:
                 error_messages[idx] = {
@@ -313,18 +321,18 @@ class SchemaValidatorSynth:
                     "Validator value": e.validator_value,
                     "Validation error": e.message
                 }
-                print(f"Invalid key: {list(e.path)}")
-                print(f"Schema path: {list(e.schema_path)}")
-                print(f"Validator: {e.validator}")
-                print(f"Validator value: {e.validator_value}")
-                print(f"Validation error: {e.message}")
-                print('=== FAIL ===')
+                log_messages.append(f"Invalid key: {list(e.path)}")
+                log_messages.append(f"Schema path: {list(e.schema_path)}")
+                log_messages.append(f"Validator: {e.validator}")
+                log_messages.append(f"Validator value: {e.validator_value}")
+                log_messages.append(f"Validation error: {e.message}")
+                log_messages.append('=== FAIL ===')
                 return False
         
         try:
             total = len(self.data)
             for idx, item in enumerate(self.data, start=1):
-                print(f"=== Validating item {idx} of {total} ===")
+                log_messages.append(f"=== Validating item {idx} of {total} ===")
                 if validate_object(item, idx):
                     success_count += 1
                 else:
@@ -333,10 +341,18 @@ class SchemaValidatorSynth:
                 "total_count": total,
                 "success_count": success_count,
                 "fail_count": fail_count,
-                "error_messages": error_messages
+                "error_messages": error_messages,
+                "log_messages": log_messages
             }
         except Exception as e:
-            print(f"An error occurred during validation: {e}")
+            log_messages.append(f"An error occurred during validation: {e}")
+            return {
+                "total_count": 0,
+                "success_count": 0,
+                "fail_count": 0,
+                "error_messages": error_messages,
+                "log_messages": log_messages
+            }
         
 
 
@@ -440,7 +456,7 @@ class QuickValidateSynth:
                 if file.endswith('.json')
             ]
             filtered_json_paths = [path for path in json_paths if path not in self.exclude_nodes]
-            print(f'Generated JSON paths: {filtered_json_paths}')
+            # print(f'Generated JSON paths: {filtered_json_paths}')
             return filtered_json_paths
         except Exception as e:
             print(f"An error occurred while generating JSON paths: {e}")
