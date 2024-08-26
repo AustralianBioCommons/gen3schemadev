@@ -4,6 +4,7 @@ import os
 import shutil
 import matplotlib.pyplot as plt
 import pandas as pd
+import jsonschema
 
 class SchemaResolver:
     def __init__(self, bundle_json_path: str, unresolved_dir: str, resolved_output_dir: str, definitions_fn: str, terms_fn: str):
@@ -253,33 +254,45 @@ class SchemaResolver:
         except Exception as e:
             print(f"An error occurred: {e}")   
 
+
 class SchemaValidatorSynth:
-    def __init__(self, data: list, schema_fn: str):
-        self.data = data
+    """
+    Initializes the SchemaValidatorSynth with a list of data objects and a schema filename.
+
+    Args:
+    - schema_fn (str): The filename of the JSON schema to validate against.
+    - data (list): The list of data objects to validate.
+    """
+    def __init__(self, schema_fn: str, data: list):
         self.schema_fn = schema_fn
+        self.data = data
         self.schema = self.read_schema()
         self.results = self.validate_schema()
         self.errors = self.results['error_messages']
      
     def read_schema(self):
-        with open(self.schema_fn, 'r') as f:
-            schema = json.load(f)
-        print(f'{self.schema_fn} successfully loaded')
-        return schema
+        try:
+            with open(self.schema_fn, 'r') as f:
+                schema = json.load(f)
+            print(f'{self.schema_fn} successfully loaded')
+            return schema
+        except FileNotFoundError:
+            print(f"Error: The file {self.schema_fn} was not found.")
+        except json.JSONDecodeError:
+            print(f"Error: The file {self.schema_fn} is not a valid JSON file.")
+        except Exception as e:
+            print(f"An unexpected error occurred while reading {self.schema_fn}: {e}")
+        return None
     
     def validate_schema(self):
         """
         Validates a JSON schema against a data dictionary.
 
-        Args:
-        - schema_fn (str): The relative path of the [resolved] JSON schema file.
-        - data (dict): The data dictionary to validate against the schema.
-
         Returns:
         - dict: A results object containing the number of successful and failed validations, and error messages for failed objects.
         """
         # Create a validator with the resolver
-        validator = Draft4Validator(self.schema)
+        validator = jsonschema.Draft4Validator(self.schema)
         
         # Initialize counters and error storage
         success_count = 0
@@ -316,17 +329,201 @@ class SchemaValidatorSynth:
                     success_count += 1
                 else:
                     fail_count += 1
+            return {
+                "total_count": total,
+                "success_count": success_count,
+                "fail_count": fail_count,
+                "error_messages": error_messages
+            }
         except Exception as e:
             print(f"An error occurred during validation: {e}")
-
-        return {
-            "total_count": total,
-            "success_count": success_count,
-            "fail_count": fail_count,
-            "error_messages": error_messages
-        }
         
-import pandas as pd
+
+
+    def print_errors(self):
+        """
+        Print the error messages from the validation results.
+
+        This function takes no parameters.
+
+        Returns:
+            None
+        """
+        print(json.dumps(self.results['error_messages'], indent=4))
+    
+    def return_errors(self):
+        """
+        Print the error messages from the validation results.
+
+        This function takes no parameters.
+
+        Returns:
+            str: A JSON string of the error messages.
+        """
+        return json.dumps(self.results['error_messages'], indent=4)
+    
+    def print_summary(self):
+        """
+        Print the summary of the validation results.
+
+        This function prints the total number of data objects, the number of successful validations, and the number of failed validations.
+
+        Parameters:
+            self (object): The instance of the class.
+
+        Returns:
+            None
+        """
+        validation_results = self.results
+        print("\n=== VALIDATION RESULTS ===\nTotal number of data objects:", validation_results["total_count"])
+        print("Number of successful validations:", validation_results["success_count"])
+        print("Number of failed validations:", validation_results["fail_count"])
+
+
+    def plot_invalid_keys(self):
+        """
+        Plot the frequency of invalid keys from the validation results.
+
+        This function extracts the "Invalid key" values from the validation results and creates a DataFrame.
+        It then counts the occurrences of each invalid key and plots a bar graph to visualize the frequency.
+
+        Parameters:
+            self (object): The instance of the class.
+
+        Returns:
+            None
+
+        Raises:
+            None
+        """
+        invalid_keys = []
+        for idx, error in self.errors.items():
+            invalid_keys.extend(error.get("Invalid key", []))
+        
+        # Creating a DataFrame for the invalid keys
+        df = pd.DataFrame(invalid_keys, columns=["Invalid Key"])
+        
+        # Counting occurrences of each invalid key
+        key_counts = df["Invalid Key"].value_counts()
+        
+        # Plotting the bar graph
+        plt.figure(figsize=(10, 6))
+        key_counts.plot(kind='bar')
+        plt.title('Frequency of Invalid Keys')
+        plt.xlabel('Invalid Key')
+        plt.ylabel('Frequency')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+        
+class QuickValidateSynth:
+    def __init__(self, data_dir: str, project_name_list: list, resolved_schema_dir: str, exclude_nodes: list = None):
+        self.data_dir = data_dir
+        self.project_name_list = project_name_list
+        self.resolved_schema_dir = resolved_schema_dir
+        self.exclude_nodes = exclude_nodes if exclude_nodes is not None else []
+        self.json_paths = []
+        self.nodes = []
+
+    def generate_json_paths(self, project_name: str) -> list:
+        """
+        Generates a list of JSON paths based on the inputs: data_dir, project_name, and node.
+
+        Returns:
+        - list: A list of JSON file paths.
+        """
+        try:
+            import os
+            json_paths = [
+                os.path.join(self.data_dir, project_name, file)
+                for file in os.listdir(os.path.join(self.data_dir, project_name))
+                if file.endswith('.json')
+            ]
+            filtered_json_paths = [path for path in json_paths if path not in self.exclude_nodes]
+            print(f'Generated JSON paths: {filtered_json_paths}')
+            return filtered_json_paths
+        except Exception as e:
+            print(f"An error occurred while generating JSON paths: {e}")
+            return []
+
+    def read_single_json(self, json_path: str) -> list:
+        """
+        Reads a single JSON file from the given absolute path and returns it as a list of data objects.
+
+        Args:
+        - json_path (str): The absolute path to the JSON file.
+
+        Returns:
+        - list: A list of data objects contained in the JSON file.
+        """
+        try:
+            with open(json_path, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"An error occurred while reading JSON file {json_path}: {e}")
+            return []
+
+    def extract_node_names(self, json_paths: list) -> list:
+        """
+        Extracts node names from the given list of JSON file paths using regex.
+
+        Args:
+        - json_paths (list): A list of JSON file paths.
+
+        Returns:
+        - list: A list of node names extracted from the JSON file paths.
+        """
+        import re
+
+        node_names = []
+        for path in json_paths:
+            try:
+                pattern = re.compile(r'{}/(.*)\.json'.format(re.escape(self.data_dir)))
+                match = pattern.search(path)
+                if match:
+                    node_names.append(match.group(1))
+                else:
+                    print(f"No node name found in {path}")
+            except Exception as e:
+                print(f"An error occurred while processing {path}: {e}")
+        return node_names
+    
+    def extract_node_name(self, json_path: str) -> str:
+        """
+        Extract the filename without extension from a given file path.
+
+        Args:
+            file_path (str): The file path to process.
+
+        Returns:
+            str: The filename without the extension.
+        """
+        # Split the path by '/'
+        parts = json_path.split('/')
+        # Take the last part and remove the '.json' extension
+        fn_rm_ext = parts[-1].replace('.json', '')
+        return fn_rm_ext
+
+    def get_schema_fn(self, node_name: str) -> str:
+        return f'{self.resolved_schema_dir}/{node_name}_[resolved].json'
+    
+    def quick_validate(self):
+        for project in self.project_name_list:
+            json_paths = self.generate_json_paths(project)
+            for jsn in json_paths:
+                node = self.extract_node_name(jsn)
+                schema_fn = self.get_schema_fn(node)
+                data = self.read_single_json(jsn)
+                validator = SchemaValidatorSynth(schema_fn, data)
+                errors = validator.return_errors()
+                errors_dict = json.loads(errors)
+
+                if not errors_dict:
+                    print(f'=== {project}/{node} is valid ===')
+                else:
+                    print(f'=== {project}/{node} contains errors ===')
+    
+    
 
 class SchemaValidatorDataFrame:
     def __init__(self, data: list, schema_fn: str):
