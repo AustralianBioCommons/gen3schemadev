@@ -207,7 +207,46 @@ class SchemaResolver:
         ref_files = [f for f in os.listdir(self.base_path) if '[resolved].json' in f]
         for f in ref_files:
             shutil.move(os.path.join(self.base_path, f), os.path.join(target_dir, f))
-            
+    
+    
+    def resolve_bundled_schema(self, output_dir):
+        """
+        Split the bundled JSON and write as individual json nodes. It then resolves references in the definition file first, then uses this resolved definition file to resolve all the other schemas.
+
+        Parameters:
+            output_dir (str): Directory where the unresolved schemas will be stored. (note a resolved directory will be created at the same level)
+
+        Returns:
+            None
+        """
+        try:
+            if os.path.exists(output_dir):
+                print(f"Output directory {output_dir} exists. Removing it.")
+                shutil.rmtree(output_dir, ignore_errors=True)
+            else:
+                print(f"Output directory {output_dir} does not exist. Creating it.")
+            os.makedirs(output_dir, exist_ok=True)
+            print(f"Output directory {output_dir} created.")
+
+            print("Splitting bundle JSON into individual JSON files.")
+            self.split_bundle_json(write_dir=output_dir)
+            print("Resolving references in '_definitions.json' using '_terms.json'.")
+            self.resolve_refs('_definitions.json', reference_fn='_terms.json')
+
+            json_files = [fn for fn in os.listdir(output_dir) if not fn.startswith('_')]
+            ref_file = '_definitions_[resolved].json'
+            print(f"Found JSON files to resolve: {json_files}")
+            for fn in json_files:
+                print(f"Resolving references in {fn} using {ref_file}.")
+                self.resolve_refs(fn, ref_file)
+
+            target_dir = os.path.join(output_dir, '../resolved')
+            os.makedirs(target_dir, exist_ok=True)
+            print(f"Target directory for resolved schemas: {target_dir}")
+            self.move_resolved_schemas(target_dir=target_dir)
+            print("Resolved schemas moved successfully.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
     
 
 class SchemaValidatorSynth:
