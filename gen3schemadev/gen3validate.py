@@ -440,6 +440,7 @@ class QuickValidateSynth:
         self.exclude_nodes = exclude_nodes if exclude_nodes is not None else []
         self.json_paths = []
         self.nodes = []
+        self.errors = {}
 
     def generate_json_paths(self, project_name: str) -> list:
         """
@@ -533,7 +534,8 @@ class QuickValidateSynth:
                 validator = SchemaValidatorSynth(schema_fn, data)
                 errors = validator.return_errors()
                 errors_dict = json.loads(errors)
-
+                self.errors[(project, node)] = errors_dict
+                
                 if not errors_dict:
                     print(f'=== {project}/{node} is valid ===')
                 else:
