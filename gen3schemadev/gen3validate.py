@@ -582,7 +582,84 @@ class QuickValidateSynth:
                 else:
                     print(f'=== {project}/{node} contains errors ===')
     
-    
+class SyntheticDataCombiner:
+    def __init__(self, input_dir, exclude_files=None):
+        """
+        Initialize the SyntheticDataCombiner with the input directory and optional exclude files.
+
+        Args:
+            input_dir (str): The directory containing the JSON files to read.
+            exclude_files (list, optional): List of filenames to exclude. Defaults to ['project.json', 'program.json'].
+        """
+        self.input_dir = input_dir
+        self.exclude_files = exclude_files if exclude_files is not None else ['project.json', 'program.json']
+
+    def json_files_to_dataframes(self):
+        """
+        Read JSON files from a directory, convert them to pandas DataFrames, and store the DataFrames in a list.
+
+        Returns:
+            list: A list of pandas DataFrames.
+        """
+        dataframes = []
+        files = [file for file in os.listdir(self.input_dir) if file.endswith('.json') and file not in self.exclude_files]
+
+        def read_json_file(file_path):
+            with open(file_path, 'r') as f:
+                try:
+                    data = json.load(f)
+                    if not isinstance(data, list):
+                        raise ValueError(f"Expected a list of objects in the JSON file {file_path}")
+                except (json.JSONDecodeError, ValueError) as e:
+                    print(f"Error reading JSON from file {file_path}: {e}")
+                    return None
+            return data
+
+        for file in files:
+            data = read_json_file(os.path.join(self.input_dir, file))
+            if data is not None:
+                df = pd.json_normalize(data)
+                dataframes.append(df)
+
+        return dataframes
+
+    def bind_dataframes_by_column(self, dataframes_list, remove_duplicates=False):
+        """
+        Bind a list of pandas DataFrames by columns.
+
+        Args:
+            dataframes_list (list): A list of pandas DataFrames.
+            remove_duplicates (bool, optional): Whether to remove duplicate columns. Defaults to False.
+
+        Returns:
+            pd.DataFrame: A single DataFrame with all input DataFrames bound by columns.
+        """
+        combined_df = pd.concat(dataframes_list, axis=1)
+        
+        if remove_duplicates:
+            combined_df = combined_df.loc[:, ~combined_df.columns.duplicated()]
+        
+        return combined_df
+
+    def dataframe_to_json(self, df, output_file):
+        """
+        Convert a pandas DataFrame to a JSON file with each row as an object in an array.
+
+        Args:
+            df (pd.DataFrame): The DataFrame to convert.
+            output_file (str): The path to the output JSON file.
+
+        Returns:
+            None
+        """
+        try:
+            data = df.to_dict(orient='records')
+            with open(output_file, 'w') as f:
+                json.dump(data, f, indent=4)
+            print(f"DataFrame successfully written to {output_file}")
+        except Exception as e:
+            print(f"Error writing DataFrame to JSON: {e}")
+
 
 class SchemaValidatorDataFrame:
     def __init__(self, data: list, schema_fn: str):
