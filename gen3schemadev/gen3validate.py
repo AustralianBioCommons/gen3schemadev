@@ -259,7 +259,48 @@ class SchemaResolver:
             self.move_resolved_schemas(self.unresolved_dir, self.resolved_output_dir)
             print("Resolved schemas moved successfully.")
         except Exception as e:
-            print(f"An error occurred: {e}")   
+            print(f"An error occurred: {e}")
+    
+    def combine_resolved_schemas(self, resolved_dir, output_dir, output_filename='schema_dev_resolved.json'):
+        """
+        Combine all resolved JSON schemas into a single bundled JSON file.
+
+        Parameters:
+            resolved_dir (str): Directory where the resolved schemas are stored.
+            output_file (str): Path to the output bundled JSON file.
+            output_filename (str): Name of the output bundled JSON file. Defaults to 'schema_dev_resolved.json'.
+
+        Returns:
+            None
+        """
+        bundled_schema = {}
+        
+        # Iterate over all JSON files in the resolved directory
+        for filename in os.listdir(resolved_dir):
+            if filename.endswith('.json'):
+                file_path = os.path.join(resolved_dir, filename)
+                with open(file_path, 'r') as f:
+                    schema = json.load(f)
+                    # Merge the schema into the bundled_schema object
+                    for key, value in schema.items():
+                        if key in bundled_schema:
+                            if isinstance(bundled_schema[key], dict) and isinstance(value, dict):
+                                for sub_key, sub_value in value.items():
+                                    if sub_key not in bundled_schema[key]:
+                                        bundled_schema[key][sub_key] = sub_value
+                            elif isinstance(bundled_schema[key], list) and isinstance(value, list):
+                                bundled_schema[key].extend(value)
+                            else:
+                                # If there are multiple different values for the same key, pick the first key-value pair
+                                continue
+                        else:
+                            bundled_schema[key] = value
+        
+        # Write the bundled schema to the output file in the output directory
+        output_file_path = os.path.join(output_dir, output_filename)
+        with open(output_file_path, 'w') as f:
+            json.dump(bundled_schema, f, indent=4)
+        print(f'Bundled schema successfully saved to {output_file_path}')
 
 
 class SchemaValidatorSynth:
