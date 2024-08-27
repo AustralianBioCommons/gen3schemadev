@@ -5,6 +5,7 @@ import shutil
 import matplotlib.pyplot as plt
 import pandas as pd
 import jsonschema
+import numpy as np
 
 class SchemaResolver:
     def __init__(self, bundle_json_path: str, unresolved_dir: str, resolved_output_dir: str, definitions_fn: str, terms_fn: str):
@@ -693,6 +694,7 @@ class SchemaValidatorDataFrame:
         success_count = 0
         fail_count = 0
         validation_results = []
+        log_messages = []
 
         # Function to validate per object
         def validate_object(obj, idx):
@@ -707,7 +709,7 @@ class SchemaValidatorDataFrame:
                     "Validator value": None,
                     "Validation error": None
                 })
-                print("=== SUCCESS ===")
+                log_messages.append("=== SUCCESS ===")
                 return True
             else:
                 for error in errors:
@@ -720,12 +722,12 @@ class SchemaValidatorDataFrame:
                         "Validator value": error.validator_value,
                         "Validation error": error.message
                     })
-                    print(f"Invalid key: {list(error.path)}")
-                    print(f"Schema path: {list(error.schema_path)}")
-                    print(f"Validator: {error.validator}")
-                    print(f"Validator value: {error.validator_value}")
-                    print(f"Validation error: {error.message}")
-                    print('=== FAIL ===')
+                    log_messages.append(f"Invalid key: {list(error.path)}")
+                    log_messages.append(f"Schema path: {list(error.schema_path)}")
+                    log_messages.append(f"Validator: {error.validator}")
+                    log_messages.append(f"Validator value: {error.validator_value}")
+                    log_messages.append(f"Validation error: {error.message}")
+                    log_messages.append('=== FAIL ===')
                 return False
         
         try:
@@ -737,13 +739,15 @@ class SchemaValidatorDataFrame:
                 else:
                     fail_count += 1
         except Exception as e:
-            print(f"An error occurred during validation: {e}")
+            log_messages.append(f"An error occurred during validation: {e}")
 
         results_df = pd.DataFrame(validation_results)
         metrics_df = pd.DataFrame([{
             "total_count": total,
             "success_count": success_count,
-            "fail_count": fail_count
+            "fail_count": fail_count,
+            "validation_results": validation_results,
+            "log_messages": log_messages
         }])
 
         return [results_df, metrics_df]
@@ -826,7 +830,91 @@ class SchemaValidatorDataFrame:
         
         
 class ValidationReporter:
-    # this will provide functions and methods to report validation results
-    print("hello world")
+    """
+    A class to report validation results from a CSV file against a schema.
+
+    This class reads data from a CSV file, validates it against a given schema,
+    and transforms the validation results into a specific format for reporting.
+
+    Attributes:
+        csv_path (str): The path to the CSV file.
+        schema_path (str): The path to the schema file.
+        nrows (int): The number of rows to read from the CSV file.
+        data (list): The data read from the CSV file in JSON format.
+        validator (SchemaValidatorDataFrame): The validator instance.
+        validate_df (pd.DataFrame): The DataFrame containing validation errors.
+        output (pd.DataFrame): The transformed DataFrame for reporting.
+    """
+    def __init__(self, csv_path, schema_path, n_rows=10):
+        self.csv_path = csv_path
+        self.schema_path = schema_path
+        self.nrows = n_rows
+        self.data = self.csv_to_json()
+        self.validator = SchemaValidatorDataFrame(self.data, self.schema_path)
+        self.validate_df = self.validator.errors
+        self.output = self.transform_validate_df()
     
+    def csv_to_json(self):
+        df = pd.read_csv(self.csv_path, nrows=self.nrows if self.nrows else None)
+        json_data = df.to_dict(orient="records")
+        return json_data
     
+    def transform_validate_df(self):
+        required_columns = ['Index', 'Validation Result', 'Invalid key', 'Schema path', 'Validator', 'Validator value', 'Validation error']
+        
+        # Check if all required columns exist in the dataframe
+        if not all(column in self.validate_df.columns for column in required_columns):
+            raise ValueError(f"The dataframe is missing one or more required columns: {required_columns}")
+        
+        def get_text_before_is_not(input_string):
+            # Find the index of the substring " is not " or " does not "
+            index_is_not = input_string.find(" is not ")
+            index_does_not = input_string.find(" does not ")
+            
+            # Determine the correct index to use
+            index = index_is_not if index_is_not != -1 else index_does_not
+            
+            # If the substring is found, return the part before it
+            if index != -1:
+                return input_string[:index]
+            
+            # If the substring is not found, return the original string
+            return input_string
+
+        filtered_df = self.validate_df[self.validate_df['Invalid key'].apply(lambda x: len(x) != 0)]
+
+        filtered_df = filtered_df.copy()
+        filtered_df['key_error_filter'] = filtered_df['Invalid key'].astype(str) + " " + filtered_df['Validation error'].astype(str)
+        filtered_df = filtered_df.drop_duplicates(subset=['key_error_filter'])
+        filtered_df['input_value'] = filtered_df['Validation error'].apply(lambda x: get_text_before_is_not(x))
+        filtered_df = filtered_df.rename(columns={'Index': 'Row'})
+        columns_to_drop = ['Validation Result', 'Schema path', 'Validator', 'key_error_filter']
+        filtered_df = filtered_df.drop(columns=columns_to_drop)
+        filtered_df['unresolvable'] = np.nan
+
+        # Convert 'Invalid key' to string for sorting
+        filtered_df['Invalid key'] = filtered_df['Invalid key'].astype(str)
+        filtered_df = filtered_df.sort_values(by=['Invalid key', 'Row'], na_position='last')
+
+        # Reorder the columns as specified
+        filtered_df = filtered_df[['Row', 'Invalid key', 'input_value', 'Validator value', 'Validation error', 'unresolvable']]
+
+        # Rename the columns to match the specified names
+        filtered_df.columns = ['row', 'invalid_key', 'input_value', 'validator_value', 'validation_error', 'unresolvable']
+
+        return filtered_df
+    
+    def write_df(self, output_dir, project_id):
+        # Check if the output directory exists, if not, create it
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+            print(f"{output_dir} created successfully.")
+        
+        # Construct the full path using output_dir, current date, project_id, and schema_validation_df.csv
+        current_date = pd.Timestamp.now().strftime('%Y-%m-%d')
+        file_name = f"{current_date}_{project_id}_schema_validation_df.csv"
+        full_path = os.path.join(output_dir, file_name)
+        
+        # Write the DataFrame to the constructed path
+        self.validate_df.to_csv(full_path, index=False)
+        print(f"DataFrame successfully written to {full_path}")
