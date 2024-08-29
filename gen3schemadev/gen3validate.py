@@ -6,6 +6,23 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import jsonschema
 import numpy as np
+import time
+from datetime import datetime
+from functools import wraps
+
+
+def timeit(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        print(f"Starting '{func.__name__}' at {datetime.fromtimestamp(start_time)}")
+        result = func(*args, **kwargs)
+        elapsed_time = time.time() - start_time
+        print(f"'{func.__name__}' took {elapsed_time:.2f} seconds")
+        if hasattr(args[0], 'timing_info'):
+            args[0].timing_info[func.__name__] = elapsed_time
+        return result
+    return wrapper
 
 class SchemaResolver:
     def __init__(self, bundle_json_path: str, unresolved_dir: str, resolved_output_dir: str, definitions_fn: str, terms_fn: str):
@@ -319,6 +336,7 @@ class SchemaValidatorSynth:
         self.results = self.validate_schema()
         self.errors = self.results['error_messages']
      
+    @timeit
     def read_schema(self):
         try:
             with open(self.schema_fn, 'r') as f:
@@ -670,12 +688,13 @@ class SchemaValidatorDataFrame:
         self.results, self.metrics = self.validate_schema()
         self.errors = self.results[self.results['Validation Result'] == 'FAIL']
      
+    @timeit
     def read_schema(self):
         with open(self.schema_fn, 'r') as f:
             schema = json.load(f)
         print(f'{self.schema_fn} successfully loaded')
         return schema
-    
+    @timeit
     def validate_schema(self):
         """
         Validates a JSON schema against a data dictionary.
@@ -697,6 +716,7 @@ class SchemaValidatorDataFrame:
         log_messages = []
 
         # Function to validate per object
+        @timeit
         def validate_object(obj, idx):
             errors = list(validator.iter_errors(obj))
             if not errors:
@@ -845,7 +865,7 @@ class ValidationReporter:
         validate_df (pd.DataFrame): The DataFrame containing validation errors.
         output (pd.DataFrame): The transformed DataFrame for reporting.
     """
-    def __init__(self, csv_path, schema_path, n_rows=10):
+    def __init__(self, csv_path, schema_path, n_rows=None):
         self.csv_path = csv_path
         self.schema_path = schema_path
         self.nrows = n_rows
@@ -854,11 +874,13 @@ class ValidationReporter:
         self.validate_df = self.validator.errors
         self.output = self.transform_validate_df()
     
+    @timeit
     def csv_to_json(self):
         df = pd.read_csv(self.csv_path, nrows=self.nrows if self.nrows else None)
         json_data = df.to_dict(orient="records")
         return json_data
     
+    @timeit
     def transform_validate_df(self):
         required_columns = ['Index', 'Validation Result', 'Invalid key', 'Schema path', 'Validator', 'Validator value', 'Validation error']
         
@@ -904,6 +926,7 @@ class ValidationReporter:
 
         return filtered_df
     
+    @timeit
     def write_df(self, output_dir, project_id):
         # Check if the output directory exists, if not, create it
         if not os.path.exists(output_dir):
