@@ -4,6 +4,7 @@ import json
 import yaml
 import uuid
 import glob
+import shutil
 
 
 class gen3SynthFiles:
@@ -204,3 +205,144 @@ class gen3SynthFiles:
                     data_object['file_name'] = synth_filename
                 
                 self.write_json_file(metadata, os.path.join(self.output_dir, project, filename))
+                
+
+
+# Need to add this to the synthetic data library
+# function to randomly generate date time
+import random
+import os
+from datetime import datetime, timedelta, timezone
+
+
+def gen_random_date_time_tz(num_dates: int, start_date="2008-01-01", end_date="2023-03-16"):
+    """
+    Generates a list of random ISO 8601 datetime strings between start_date and end_date, including timezone.
+
+    Parameters:
+    - start_date (str): The start date in ISO 8601 format (YYYY-MM-DD).
+    - end_date (str): The end date in ISO 8601 format (YYYY-MM-DD).
+    - num_dates (int): Number of random dates to generate.
+
+    Returns:
+    - list: A list of random ISO 8601 datetime strings between start_date and end_date, including timezone.
+    """
+    start = datetime.fromisoformat(start_date)
+    end = datetime.fromisoformat(end_date)
+    
+    random_dates = []
+    for _ in range(num_dates):
+        random_date = start + timedelta(seconds=random.randint(0, int((end - start).total_seconds())))
+        # Randomly choose to add a timezone or UTC ('Z')
+        if random.choice([True, False]):
+            # Random timezone offset between -12:00 and +14:00 hours
+            tz_offset_hours = random.randint(-12, 14)
+            tz_offset_minutes = random.choice([0, 15, 30, 45]) * int(tz_offset_hours/abs(tz_offset_hours)) if tz_offset_hours != 0 else 0
+            tz_info = timezone(timedelta(hours=tz_offset_hours, minutes=tz_offset_minutes))
+            random_date = random_date.replace(tzinfo=tz_info)
+        else:
+            random_date = random_date.replace(tzinfo=timezone.utc)
+        random_dates.append(random_date.isoformat())
+
+    return random_dates
+
+
+def gen_random_enums(enums: list, n: int):
+    """
+    Generates a list of n random enum values from the given list of enums.
+
+    Parameters:
+    - enums (list): A list of enum values to randomly select from.
+    - n (int): The number of random enum values to generate.
+
+    Returns:
+    - list: A list of n random enum values from the given list of enums.
+    """
+    return [random.choice(enums) for _ in range(n)]
+
+
+def update_json_key_values(base_path: str, json_filename: str, key: str, replacement: list = None, write_inplace: bool = True, enums: list = None, insert_date_time: bool = False):
+    """
+    Updates the date values for a specified key in a JSON file with randomly generated dates.
+
+    Parameters:
+    - base_path (str): The base directory path where the JSON file is located.
+    - json_filename (str): The name of the JSON file to be updated.
+    - key (str): The key in the JSON file whose values are to be updated with dates.
+    - replacement (list): List of values
+
+    This function reads the specified JSON file, updates the date values for the given key with
+    randomly generated dates, and writes the updated data to a new file in an 'output' directory
+    within the same base path.
+    """
+    import json
+    import os
+    import datetime
+
+
+    # Construct the full path to the JSON file
+    # print(f'base path = {base_path}')
+    full_path = os.path.join(base_path, json_filename)
+
+    # Reading the JSON file
+    with open(full_path, 'r') as f:
+        data = json.load(f)
+        
+    # Count number of entries in json data
+    num_entries = len(data)
+    date_list = gen_random_date_time_tz(num_entries)
+    
+    if insert_date_time:
+        for i, entry in enumerate(data):
+            data[i][key] = random.choice(date_list)
+    elif enums is not None:
+        for i, entry in enumerate(data):
+            data[i][key] = random.choice(enums)
+    else:
+        # Updating the value of the specified key
+        if len(data) == len(replacement):
+            print('editing ' + str(key))# Ensure there's a date for each entry
+            for i, entry in enumerate(data):
+                data[i][key] = replacement[i]
+        elif len(data) < len(replacement):
+            print('editing ' + str(key))
+            for i, entry in enumerate(data):
+                replacement_sub = replacement[0:len(data)]
+                data[i][key] = replacement_sub[i]
+        else:
+            return print('not enough values in replacement list')
+
+
+    # Constructing the path for the output file
+    if write_inplace:
+        output_dir = base_path
+    elif write_inplace == False:
+        output_dir = f"{base_path}/output"
+        # print(f'writing in {output_dir}')
+    else:
+        raise ValueError("write_inplace must be True or False")
+    
+    os.makedirs(output_dir, exist_ok=True)  # Ensuring the output directory exists
+    output_file = os.path.join(output_dir, os.path.basename(json_filename))
+
+    # Writing the updated data to a new file in the 'output' directory
+    print(f'writing edited json to {output_file}')
+    with open(output_file, 'w') as f:
+        json.dump(data, f, indent=4)
+
+
+def copy_data_import_order(programs, source_dir, dest_dir):
+    for program in programs:
+        src = os.path.join(source_dir, program, "DataImportOrder.txt")
+        dest = os.path.join(dest_dir, program)
+        print(f"Copying from {src} to {dest}")
+        shutil.copy(src, dest)
+        print(f"Successfully copied {src} to {dest}")
+
+
+def copy_directory(src, dest):
+    os.makedirs(dest, exist_ok=True)
+    # if dest directory already exists, it will be overwritten
+    shutil.rmtree(dest, ignore_errors=True)
+    shutil.copytree(src, dest, dirs_exist_ok=True)
+    print(f"Directory copied from {src} to {dest}")
