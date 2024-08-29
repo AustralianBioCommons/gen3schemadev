@@ -336,7 +336,7 @@ class SchemaValidatorSynth:
         self.results = self.validate_schema()
         self.errors = self.results['error_messages']
      
-    @timeit
+    
     def read_schema(self):
         try:
             with open(self.schema_fn, 'r') as f:
