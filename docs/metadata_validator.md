@@ -1,153 +1,207 @@
-# Metadata Validator
+# gen3validate.py Documentation
 
-This guide explains how to use the [gen3schemadev](gen3schemadev/) library to validate specifically gen3 metadata against JSON schemas. The classes for the metadata validator are in the [gen3validate.py](gen3schemadev/gen3schemadev/gen3validate.py) script, where there are two main classes `SchemaResolver` and `SchemaValidator`
+## Overview
+This module provides classes and functions for validating JSON data against JSON schemas, resolving schema references, and combining synthetic data into a single JSON file. It includes utilities for timing function execution and visualizing validation errors.
 
-## How it works:
+## Classes
 
 ### `SchemaResolver`
-1. A bundled json containing all the schemas for each node is loaded and separated back into individual .json files
-1. All references ('$ref') in \_definitions.json (formally \_definitions.yaml) are resolved using both internal references and external references in \_terms.json
-1. The fully resolved '\_definitions\_\[resolved\].json' is then used to fully resolve all other schemas
+Handles the resolution of JSON schema references and the combination of resolved schemas. This class is essential for breaking down bundled schemas into individual components, resolving internal and external references, and reassembling them into a coherent, resolved schema.
 
-### `SchemaValidator`
-1. A SchemaValidator class is created by parsing a list of data objects (multiple dicts in a list) and a resolved schema
-1. The SchemaValidator class will then validate the data agains the schema
-1. The SchemaValidator will save data validation stats, along with error messages for each data object
-1. The SchemaValidator also has a function to plot the frequency of invalid keys so you can identify which ones need fixing
+#### Methods
+- **`__init__(self, bundle_json_path: str, unresolved_dir: str, resolved_output_dir: str, definitions_fn: str, terms_fn: str)`**
+  - Initializes the `SchemaResolver` with paths for the bundle JSON, unresolved directory, resolved output directory, definitions file, and terms file.
 
+- **`split_bundle_json(self, write_dir: str, return_dict: bool = False)`**
+  - Splits the bundle JSON file into individual JSON files and saves them in the specified directory. Optionally returns a dictionary of the individual JSON files.
 
-## Prerequisites
+- **`read_json(self, json_path: str)`**
+  - Reads a JSON file from the given path and returns the parsed JSON object.
 
-Ensure you have the necessary libraries installed:
-```bash
-pip install jsonschema pyyaml
+- **`write_json(self, json_path: str, schema: dict)`**
+  - Writes a JSON schema to the specified path.
+
+- **`resolve_references(self, schema, ref_path: str)`**
+  - Recursively resolves references in a JSON node. This method is crucial for ensuring that all `$ref` pointers in the schema are replaced with the actual referenced content.
+
+- **`redefine_ref_path(self, match_str: str, replace_str: str, schema: dict)`**
+  - Recursively replaces `$ref` paths in a JSON schema. This is useful for updating reference paths to point to the correct files.
+
+- **`resolve_refs(self, schema_path: str, reference_path: str)`**
+  - Resolves references in a JSON schema file using definitions from another JSON file.
+
+- **`move_resolved_schemas(self, source_dir: str, target_dir: str)`**
+  - Moves resolved schemas to a new directory.
+
+- **`resolve_schemas(self)`**
+  - Splits the bundled JSON and writes individual JSON nodes, then resolves references in the definition file and other schemas.
+
+- **`combine_resolved_schemas(self, resolved_dir, output_dir, output_filename='schema_dev_resolved.json')`**
+  - Combines all resolved JSON schemas into a single bundled JSON file.
+
+### `SchemaValidatorSynth`
+Specifically designed for the validation of synthetic data created by UMCCR (University of Melbourne Centre for Cancer Research). This class validates a list of data objects against a JSON schema and provides detailed error reporting and visualization.
+
+#### Methods
+- **`__init__(self, schema_fn: str, data: list)`**
+  - Initializes the `SchemaValidatorSynth` with a schema filename and a list of data objects.
+
+- **`read_schema(self)`**
+  - Reads the JSON schema from the specified file.
+
+- **`validate_schema(self)`**
+  - Validates the JSON schema against the data objects. Returns a dictionary containing the number of successful and failed validations, error messages, and log messages.
+
+- **`print_errors(self)`**
+  - Prints the error messages from the validation results.
+
+- **`return_errors(self)`**
+  - Returns the error messages from the validation results as a JSON string.
+
+- **`print_summary(self)`**
+  - Prints a summary of the validation results, including the total number of data objects, successful validations, and failed validations.
+
+- **`plot_invalid_keys(self)`**
+  - Plots the frequency of invalid keys from the validation results, providing a visual representation of the most common validation errors.
+
+### `QuickValidateSynth`
+Performs quick validation of JSON files in a directory against resolved schemas. This class is useful for rapidly checking the validity of multiple JSON files, especially in a development or testing environment.
+
+#### Methods
+- **`__init__(self, data_dir: str, project_name_list: list, resolved_schema_dir: str, exclude_nodes: list = None)`**
+  - Initializes the `QuickValidateSynth` with the data directory, project names, resolved schema directory, and optional nodes to exclude.
+
+- **`generate_json_paths(self, project_name: str) -> list`**
+  - Generates a list of JSON paths based on the data directory and project name.
+
+- **`read_single_json(self, json_path: str) -> list`**
+  - Reads a single JSON file from the given path and returns it as a list of data objects.
+
+- **`extract_node_names(self, json_paths: list) -> list`**
+  - Extracts node names from the given list of JSON file paths using regex.
+
+- **`extract_node_name(self, json_path: str) -> str`**
+  - Extracts the filename without extension from a given file path.
+
+- **`get_schema_fn(self, node_name: str) -> str`**
+  - Constructs the schema filename for a given node name.
+
+- **`quick_validate(self)`**
+  - Performs quick validation of JSON files against resolved schemas and stores errors.
+
+### `SyntheticDataCombiner`
+Combines synthetic data from multiple JSON files into a single JSON file. This class is particularly useful for merging data from different sources or experiments into a unified dataset.
+
+#### Methods
+- **`__init__(self, input_dir, exclude_files=None)`**
+  - Initializes the `SyntheticDataCombiner` with the input directory and optional files to exclude.
+
+- **`json_files_to_dataframes(self)`**
+  - Reads JSON files from a directory, converts them to pandas DataFrames, and stores the DataFrames in a list.
+
+- **`bind_dataframes_by_column(self, dataframes_list, remove_duplicates=False)`**
+  - Binds a list of pandas DataFrames by columns.
+
+- **`dataframe_to_json(self, df, output_file)`**
+  - Converts a pandas DataFrame to a JSON file with each row as an object in an array.
+
+### `SchemaValidatorDataFrame`
+Validates a DataFrame against a JSON schema and reports validation results. This class is useful for validating tabular data that has been converted to JSON format.
+
+#### Methods
+- **`__init__(self, data: list, schema_fn: str)`**
+  - Initializes the `SchemaValidatorDataFrame` with data and a schema filename.
+
+- **`read_schema(self)`**
+  - Reads the JSON schema from the specified file.
+
+- **`validate_schema(self)`**
+  - Validates the JSON schema against the data objects and returns validation results and metrics.
+
+- **`print_errors(self)`**
+  - Prints the error messages from the validation results.
+
+- **`return_errors(self)`**
+  - Returns the error messages from the validation results as a JSON string.
+
+- **`print_summary(self)`**
+  - Prints a summary of the validation results, including the total number of data objects, successful validations, and failed validations.
+
+- **`plot_invalid_keys(self)`**
+  - Plots the frequency of invalid keys from the validation results, providing a visual representation of the most common validation errors.
+
+### `ValidationReporter`
+Reports validation results from a CSV file against a schema. This class reads data from a CSV file, validates it against a given schema, and transforms the validation results into a specific format for reporting.
+
+#### Methods
+- **`__init__(self, csv_path, schema_path, n_rows=None)`**
+  - Initializes the `ValidationReporter` with the CSV path, schema path, and optional number of rows to read.
+
+- **`csv_to_json(self)`**
+  - Reads data from the CSV file and converts it to JSON format.
+
+- **`transform_validate_df(self)`**
+  - Transforms the validation DataFrame into a specific format for reporting.
+
+- **`write_df(self, output_dir, project_id)`**
+  - Writes the validation DataFrame to a CSV file in the specified output directory.
+
+## Decorators
+
+### `timeit`
+A decorator to measure the execution time of functions. This is useful for profiling and optimizing performance.
+
+#### Usage
+```python
+@timeit
+def some_function():
+    # function implementation
 ```
 
-## Step-by-Step Instructions
+## Example Usage
 
-### 1. Refresh the `gen3schemadev` Library
-
-First, refresh the `gen3schemadev` library to ensure you are using the latest version:
+### Resolving Schemas
 ```python
-import importlib
-import gen3schemadev
-importlib.reload(gen3schemadev)
-import os
-import shutil
-```
-
-### 2. Prepare the Output Directory
-
-Create an output directory for unresolved schemas. If the directory already exists, it will be removed and recreated:
-```python
-output_dir = '../output/schema/json/unresolved'
-if os.path.exists(output_dir):
-    shutil.rmtree(output_dir, ignore_errors=True)
-os.makedirs(output_dir, exist_ok=True)
-```
-
-### 3. Initialize the `SchemaResolver`
-
-Initialize the `SchemaResolver` with the base path and the path to the bundled JSON file:
-```python
-resolver = gen3schemadev.gen3validate.SchemaResolver(
-    base_path=output_dir, 
-    bundle_json_path='../output/schema/json/schema_dev.json'
+resolver = SchemaResolver(
+    bundle_json_path='path/to/bundle.json',
+    unresolved_dir='path/to/unresolved',
+    resolved_output_dir='path/to/resolved',
+    definitions_fn='_definitions.json',
+    terms_fn='_terms.json'
 )
+resolver.resolve_schemas()
 ```
 
-### 4. Split the Bundled JSON
-
-Split the bundled JSON into individual JSON files:
+### Validating Synthetic Data
 ```python
-resolver.split_bundle_json(write_dir=output_dir)
-```
-
-### 5. Resolve the Definition File
-
-Resolve the references in the `_definitions.json` file using `_terms.json`:
-```python
-resolver.resolve_refs('_definitions.json', reference_fn='_terms.json')
-```
-
-### 6. Resolve the other Schemas
-
-Resolve references in other JSON schemas using the resolved definition file:
-```python
-jsonfn = [fn for fn in os.listdir(output_dir) if not fn.startswith('_')]
-refFn = '_definitions_[resolved].json'
-for fn in jsonfn:
-    print(fn)
-    resolver.resolve_refs(fn, refFn)
-```
-
-### 7. Move Resolved Schemas
-
-Move the resolved schemas to a new directory:
-```python
-target_dir = os.path.join(output_dir, '../resolved')
-os.makedirs(target_dir, exist_ok=True)
-resolver.move_resolved_schemas(target_dir=target_dir)
-```
-
-### 8. Validate Example Data
-
-Prepare example data to validate:
-```python
-data_to_validate = [
-    {
-        "baseline_age": 44.551604483338444,
-        "bmi_baseline": 69.49984415734117,
-        "education": "some high school",
-    },
-    {
-        "baseline_age": 30.123456789012345,
-        "bmi_baseline": 22.345678901234567,
-        "education": "bachelor's degree",
-    },
-    {
-        "baseline_age": 55.987654321098765,
-        "bmi_baseline": 27.123456789012345,
-        "education": "master's degree",
-    },
-    {
-        "baseline_age": 40.567890123456789,
-        "bmi_baseline": 31.234567890123456,
-        "education": "high school graduate",
-    },
-]
-```
-
-### 9. Alternate data preperation
-
-Alternatively you can use the read_json method in the resolver to load a data list
-```python
-data = resolver.read_json('../../../synthetic_data/raw_gen3schemadev/AusDiab/demographic.json')
-```
-
-### 10. Run Validation
-
-Initialize the `SchemaValidator` and run the validation:
-```python
-validator = gen3schemadev.gen3validate.SchemaValidator(
-    data=data, 
-    schema_fn='../output/schema/json/resolved/demographic_[resolved].json'
-)
-```
-
-### 11. Print Summary and Errors
-
-Print the validation summary and error messages:
-```python
+data = [...]  # List of synthetic data objects
+validator = SchemaValidatorSynth(schema_fn='path/to/schema.json', data=data)
 validator.print_summary()
-validator.print_errors()
-```
-
-### 12. Plot Invalid Keys
-
-Plot a summary of invalid keys:
-```python
 validator.plot_invalid_keys()
 ```
 
-By following these steps, you can validate your metadata against the appropriate JSON schemas, ensuring that all references are correctly resolved.
+### Quick Validation
+```python
+quick = QuickValidateSynth(
+    data_dir='path/to/data',
+    project_name_list=['Project1', 'Project2'],
+    resolved_schema_dir='path/to/resolved_schemas'
+)
+quick.quick_validate()
+```
+
+### Combining Synthetic Data
+```python
+combiner = SyntheticDataCombiner(input_dir='path/to/input')
+dataframes = combiner.json_files_to_dataframes()
+combined_df = combiner.bind_dataframes_by_column(dataframes, remove_duplicates=True)
+combiner.dataframe_to_json(combined_df, 'path/to/output.json')
+```
+
+### Reporting Validation Results
+```python
+reporter = ValidationReporter(csv_path='path/to/data.csv', schema_path='path/to/schema.json')
+reporter.write_df(output_dir='path/to/output', project_id='ProjectID')
+```
+
+This documentation provides an overview of the classes and methods available in the `gen3validate.py` module, along with example usage to help you get started.

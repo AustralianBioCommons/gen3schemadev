@@ -1,224 +1,206 @@
-# Data Submission Script Documentation
+# gen3datasubmitter.py Documentation
 
 ## Overview
+This module provides classes and functions for handling metadata submission to Gen3 Indexd. It includes utilities for reading and writing metadata files, pulling parameters from Gen3 Indexd using GUIDs, and updating metadata files with the necessary information.
 
-This script is designed to submit data and metadata to a Gen3 instance using the Gen3 SDK and command line tool. It supports various functionalities such as deleting existing metadata, uploading dummy data files, and updating metadata JSON files.
+## Classes
 
-## Table of Contents
+### `AddIndexdMetadata`
+A class to handle adding metadata to Gen3 Indexd. This class provides methods to read and write metadata files, pull parameters from Gen3 Indexd using GUIDs, and match file names to their corresponding GUIDs.
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Arguments](#arguments)
-  - [Examples](#examples)
-- [Functions](#functions)
-  - [parse_arguments](#parse_arguments)
-  - [delete_metadata](#delete_metadata)
-- [Main Function Workflow](#main-function-workflow)
-  - [Deleting Metadata](#deleting-metadata)
-  - [Uploading Dummy Data Files to S3](#uploading-dummy-data-files-to-s3)
-  - [Creating Gen3 SDK Class Objects](#creating-gen3-sdk-class-objects)
-  - [Creating Projects](#creating-projects)
-  - [Adding Index Properties to Metadata JSONs](#adding-index-properties-to-metadata-jsons)
-  - [Submitting Updated Data File Index Metadata](#submitting-updated-data-file-index-metadata)
-- [Contributing](#contributing)
-- [License](#license)
+#### Attributes
+- **`index`**: An instance of the `Gen3Index` class for interacting with Gen3 Indexd.
+- **`metadata_dir`**: The directory where metadata files are stored.
+- **`indexd_guid_path`**: The path to the JSON file containing indexd GUIDs.
 
-## Installation
+#### Methods
+- **`__init__(self, auth, metadata_dir: str, indexd_guid_path: str)`**
+  - Initializes the `AddIndexdMetadata` class with authentication, metadata directory, and indexd GUID path.
 
-Ensure you have the necessary dependencies installed. You can install them using pip:
+- **`pull_indexd_param(self, guid: str, file_name: str)`**
+  - Pulls parameters from Gen3 Indexd using a GUID and returns them as a dictionary.
 
-```bash
-pip install gen3
-```
+- **`read_metadata(self, file_path: str)`**
+  - Reads a metadata file from the specified path and returns the parsed JSON object.
 
-## Usage
+- **`write_metadata(self, file_path: str, metadata: dict)`**
+  - Writes a metadata dictionary to the specified file path.
 
-### Arguments
+- **`pull_filename(self, json_obj: dict)`**
+  - Extracts the file name from a JSON object.
 
-The script accepts the following command-line arguments:
+- **`pull_gen3_guid(self, indexd_guid_path: str, file_name: str)`**
+  - Pulls the object_id from a JSON file for a matching file name.
 
-- `--folder`: The outer folder where simulated data lives (required).
-- `--projects`: Space-delimited names of specific projects, which are sub-folders of the provided folder (default: `["AusDiab", "FIELD", "BioHEART-CT"]`).
-- `--delete-all-metadata`: If specified, deletes all node metadata below the project level.
-- `--profile`: The name of your Gen3-client profile, required for uploading data files to the portal.
-- `--api-endpoint`: The URL of the data commons (e.g., `https://data.acdc.ozheart.org`).
-- `--credentials`: The path to the `credentials.json` with authority to upload to the commons (default: `_local/credentials.json`).
-- `--numparallel`: Number of cores to use for uploading in parallel (default: 2).
-- `--add-subjects`: If specified, skips program and project creation and adds nodes from subjects onwards.
-- `--metadata-only`: If specified, only updates the metadata JSON files and does not upload associated data files.
-
-### Examples
-
-#### Basic Usage
-
-```bash
-python datas_submittor.py --folder /path/to/data --api-endpoint https://data.acdc.ozheart.org --credentials /path/to/credentials.json
-```
-
-#### Deleting All Metadata
-
-```bash
-python datas_submittor.py --folder /path/to/data --delete-all-metadata --api-endpoint https://data.acdc.ozheart.org --credentials /path/to/credentials.json
-```
-
-#### Uploading Metadata Only
-
-```bash
-python datas_submittor.py --folder /path/to/data --metadata-only --api-endpoint https://data.acdc.ozheart.org --credentials /path/to/credentials.json
-```
+- **`update_metadata_with_indexd(self, file_path: str, output_dir: str, project_id: str, n_file_progress: int, n_file_total: int)`**
+  - Updates metadata files with parameters pulled from Gen3 Indexd.
 
 ## Functions
 
-### parse_arguments
+### `extract_gen3_guids(log_path, project_id, output_dir, prefix: str = "PREFIX")`
+Extracts filenames and object_ids from a gen3-client log file and writes them to an object manifest file.
 
-Parses command-line arguments.
+#### Args
+- **`log_path`**: The path to the gen3-client log file.
+- **`project_id`**: The project identifier.
+- **`output_dir`**: The directory to save the output manifest file.
+- **`prefix`**: The prefix for object_ids. Defaults to "PREFIX".
 
+#### Returns
+- **`list`**: A list of dictionaries, each containing 'filename' and 'object_id' keys.
+
+### `create_manifest_from_folder(folder_path, project_id=None, output_path=None, exclude_extension: list = None)`
+Reads the files in the specified folder and creates a JSON manifest file.
+
+#### Args
+- **`folder_path`**: The path to the folder containing the files.
+- **`project_id`**: The ID of the project.
+- **`output_path`**: The path where the manifest file will be saved.
+- **`exclude_extension`**: A list of file extensions to exclude from the manifest.
+
+#### Returns
+- **`str`**: The path to the created manifest file or an error message.
+
+### `check_unlinked_objects(file_path)`
+Checks for unlinked objects in a metadata file.
+
+#### Args
+- **`file_path`**: The path to the metadata file.
+
+#### Returns
+- **`list`**: A list of filenames that are unlinked.
+
+### `update_metadata(base_dir, auth_file, indexd_guid_file, project_id: str = None)`
+Updates metadata files for all file nodes in the given base directory by adding indexd GUIDs to their metadata.
+
+#### Args
+- **`base_dir`**: The path to the base directory.
+- **`auth_file`**: The path to the authentication file.
+- **`indexd_guid_file`**: The path to the indexd GUID file created from the gen3-client log files.
+- **`project_id`**: The ID of the project.
+
+#### Returns
+- **`None`**
+
+### `copy_remaining_metadata(base_dir)`
+Copies metadata files for all non-file nodes in the given base directory to the indexd folder.
+
+#### Args
+- **`base_dir`**: The path to the directory containing all the non-file and non-indexd updated metadata JSON files.
+
+#### Returns
+- **`None`**
+
+### `submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False)`
+Submits metadata JSON files to the Gen3 API endpoint.
+
+#### Args
+- **`base_dir`**: The path to the folder containing the metadata JSON files.
+- **`project_id`**: The ID of the project.
+- **`api_endpoint`**: Gen3 API endpoint.
+- **`credentials`**: The path to the file containing the API credentials.
+- **`exclude_nodes`**: A list of node names to exclude from the import. Defaults to ["project", "program", "acknowledgement", "publication"].
+- **`dry_run`**: If True, perform a dry run without actual submission. Defaults to False.
+
+#### Returns
+- **`None`**
+
+### `delete_metadata(import_order_file: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"])`
+Deletes metadata JSON files from the Gen3 API endpoint.
+
+#### Args
+- **`import_order_file`**: The path to the import order file.
+- **`project_id`**: The ID of the project.
+- **`api_endpoint`**: Gen3 API endpoint.
+- **`credentials`**: The path to the file containing the API credentials.
+- **`exclude_nodes`**: A list of node names to exclude from the deletion. Defaults to ["project", "program", "acknowledgement", "publication"].
+
+#### Returns
+- **`None`**
+
+## Example Usage
+
+### Adding Indexd Metadata
 ```python
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    # Argument definitions...
-    return parser.parse_args()
+from gen3.auth import Gen3Auth
+
+auth = Gen3Auth(refresh_file='path/to/auth.json')
+metadata_handler = AddIndexdMetadata(
+    auth=auth,
+    metadata_dir='path/to/metadata',
+    indexd_guid_path='path/to/indexd_guids.json'
+)
+
+metadata_handler.update_metadata_with_indexd(
+    file_path='example_metadata.json',
+    output_dir='output',
+    project_id='project123',
+    n_file_progress=1,
+    n_file_total=10
+)
 ```
 
-### delete_metadata
-
-Deletes metadata for a given project.
-
+### Extracting Gen3 GUIDs
 ```python
-def delete_metadata(project_name, folder_path, api_endpoint, credentials_path):
-    with open(os.path.join(folder_path, project, "DataImportOrder.txt"), "r") as f:
-        import_order = [line.rstrip() for line in f]
-        import_order.remove("project")
-        import_order.remove("program")
-    import_order.reverse()
-    endpoint = api_endpoint
-    auth = Gen3Auth(endpoint=endpoint, refresh_file=credentials_path)
-    sub = Gen3Submission(endpoint=endpoint, auth_provider=auth)
-    sub.delete_nodes("program1", project_name, import_order)
+extracted_data = extract_gen3_guids(
+    log_path='path/to/logs',
+    project_id='project123',
+    output_dir='output'
+)
 ```
 
-## Main Function Workflow
+### Creating a Manifest from a Folder
+```python
+manifest_path = create_manifest_from_folder(
+    folder_path='path/to/folder',
+    project_id='project123',
+    output_path='path/to/output',
+    exclude_extension=['.tmp', '.log']
+)
+```
+
+### Checking Unlinked Objects
+```python
+unlinked_objects = check_unlinked_objects(file_path='path/to/metadata.json')
+print(unlinked_objects)
+```
+
+### Updating Metadata
+```python
+update_metadata(
+    base_dir='path/to/base_dir',
+    auth_file='path/to/auth.json',
+    indexd_guid_file='path/to/indexd_guids.json',
+    project_id='project123'
+)
+```
+
+### Copying Remaining Metadata
+```python
+copy_remaining_metadata(base_dir='path/to/base_dir')
+```
+
+### Submitting Metadata
+```python
+submit_metadata(
+    base_dir='path/to/base_dir',
+    project_id='project123',
+    api_endpoint='https://gen3.example.com',
+    credentials='path/to/credentials.json',
+    exclude_nodes=["project", "program"],
+    dry_run=True
+)
+```
 
 ### Deleting Metadata
-
-If the `--delete-all-metadata` flag is specified, the script will prompt the user for confirmation and then delete all existing metadata for the specified projects.
-
 ```python
-if args.delete_all_metadata:
-    proceed = input(f"Are you sure you want to delete all existing metadata for the projects: {args.projects}? y/n\n")
-    if proceed.lower() == "y":
-        for project in args.projects:
-            delete_metadata(project, args.folder, args.api_endpoint, args.credentials)
-        print("Deletion completed, now exiting.")
-        sys.exit()
-    else:
-        print("ok, now exiting. Please remove --delete_all_metadata flag and rerun script.")
-        sys.exit()
+delete_metadata(
+    import_order_file='path/to/DataImportOrder.txt',
+    project_id='project123',
+    api_endpoint='https://gen3.example.com',
+    credentials='path/to/credentials.json',
+    exclude_nodes=["project", "program"]
+)
 ```
 
-### Uploading Dummy Data Files to S3
-
-For each project, if the `--metadata-only` flag is not specified, the script will upload dummy data files to S3 using the Gen3 client.
-
-```python
-if not args.metadata_only:
-    if args.profile and os.path.exists(os.path.join(folder, project, "dummy_files")):
-        upload_path = os.path.join(folder, project, "dummy_files")
-        bash_command = f"gen3-client upload --upload-path={upload_path} --profile={args.profile} --numparallel={args.numparallel}"
-        process = subprocess.Popen(bash_command.split(), stdout=subprocess.PIPE)
-        output, error = process.communicate()
-```
-
-### Creating Gen3 SDK Class Objects
-
-The script creates instances of Gen3 SDK classes for authentication, submission, and indexing.
-
-```python
-auth = Gen3Auth(endpoint=args.api_endpoint, refresh_file=args.credentials)
-sub = Gen3Submission(endpoint=args.api_endpoint, auth_provider=auth)
-index = Gen3Index(endpoint=args.api_endpoint, auth_provider=auth)
-```
-
-### Creating Projects
-
-If the `--add-subjects` flag is not specified, the script will create a new program and project in the Gen3 instance.
-
-```python
-if not args.add_subjects:
-    sub.create_program({
-        "dbgap_accession_number": "prg123",
-        "name": "program1",
-        "type": "program"
-    })
-    proj = json.load(open(os.path.join(folder, project, "edited_jsons", "project.json")))
-    sub.create_project("program1", proj)
-```
-
-### Adding Index Properties to Metadata JSONs
-
-The script reads the `DataImportOrder.txt` file and updates the metadata JSON files with index properties from the Gen3 instance.
-
-```python
-for line in open(os.path.join(folder, project, "DataImportOrder.txt"), "r"):
-    line = line.strip()
-    if args.add_subjects:
-        skip_objects = ["program", "project", "acknowledgement", "publication"]
-    else:
-        skip_objects = ["program", "project", "acknowledgement", "publication"]
-    if line not in skip_objects:
-        print(f"uploading {line}")
-        try:
-            jsn = json.load(open(os.path.join(folder, project, "edited_jsons", f"{line}.json")))
-            # if you are uploading metdata and dummy files, and the json ends with "file", then try find the file in gen3 S3 and get index properties
-            if not args.metadata_only:
-                if line.endswith("file"):
-                    for file_md in jsn:
-                        try:
-                            # Getting index properties of the data file from the gen3 index class
-                            indexed_file = index.get_with_params({"file_name": file_md['file_name']})
-                            # writing index properties to the key values
-                            file_md['object_id'] = indexed_file['did']
-                            file_md['md5sum'] = indexed_file['hashes']['md5']
-                            file_md['file_size'] = indexed_file['size']
-                        except KeyError as e:
-                            print(e)
-                            print(f"{file_md['file_name']} data file not yet uploaded")
-                        except requests.exceptions.HTTPError as e:
-                            print(e)
-                            content = e.response.content
-                            print(f"{file_md['file_name']} data file not yet uploaded")
-                            pass
-                        except TypeError as e:
-                            print(e)
-                            print(f"{file_md['file_name']} data file not yet uploaded")
-            
-```
-
-### Submitting Updated Data File Index Metadata
-
-The script submits the updated metadata JSON files to the Gen3 instance.
-
-```python
-try:
-    sub.submit_record("program1", project, jsn)
-except requests.exceptions.HTTPError as e:
-    content = e.response.content
-    try:
-        content = json.dumps(json.loads(content), indent=4, sort_keys=True)
-    except:
-        pass
-    raise requests.exceptions.HTTPError(content, response=e.response)
-```
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any changes.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## AI disclosure
-- This document was primarily made with gpt-4o on 2024-06-20
-- Further iterations of the document will be made manually
-- Document vetted by Joshua Harris 2024-06-20
+This documentation provides an overview of the classes and functions available in the `gen3datasubmitter.py` module, along with example usage to help you get started.
