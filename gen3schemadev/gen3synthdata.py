@@ -342,6 +342,10 @@ def copy_data_import_order(programs, source_dir, dest_dir):
 
 def copy_directory(src, dest):
     if os.path.exists(dest):
+        confirm = input(f"Directory {dest} already exists. Do you want to overwrite all the files? (yes/no): ")
+        if confirm.lower() != 'yes':
+            print("Operation cancelled by the user.")
+            return
         shutil.rmtree(dest, ignore_errors=True)
         print(f"Directory {dest} was deleted")
     os.makedirs(dest, exist_ok=True)
