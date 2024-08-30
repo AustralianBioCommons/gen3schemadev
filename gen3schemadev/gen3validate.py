@@ -871,7 +871,7 @@ class ValidationReporter:
         nrows (int): The number of rows to read from the CSV file.
         data (list): The data read from the CSV file in JSON format.
         validator (SchemaValidatorDataFrame): The validator instance.
-        validate_df (pd.DataFrame): The DataFrame containing validation errors.
+        validate_df (pd.DataFrame): The DataFrame containing validation errors. This is the full unfiltered DataFrame.
         output (pd.DataFrame): The transformed DataFrame for reporting.
     """
     def __init__(self, csv_path, schema_path, n_rows=None):
@@ -880,7 +880,7 @@ class ValidationReporter:
         self.nrows = n_rows
         self.data = self.csv_to_json()
         self.validator = SchemaValidatorDataFrame(self.data, self.schema_path)
-        self.validate_df = self.validator.errors
+        self.validate_df = self.validator.errors # access 
         self.output = self.transform_validate_df()
     
     @timeit
@@ -948,5 +948,5 @@ class ValidationReporter:
         full_path = os.path.join(output_dir, file_name)
         
         # Write the DataFrame to the constructed path
-        self.validate_df.to_csv(full_path, index=False)
+        self.output.to_csv(full_path, index=False)
         print(f"DataFrame successfully written to {full_path}")
