@@ -516,8 +516,7 @@ class QuickValidateSynth:
                 for file in os.listdir(os.path.join(self.data_dir, project_name))
                 if file.endswith('.json')
             ]
-            filtered_json_paths = [path for path in json_paths if path not in self.exclude_nodes]
-            # print(f'Generated JSON paths: {filtered_json_paths}')
+            filtered_json_paths = [path for path in json_paths if not any(exclude_node in path for exclude_node in self.exclude_nodes)]            # print(f'Generated JSON paths: {filtered_json_paths}')
             return filtered_json_paths
         except Exception as e:
             print(f"An error occurred while generating JSON paths: {e}")
