@@ -341,8 +341,9 @@ def copy_data_import_order(programs, source_dir, dest_dir):
 
 
 def copy_directory(src, dest):
+    if os.path.exists(dest):
+        shutil.rmtree(dest, ignore_errors=True)
+        print(f"Directory {dest} was deleted")
     os.makedirs(dest, exist_ok=True)
-    # if dest directory already exists, it will be overwritten
-    shutil.rmtree(dest, ignore_errors=True)
     shutil.copytree(src, dest, dirs_exist_ok=True)
     print(f"Directory copied from {src} to {dest}")
