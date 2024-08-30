@@ -158,9 +158,31 @@ def some_function():
     # function implementation
 ```
 
-## Example Usage
+# Example Usage
+Importing libs
+```python
+import importlib
+import gen3schemadev
+import os
+import shutil
+import gen3schemadev.gen3synthdata as g3s
+```
 
-### Resolving Schemas
+Defining project list and node list (needed for synthetic data validation and use of quick validate)
+```python
+# Defining programs
+project_list = ['project1', 'project2']
+data_import_nodes = []
+data_import_order_fn = 'path_to/DataImportOrder.txt'
+with open(data_import_order_fn, 'r') as f:
+    data_import_nodes = f.read().splitlines()
+exclude_nodes = ['acknowledgement', 'publication', 'program', 'project']
+data_import_nodes = [node for node in data_import_nodes if node not in exclude_nodes]
+```
+
+## Resolving Schemas
+
+Reads a bundled json, splits into individual jsons. Then resolves _definitions.json with _terms.json. Once _definitions.json is resolved. Then this resolved definitions file is used to resolve all other schemas. Split unresolved jsons are created and stored in unresolved_dir. Resolved .json schemas are written to resolved_output_dir.
 ```python
 resolver = SchemaResolver(
     bundle_json_path='path/to/bundle.json',
@@ -172,7 +194,38 @@ resolver = SchemaResolver(
 resolver.resolve_schemas()
 ```
 
-### Validating Synthetic Data
+Once the resolved schemas are created, we can combined them into a resolved bundled json. This is useful for validating a csv file of data with every property in the entire dictionary, which is useful for catching validation errors. However, this resolved bundled json schema is unsuitable for deployment. Please use the schema_dev.json for loading into gen3.
+```python
+resolver.combine_resolved_schemas(resolved_dir='output/schema/json/resolved',
+                                  output_dir='output/schema/json/')
+```
+
+## Data validation
+
+Please use the bundled **resolved** json schema to run validation on your data
+```python
+schema_path = "output/schema/json/schema_dev_resolved.json"
+csv_path = 'data/project_1_data.csv'
+validation_results = gen3schemadev.gen3validate.ValidationReporter(csv_path=csv_path, schema_path=schema_path)
+# writing to df if you wish
+validation_results.write_df(output_dir = 'data', project_id = 'AusDiab')
+```
+
+Viewing results as df
+```python
+df = validation_results.output
+df
+```
+
+## Synthetic Data validtion
+- Please note that this synthetic data is tailored towards a medical research data commons where you would have multiple projects / studies to go through
+
+```python
+# copying your synthetic data to a new dir for validation and resolution of errors
+g3s.copy_directory('output/synthetic_data/raw_gen3schemadev_updated_fn/', 'output/synthetic_data/transformed/')
+```
+
+#### Validating Synthetic Data
 ```python
 data = [...]  # List of synthetic data objects
 validator = SchemaValidatorSynth(schema_fn='path/to/schema.json', data=data)
@@ -180,28 +233,20 @@ validator.print_summary()
 validator.plot_invalid_keys()
 ```
 
-### Quick Validation
+#### Quick Synthetic Validation
 ```python
 quick = QuickValidateSynth(
     data_dir='path/to/data',
-    project_name_list=['Project1', 'Project2'],
+    project_name_list=project_list,
     resolved_schema_dir='path/to/resolved_schemas'
 )
 quick.quick_validate()
 ```
 
-### Combining Synthetic Data
 ```python
-combiner = SyntheticDataCombiner(input_dir='path/to/input')
-dataframes = combiner.json_files_to_dataframes()
-combined_df = combiner.bind_dataframes_by_column(dataframes, remove_duplicates=True)
-combiner.dataframe_to_json(combined_df, 'path/to/output.json')
+# Example of pulling out specific errors
+key = ('project1', 'medication')
+quick.errors.get(key)
 ```
 
-### Reporting Validation Results
-```python
-reporter = ValidationReporter(csv_path='path/to/data.csv', schema_path='path/to/schema.json')
-reporter.write_df(output_dir='path/to/output', project_id='ProjectID')
-```
 
-This documentation provides an overview of the classes and methods available in the `gen3validate.py` module, along with example usage to help you get started.
