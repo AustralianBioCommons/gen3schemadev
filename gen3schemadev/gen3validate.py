@@ -612,6 +612,8 @@ class SyntheticDataCombiner:
         """
         self.input_dir = input_dir
         self.exclude_files = exclude_files if exclude_files is not None else ['project.json', 'program.json']
+        self.df_list = self.json_files_to_dataframes()
+        self.combined_df = self.bind_dataframes_by_column(self.df_list)
 
     def json_files_to_dataframes(self):
         """
@@ -660,19 +662,26 @@ class SyntheticDataCombiner:
         
         return combined_df
 
-    def dataframe_to_json(self, df, output_file):
+    def dataframe_to_json(self, output_file):
         """
-        Convert a pandas DataFrame to a JSON file with each row as an object in an array.
+        Convert the combined DataFrame to a JSON file with each row as an object in an array.
 
         Args:
-            df (pd.DataFrame): The DataFrame to convert.
             output_file (str): The path to the output JSON file.
 
         Returns:
             None
         """
         try:
-            data = df.to_dict(orient='records')
+            # Extract basename and basedir
+            base_name = os.path.basename(output_file)
+            base_dir = os.path.dirname(output_file)
+            
+            # Create basedir if it does not exist
+            if not os.path.exists(base_dir):
+                os.makedirs(base_dir)
+            
+            data = self.combined_df.to_dict(orient='records')
             with open(output_file, 'w') as f:
                 json.dump(data, f, indent=4)
             print(f"DataFrame successfully written to {output_file}")
