@@ -370,13 +370,14 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
     """
     
     def get_import_order(project_name, folder_path):
+        path = os.path.join(folder_path, project_name, "indexd", "DataImportOrder.txt")
         try:
-            with open(os.path.join(folder_path, project_name, "indexd", "DataImportOrder.txt"), "r") as f:
+            with open(path, "r") as f:
                 import_order = [line.rstrip() for line in f]
                 import_order = [node for node in import_order if node not in exclude_nodes]
             return import_order
         except FileNotFoundError:
-            print(f"Error: DataImportOrder.txt not found in {os.path.join(folder_path, project_name)}")
+            print(f"Error: DataImportOrder.txt not found in {path}")
             return []
 
     def read_json(json_fn):
