@@ -1,4 +1,5 @@
 import os
+import sys
 from gen3.auth import Gen3Auth
 from gen3.index import Gen3Index
 from gen3.submission import Gen3Submission
@@ -353,7 +354,7 @@ def copy_remaining_metadata(base_dir):
         print(f"Warning: DataImportOrder.txt does not exist in {base_dir}")
         
 
-def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False):
+def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False, max_submission_size_kb: int = 400):
     """
     Submits metadata json files to the gen3 api endpoint. Submission depends on a DataImportOrder.txt file, which defines the order of the nodes to be imported.
 
@@ -364,6 +365,7 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         credentials (str): The path to the file containing the API credentials.
         exclude_nodes (list): A list of node names to exclude from the import. Default is ["project", "program", "acknowledgement", "publication"].
         dry_run (bool): If True, perform a dry run without actual submission. Default is False.
+        max_submission_size_kb (int): The maximum size of each submission in kilobytes. Default is 400 KB.
 
     Returns:
         None
@@ -406,21 +408,55 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
             print("Submission cancelled by user.")
             return
     
+
+    def split_json_objects(json_list, max_size_kb=max_submission_size_kb, print_results=False):
+        def get_size_in_kb(obj):
+            return sys.getsizeof(json.dumps(obj)) / 1024
+
+        def split_list(json_list):
+            if get_size_in_kb(json_list) <= max_size_kb:
+                return [json_list]
+            
+            mid = len(json_list) // 2
+            left_list = json_list[:mid]
+            right_list = json_list[mid:]
+            
+            return split_list(left_list) + split_list(right_list)
+
+        split_lists = split_list(json_list)
+        
+        if print_results:
+            for i, lst in enumerate(split_lists):
+                print(f"List {i+1} size: {get_size_in_kb(lst):.2f} KB, contains {len(lst)} objects")
+    
+        return split_lists
+    
+    
+    def process_node(node, sub, project_id, dry_run):
+        if dry_run:
+            print(f"DRY RUN\t| {project_id}\t| {node} would be submitted")
+            return
+
+        print(f"\n\nIMPORTING\t| {project_id}\t| {node}")
+        json_data = read_json(f"{node}.json")
+
+        if json_data is None:
+            print(f"SKIPPING\t| {project_id}\t| {node} due to errors in reading JSON")
+            return
+        
+        json_split = split_json_objects(json_data, max_size_kb=max_submission_size_kb, print_results=True)
+        n_json_data = len(json_split)
+        
+        for index, jsn in enumerate(json_split):
+            try:
+                print(f"Submitting: {project_id}\t| {node}\t| {index + 1}/{n_json_data} data splits")
+                sub.submit_record("program1", project_id, jsn)
+                print(f"SUCCESS\t| Imported: {project_id}\t| {node}")
+            except Exception as e:
+                print(f"ERROR\t| {project_id}\t| {node}: {e}")
+
     for node in final_ordered_import_nodes:
-        print(f"\n\n=== Importing: {node} ===")
-        jsn = read_json(f"{node}.json")
-        if jsn:
-            if dry_run:
-                print(f"=== Dry Run: {node} would be submitted ===")
-            else:
-                try:
-                    print(f"=== Submitting: {node} ===")
-                    sub.submit_record("program1", project_id, jsn)
-                    print(f"=== Successfully Imported: {node} ===")
-                except Exception as e:
-                    print(f"=== Error importing {node}: {e} ===")
-        else:
-            print(f"Skipping {node} due to previous errors.")
+        process_node(node, sub, project_id, dry_run)
 
          
 def delete_metadata(import_order_file: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"]):
@@ -461,7 +497,7 @@ def delete_metadata(import_order_file: str, project_id: str, api_endpoint: str, 
         return
     
     for node in final_ordered_import_nodes:
-        print(f"\n\n=== Deleting: {node} ===")
+        print(f"\n\n=== Deleting: {project_id} | {node} ===")
         try:
             sub.delete_nodes("program1", project_id, [node])
             print(f"=== Successfully Deleted: {node} ===")
