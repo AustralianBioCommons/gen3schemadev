@@ -354,7 +354,7 @@ def copy_remaining_metadata(base_dir):
         print(f"Warning: DataImportOrder.txt does not exist in {base_dir}")
         
 
-def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False, max_submission_size_kb: int = 400, retries = 5):
+def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False, max_submission_size_kb: int = 400, retries = 5, disable_input: bool = False):
     """
     Submits metadata json files to the gen3 api endpoint. Submission depends on a DataImportOrder.txt file, which defines the order of the nodes to be imported.
 
@@ -366,6 +366,7 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         exclude_nodes (list): A list of node names to exclude from the import. Default is ["project", "program", "acknowledgement", "publication"].
         dry_run (bool): If True, perform a dry run without actual submission. Default is False.
         max_submission_size_kb (int): The maximum size of each submission in kilobytes. Default is 400 KB.
+        disable_input (bool): If True, disable user input confirmation. Default is False.
 
     Returns:
         None
@@ -402,7 +403,7 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
     
     final_ordered_import_nodes = [node for node in ordered_import_nodes if node not in exclude_nodes]
     
-    if not dry_run:
+    if not dry_run and not disable_input:
         confirm = input("Do you want to submit the metadata? (yes/no): ").strip().lower()
         if confirm != 'yes':
             print("Submission cancelled by user.")
