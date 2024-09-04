@@ -432,7 +432,7 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         return split_lists
     
     
-    def process_node(node, sub, project_id, dry_run):
+    def process_node(node, sub, project_id, dry_run, max_retries=3):
         if dry_run:
             print(f"DRY RUN\t| {project_id}\t| {node} would be submitted")
             return
@@ -448,12 +448,18 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         n_json_data = len(json_split)
         
         for index, jsn in enumerate(json_split):
-            try:
-                print(f"Submitting: {project_id}\t| {node}\t| {index + 1}/{n_json_data} data splits")
-                sub.submit_record("program1", project_id, jsn)
-                print(f"SUCCESS\t| Imported: {project_id}\t| {node}")
-            except Exception as e:
-                print(f"ERROR\t| {project_id}\t| {node}: {e}")
+            retries = 0
+            while retries < max_retries:
+                try:
+                    print(f"SUBMITTING\t| {project_id}\t| {node}\t| {index + 1}/{n_json_data} data splits")
+                    sub.submit_record("program1", project_id, jsn)
+                    print(f"SUCCESS\t| Imported: {project_id}\t| {node}")
+                    break
+                except Exception as e:
+                    retries += 1
+                    print(f"ERROR\t| {project_id}\t| {node}: {e} | Retry {retries}/{max_retries}")
+                    if retries == max_retries:
+                        print(f"FAILED\t| {project_id}\t| {node} after {max_retries} retries")
 
     for node in final_ordered_import_nodes:
         process_node(node, sub, project_id, dry_run)
