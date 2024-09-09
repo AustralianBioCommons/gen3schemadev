@@ -868,16 +868,21 @@ class ValidationReporter:
         csv_path (str): The path to the CSV file.
         schema_path (str): The path to the schema file.
         nrows (int): The number of rows to read from the CSV file.
-        data (list): The data read from the CSV file in JSON format.
+        dataframe (pd.DataFrame): The DataFrame to be converted to JSON format.
+        data (list): The data read from the CSV file or DataFrame in JSON format.
         validator (SchemaValidatorDataFrame): The validator instance.
         validate_df (pd.DataFrame): The DataFrame containing validation errors. This is the full unfiltered DataFrame.
         output (pd.DataFrame): The transformed DataFrame for reporting.
     """
-    def __init__(self, csv_path, schema_path, n_rows=None):
+    def __init__(self, schema_path, csv_path=None, dataframe=None, n_rows=None):
+        if dataframe is None and csv_path is None:
+            raise ValueError("Either 'csv_path' or 'dataframe' must be provided.")
+        
         self.csv_path = csv_path
         self.schema_path = schema_path
         self.nrows = n_rows
-        self.data = self.csv_to_json()
+        self.dataframe = dataframe
+        self.data = self.dataframe_to_json() if dataframe is not None else self.csv_to_json()
         self.validator = SchemaValidatorDataFrame(self.data, self.schema_path)
         self.validate_df = self.validator.errors # access 
         self.output = self.transform_validate_df()
@@ -886,6 +891,11 @@ class ValidationReporter:
     def csv_to_json(self):
         df = pd.read_csv(self.csv_path, nrows=self.nrows if self.nrows else None)
         json_data = df.to_dict(orient="records")
+        return json_data
+    
+    @timeit
+    def dataframe_to_json(self):
+        json_data = self.dataframe.to_dict(orient="records")
         return json_data
     
     @timeit
