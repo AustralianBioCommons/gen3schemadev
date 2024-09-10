@@ -881,11 +881,18 @@ class ValidationReporter:
         self.csv_path = csv_path
         self.schema_path = schema_path
         self.nrows = n_rows
-        self.dataframe = dataframe
-        self.data = self.dataframe_to_json() if dataframe is not None else self.csv_to_json()
+        if dataframe is not None:
+            self.dataframe = self.read_n_rows(dataframe, self.nrows)
+            self.data = self.dataframe_to_json()
+        else:
+            self.data = self.csv_to_json()
         self.validator = SchemaValidatorDataFrame(self.data, self.schema_path)
-        self.validate_df = self.validator.errors # access 
+        self.validate_df = self.validator.errors  # access
         self.output = self.transform_validate_df()
+    
+    def read_n_rows(self, df, n):
+        filt_df = df.head(n)
+        return filt_df
     
     @timeit
     def csv_to_json(self):
