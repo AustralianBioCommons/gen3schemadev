@@ -466,7 +466,7 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         process_node(node, sub, project_id, dry_run, retries)
 
          
-def delete_metadata(import_order_file: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"]):
+def delete_metadata(import_order_file: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], prompt_for_confirmation: bool = True):
     """
     Deletes metadata json files from the gen3 api endpoint. Deletion depends on a DataImportOrder.txt file, which defines the order of the nodes to be deleted.
 
@@ -497,11 +497,12 @@ def delete_metadata(import_order_file: str, project_id: str, api_endpoint: str, 
     
     final_ordered_import_nodes = [node for node in ordered_import_nodes if node not in exclude_nodes]
     final_ordered_import_nodes.reverse()  # Reverse the order for deletion
-
-    confirm = input("Do you want to delete the metadata? (yes/no): ").strip().lower()
-    if confirm != 'yes':
-        print("Deletion cancelled by user.")
-        return
+    
+    if prompt_for_confirmation:
+        confirm = input("Do you want to delete the metadata? (yes/no): ").strip().lower()
+        if confirm != 'yes':
+            print("Deletion cancelled by user.")
+            return
     
     for node in final_ordered_import_nodes:
         print(f"\n\n=== Deleting: {project_id} | {node} ===")
