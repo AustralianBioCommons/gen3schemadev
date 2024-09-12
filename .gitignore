@@ -12,4 +12,4 @@ dist/
 gen3schemadev.egg-info/
 synthetic_data/
 .DS_Store
-
+gen3schemadev/__pycache__/
