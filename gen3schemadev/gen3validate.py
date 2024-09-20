@@ -913,6 +913,10 @@ class ValidationReporter:
         if not all(column in self.validate_df.columns for column in required_columns):
             raise ValueError(f"The dataframe is missing one or more required columns: {required_columns}")
         
+                # Check if 'Invalid key' exists in the dataframe
+        if 'Invalid key' not in self.validate_df.columns:
+            raise ValueError("Invalid key not found: Make sure a bundled resolved schema has been created")
+        
         def get_text_before_is_not(input_string):
             # Find the index of the substring " is not " or " does not "
             index_is_not = input_string.find(" is not ")
@@ -927,18 +931,23 @@ class ValidationReporter:
             
             # If the substring is not found, return the original string
             return input_string
+        
+        try:
+            filtered_df = self.validate_df[self.validate_df['Invalid key'].apply(lambda x: len(x) != 0)]
+            filtered_df = filtered_df.copy()
+            filtered_df['key_error_filter'] = filtered_df['Invalid key'].astype(str) + " " + filtered_df['Validation error'].astype(str)
+            filtered_df = filtered_df.drop_duplicates(subset=['key_error_filter'])
+            filtered_df['input_value'] = filtered_df['Validation error'].apply(lambda x: get_text_before_is_not(x))
+            filtered_df = filtered_df.rename(columns={'Index': 'Row'})
+            columns_to_drop = ['Validation Result', 'Schema path', 'Validator', 'key_error_filter']
+            filtered_df = filtered_df.drop(columns=columns_to_drop)
+            filtered_df['unresolvable'] = np.nan
+        except KeyError as e:
+            raise KeyError(f"KeyError encountered: {e} does not exist | make sure a bundled resolved schema is used, to create run the resolve_schemas() method then combine_resolved_schemas() method all from the gen3schemadev.gen3validate.SchemaResolver class")
 
-        filtered_df = self.validate_df[self.validate_df['Invalid key'].apply(lambda x: len(x) != 0)]
 
-        filtered_df = filtered_df.copy()
-        filtered_df['key_error_filter'] = filtered_df['Invalid key'].astype(str) + " " + filtered_df['Validation error'].astype(str)
-        filtered_df = filtered_df.drop_duplicates(subset=['key_error_filter'])
-        filtered_df['input_value'] = filtered_df['Validation error'].apply(lambda x: get_text_before_is_not(x))
-        filtered_df = filtered_df.rename(columns={'Index': 'Row'})
-        columns_to_drop = ['Validation Result', 'Schema path', 'Validator', 'key_error_filter']
-        filtered_df = filtered_df.drop(columns=columns_to_drop)
-        filtered_df['unresolvable'] = np.nan
 
+        
         # Convert 'Invalid key' to string for sorting
         filtered_df['Invalid key'] = filtered_df['Invalid key'].astype(str)
         filtered_df = filtered_df.sort_values(by=['Invalid key', 'Row'], na_position='last')
@@ -950,6 +959,7 @@ class ValidationReporter:
         filtered_df.columns = ['row', 'invalid_key', 'input_value', 'validator_value', 'validation_error', 'unresolvable']
 
         return filtered_df
+    
     
     @timeit
     def write_df(self, output_dir, project_id):
