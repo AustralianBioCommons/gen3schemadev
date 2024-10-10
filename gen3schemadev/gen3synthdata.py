@@ -314,7 +314,9 @@ def gen_random_enums(enums: list, n: int):
     return [random.choice(enums) for _ in range(n)]
 
 
-def update_json_key_values(base_path: str, json_filename: str, key: str, replacement: list = None, write_inplace: bool = True, enums: list = None, insert_date_time: bool = False):
+def update_json_key_values(base_path: str, json_filename: str, key: str, 
+                           replacement: list = None, write_inplace: bool = True, 
+                           enums: list = None, insert_date_time: bool = False):
     """
     Updates the date values for a specified key in a JSON file with randomly generated dates.
 
