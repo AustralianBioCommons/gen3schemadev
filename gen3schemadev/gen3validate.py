@@ -952,10 +952,6 @@ class ValidationReporter:
         filtered_df = filtered_df[['Row', 'Invalid key', 'input_value', 'Validator value', 'Validation error', 'unresolvable']]
         # Rename the columns to match the specified names
         filtered_df.columns = ['row', 'invalid_key', 'input_value', 'validator_value', 'validation_error', 'unresolvable']
-        # filter validation table where there are None values
-        if self.filter_none:
-            filtered_df = filtered_df[~filtered_df['validation_error'].str.contains("None is not one of", na=False)]
-            
 
         return filtered_df
     
