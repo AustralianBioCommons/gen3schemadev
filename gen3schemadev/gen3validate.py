@@ -874,13 +874,12 @@ class ValidationReporter:
         validate_df (pd.DataFrame): The DataFrame containing validation errors. This is the full unfiltered DataFrame.
         output (pd.DataFrame): The transformed DataFrame for reporting.
     """
-    def __init__(self, schema_path, csv_path=None, dataframe=None, n_rows=None, filter_none = True):
+    def __init__(self, schema_path, csv_path=None, dataframe=None, n_rows=None):
         if dataframe is None and csv_path is None:
             raise ValueError("Either 'csv_path' or 'dataframe' must be provided.")
         
         self.csv_path = csv_path
         self.schema_path = schema_path
-        self.filter_none = filter_none
         self.nrows = n_rows
         if dataframe is not None:
             self.dataframe = self.read_n_rows(dataframe, self.nrows)
@@ -914,7 +913,7 @@ class ValidationReporter:
         if not all(column in self.validate_df.columns for column in required_columns):
             raise ValueError(f"The dataframe is missing one or more required columns: {required_columns}")
         
-        # Check if 'Invalid key' exists in the dataframe
+                # Check if 'Invalid key' exists in the dataframe
         if 'Invalid key' not in self.validate_df.columns:
             raise ValueError("Invalid key not found: Make sure a bundled resolved schema has been created")
         
@@ -945,6 +944,7 @@ class ValidationReporter:
             filtered_df['unresolvable'] = np.nan
         except KeyError as e:
             raise KeyError(f"KeyError encountered: {e} does not exist | make sure a bundled resolved schema is used, to create run the resolve_schemas() method then combine_resolved_schemas() method all from the gen3schemadev.gen3validate.SchemaResolver class")
+
         # Convert 'Invalid key' to string for sorting
         filtered_df['Invalid key'] = filtered_df['Invalid key'].astype(str)
         filtered_df = filtered_df.sort_values(by=['Invalid key', 'Row'], na_position='last')
