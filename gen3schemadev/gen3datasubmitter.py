@@ -356,7 +356,7 @@ def copy_remaining_metadata(base_dir):
 
 def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], 
                     dry_run: bool = False, max_submission_size_kb: int = 400, retries = 5, disable_input: bool = False,
-                    specific_node: str = None, ab_path: bool = False):
+                    specific_node: str = None, ab_path: bool = False, import_order_file: str = None):
     """
     Submits metadata json files to the gen3 api endpoint. Submission depends on a DataImportOrder.txt file, which defines the order of the nodes to be imported.
 
@@ -371,13 +371,14 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         disable_input (bool): If True, disable user input confirmation. Default is False.
         specific_node (str): If not None, only submit the specified node.
         ab_path (bool): If True, use the absolute path to the base_dir.
+        import_order_file (str): The absolute path to the import order file, if not defined the program will look for os.path.join(folder_path, project_name, "indexd", "DataImportOrder.txt")
 
     Returns:
         None
     """
     
     def get_import_order(project_name, folder_path):
-        path = os.path.join(folder_path, project_name, "indexd", "DataImportOrder.txt")
+        path = import_order_file or os.path.join(folder_path, project_name, "indexd", "DataImportOrder.txt")
         try:
             with open(path, "r") as f:
                 import_order = [line.rstrip() for line in f]
