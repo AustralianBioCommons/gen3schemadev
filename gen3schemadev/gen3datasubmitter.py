@@ -354,7 +354,9 @@ def copy_remaining_metadata(base_dir):
         print(f"Warning: DataImportOrder.txt does not exist in {base_dir}")
         
 
-def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], dry_run: bool = False, max_submission_size_kb: int = 400, retries = 5, disable_input: bool = False):
+def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentials: str, exclude_nodes: list = ["project", "program", "acknowledgement", "publication"], 
+                    dry_run: bool = False, max_submission_size_kb: int = 400, retries = 5, disable_input: bool = False,
+                    specific_node: str = None, ab_path: bool = False):
     """
     Submits metadata json files to the gen3 api endpoint. Submission depends on a DataImportOrder.txt file, which defines the order of the nodes to be imported.
 
@@ -367,6 +369,8 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
         dry_run (bool): If True, perform a dry run without actual submission. Default is False.
         max_submission_size_kb (int): The maximum size of each submission in kilobytes. Default is 400 KB.
         disable_input (bool): If True, disable user input confirmation. Default is False.
+        specific_node (str): If not None, only submit the specified node.
+        ab_path (bool): If True, use the absolute path to the base_dir.
 
     Returns:
         None
@@ -383,9 +387,12 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
             print(f"Error: DataImportOrder.txt not found in {path}")
             return []
 
-    def read_json(json_fn):
+    def read_json(json_fn, ab_path: bool = False):
         try:
-            json_path = os.path.join(base_dir, project_id, 'indexd', json_fn)
+            if ab_path:
+                json_path = os.path.join(base_dir, json_fn)
+            else:
+                json_path = os.path.join(base_dir, project_id, 'indexd', json_fn)
             with open(json_path, 'r') as f:
                 schema = json.load(f)
             print(f'{json_path} successfully loaded')
@@ -397,11 +404,14 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
             print(f"Error: JSON file {json_path} is not valid.")
             return None
 
-    ordered_import_nodes = get_import_order(project_id, base_dir)
+    if specific_node is None:
+        ordered_import_nodes = get_import_order(project_id, base_dir)
+        final_ordered_import_nodes = [node for node in ordered_import_nodes if node not in exclude_nodes]
+
+    # creating auth and submission objects
     auth = Gen3Auth(refresh_file=credentials)
     sub = Gen3Submission(endpoint=api_endpoint, auth_provider=auth)
     
-    final_ordered_import_nodes = [node for node in ordered_import_nodes if node not in exclude_nodes]
     
     if not dry_run and not disable_input:
         confirm = input("Do you want to submit the metadata? (yes/no): ").strip().lower()
@@ -439,7 +449,7 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
             return
 
         print(f"\n\nIMPORTING\t| {project_id}\t| {node}")
-        json_data = read_json(f"{node}.json")
+        json_data = read_json(f"{node}.json", ab_path=ab_path)
 
         if json_data is None:
             print(f"SKIPPING\t| {project_id}\t| {node} due to errors in reading JSON")
@@ -462,6 +472,11 @@ def submit_metadata(base_dir: str, project_id: str, api_endpoint: str, credentia
                     if retries == max_retries:
                         print(f"FAILED\t| {project_id}\t| {node} after {max_retries} retries")
 
+    
+    if specific_node:
+        process_node(specific_node, sub, project_id, dry_run, retries)
+        return print(f"Done. {project_id} | {specific_node} metadata submitted")
+    
     for node in final_ordered_import_nodes:
         process_node(node, sub, project_id, dry_run, retries)
 
