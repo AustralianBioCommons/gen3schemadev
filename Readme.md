@@ -6,7 +6,7 @@ This repository facilitates Gen3 data modeling using Google Sheets. It includes 
 
 ### 1. Set up environment
 ```bash
-git clone "https://github.com/AustralianBioCommons/gen3schemadev.git"
+git clone --recurse-submodules "https://github.com/AustralianBioCommons/gen3schemadev.git"
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
