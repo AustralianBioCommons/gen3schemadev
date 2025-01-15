@@ -20,6 +20,7 @@ cd umccr-dictionary
 make pull
 make up
 make ps
+cd ..
 ```
 
 ## Usage
