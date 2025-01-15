@@ -13,4 +13,5 @@ numpy
 gen3
 requests
 ldap3
+boto3
 jsonschema3
