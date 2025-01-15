@@ -26,6 +26,13 @@ make ps
 
 You can run using the [Schema Development Framework Notebook](jupyter/schema_dev_framework.ipynb) or by following the usage below.
 
+Alternatively you can run the script:
+```bash
+bash scripts/generate_schema.sh --help
+bash scripts/generate_schema.sh
+```
+
+
 ### 1. Pull Data Schema from Google Sheets
 
 This step involves pulling the schema design from a Google Sheet template. The template can be accessed [here](https://docs.google.com/spreadsheets/d/1zjDBDvXgb0ydswFBwy47r2c8V1TFnpUj1jcG0xsY7ZI/edit?usp=sharing). Feel free to duplicate this spreadsheet and input your own google sheet id along with the tab ids for objects, links, properties, and enums.
