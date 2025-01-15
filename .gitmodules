@@ -1,0 +1,3 @@
+[submodule "umccr-dictionary"]
+	path = umccr-dictionary
+	url = https://github.com/AustralianBioCommons/umccr-dictionary.git
