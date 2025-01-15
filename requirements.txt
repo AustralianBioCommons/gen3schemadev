@@ -13,5 +13,4 @@ numpy
 gen3
 requests
 ldap3
-boto3==1.7.84
 jsonschema3
