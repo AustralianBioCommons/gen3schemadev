@@ -102,7 +102,7 @@ class AddIndexdMetadata:
         num_objects = len(metadata)
         print(f"Number of objects in JSON array: {num_objects}")
         for index, entry in enumerate(metadata):
-            print(f"\nFILE | {project_id} | {n_file_progress}/{n_file_total} | {file_path}")
+            print(f"\nFILE | {project_id} | {n_file_progress + 1}/{n_file_total} | {file_path}")
             print(f"{index+1}/{num_objects} | {entry['file_name']}")
             filename = self.pull_filename(entry)
             guid = self.pull_gen3_guid(f"{self.indexd_guid_path}", filename)
