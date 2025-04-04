@@ -253,7 +253,10 @@ def check_unlinked_objects(file_path):
             filename = f"{entry['file_name']}.{entry['data_format']}"
             unlinked_list.append(filename)
             unlinked_count += 1
-    print(f"Unlinked objects: {unlinked_count}/{n_objects}")
+    if unlinked_count == 0:
+        print(f"{file_path} all objects successfully Linked")
+    else:
+        print(f"{file_path} {unlinked_count}/{n_objects} objects unlinked")
     return unlinked_list
 
 
