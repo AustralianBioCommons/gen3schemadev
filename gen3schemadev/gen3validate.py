@@ -952,6 +952,8 @@ class ValidationReporter:
         filtered_df = filtered_df[['Row', 'Invalid key', 'input_value', 'Validator value', 'Validation error', 'unresolvable']]
         # Rename the columns to match the specified names
         filtered_df.columns = ['row', 'invalid_key', 'input_value', 'validator_value', 'validation_error', 'unresolvable']
+        # incrementing row by 1 for better readability
+        filtered_df['row'] = filtered_df['row'] + 1
 
         return filtered_df
     
