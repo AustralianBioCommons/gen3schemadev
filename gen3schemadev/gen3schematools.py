@@ -153,3 +153,37 @@ class DictDataTypeUpdater:
                 raise RuntimeError(f"Error processing key '{current_key}': {e}")
 
         return data_dict
+
+def update_definition_to_yaml(yaml_file_path, new_definition):
+    """
+    Updates a new definition then resaves back to a YAML file.
+
+    Parameters:
+        yaml_file_path (str): Path to the YAML file.
+        new_definition (dict): Dictionary containing the new definition to add.
+
+    Returns:
+        None
+    """
+    logger.info(f"Starting update_definition_to_yaml for file: {yaml_file_path}")
+    try:
+        logger.debug(f"Reading YAML file: {yaml_file_path}")
+        with open(yaml_file_path, 'r') as file:
+            yaml_content = yaml.safe_load(file) or {}
+        logger.debug(f"Current YAML content loaded: {yaml_content}")
+    except Exception as e:
+        logger.error(f"Failed to read YAML file '{yaml_file_path}': {e}")
+        raise
+
+    logger.info(f"Adding new definition to YAML content: {new_definition}")
+    yaml_content.update(new_definition)
+
+    try:
+        logger.debug(f"Writing updated content back to YAML file: {yaml_file_path}")
+        with open(yaml_file_path, 'w') as file:
+            yaml.safe_dump(yaml_content, file)
+    except Exception as e:
+        logger.error(f"Failed to write YAML file '{yaml_file_path}': {e}")
+        raise
+
+    logger.info(f"Successfully added new definition to {yaml_file_path}")
