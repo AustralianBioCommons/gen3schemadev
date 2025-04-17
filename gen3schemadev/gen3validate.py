@@ -933,10 +933,10 @@ class ValidationReporter:
             return input_string
         
         try:
-            filtered_df = self.validate_df[self.validate_df['Invalid key'].apply(lambda x: len(x) != 0)]
+            # Filtering the validation results df
+            filtered_df = self.validate_df[self.validate_df['Invalid key'].apply(lambda x: len(x) != 0)] 
             filtered_df = filtered_df.copy()
             filtered_df['key_error_filter'] = filtered_df['Invalid key'].astype(str) + " " + filtered_df['Validation error'].astype(str)
-            filtered_df = filtered_df.drop_duplicates(subset=['key_error_filter'])
             filtered_df['input_value'] = filtered_df['Validation error'].apply(lambda x: get_text_before_is_not(x))
             filtered_df = filtered_df.rename(columns={'Index': 'Row'})
             columns_to_drop = ['Validation Result', 'Schema path', 'Validator', 'key_error_filter']
@@ -952,6 +952,8 @@ class ValidationReporter:
         filtered_df = filtered_df[['Row', 'Invalid key', 'input_value', 'Validator value', 'Validation error', 'unresolvable']]
         # Rename the columns to match the specified names
         filtered_df.columns = ['row', 'invalid_key', 'input_value', 'validator_value', 'validation_error', 'unresolvable']
+        # incrementing row by 1 for better readability
+        filtered_df['row'] = filtered_df['row'] + 1
 
         return filtered_df
     

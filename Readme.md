@@ -76,3 +76,7 @@ Open the data dictionary visualization in your web browser:
 ```bash
 open http://localhost:8080/#schema/schema_dev.json
 ```
+
+### 6. View Outputs
+
+After running the script, you can view the generated outputs in the `output` folder. This folder contains the schema files pulled from the Google Sheets. You can access this folder directly in your file system or use the following command to open it:

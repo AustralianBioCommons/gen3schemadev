@@ -3,7 +3,7 @@ import pandas as pd
 import argparse
 import os
 import subprocess
-
+import wget
 import gen3schemadev
 
 
@@ -35,20 +35,19 @@ def download_gsheet(google_base_link: str, output_dir: str, object_gid: str, lin
     # storing gids
     gid_dict = {'object': object_gid, 'link': link_gid, 'prop': prop_gid, 'enum': enum_gid}
     
-    # building command list
-    cmd_list = []
     for key, gid in gid_dict.items():
-        dl_link_xlsx = google_base_link + '/export?format=xlsx&gid=' + gid
-        dl_link_csv = google_base_link + '/export?format=csv&gid=' + gid
-        cmd = f'wget -O "{output_dir}/xlsx/{key}_def.xlsx" "{dl_link_xlsx}"'
-        cmd_csv = f'wget -O "{output_dir}/csv/{key}_def.csv" "{dl_link_csv}"'
-        cmd_list.append(cmd)
-        cmd_list.append(cmd_csv)
-    
-    # running commands
-    for command in cmd_list:
-        result = subprocess.run(command, shell=True, check=True)
-        print(result)
+        try:
+            dl_link_xlsx = f"{google_base_link}/export?format=xlsx&gid={gid}"
+            dl_link_csv = f"{google_base_link}/export?format=csv&gid={gid}"
+            
+            print(f"Downloading XLSX for {key} from {dl_link_xlsx}")
+            wget.download(dl_link_xlsx, f'{output_dir}/xlsx/{key}_def.xlsx', bar=None)
+            
+            print(f"Downloading CSV for {key} from {dl_link_csv}")
+            wget.download(dl_link_csv, f'{output_dir}/csv/{key}_def.csv', bar=None)
+        except Exception as e:
+            print(f"Failed to download {key}: {e}")
+        
 
 def main():
     pass
