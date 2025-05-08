@@ -1,0 +1,1212 @@
+[
+    {
+        "diabetes": "no",
+        "diabetes_type": "NDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_5d24df468f"
+        },
+        "submitter_id": "medical_history_e9d2017024",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IFG",
+        "hypertension": null,
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_3eb4b4265c"
+        },
+        "submitter_id": "medical_history_df4cd2bb7c",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_d64a948088"
+        },
+        "submitter_id": "medical_history_3050ac213c",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_fcb00d0817"
+        },
+        "submitter_id": "medical_history_5c60848a66",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "NDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_5601d67fa5"
+        },
+        "submitter_id": "medical_history_0eab4aafb2",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "NGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_053cc371ee"
+        },
+        "submitter_id": "medical_history_fb7433e380",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": null,
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_e3078f3725"
+        },
+        "submitter_id": "medical_history_f1e4c41809",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": null,
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_76cc21ffda"
+        },
+        "submitter_id": "medical_history_864a624a4f",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IGT",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_951ce4fd6d"
+        },
+        "submitter_id": "medical_history_7db5916a4c",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "NDM",
+        "hypertension": null,
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_61fbe6f9a6"
+        },
+        "submitter_id": "medical_history_e03b9803ec",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": null,
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_16826e5c87"
+        },
+        "submitter_id": "medical_history_c076923e47",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "IFG",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_c5d000ac3e"
+        },
+        "submitter_id": "medical_history_e2e91119da",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "IFG",
+        "hypertension": "no",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_82e737a3d1"
+        },
+        "submitter_id": "medical_history_38e29378b6",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IGT",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_2aee02df4c"
+        },
+        "submitter_id": "medical_history_90111257b2",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_f5d3d1103e"
+        },
+        "submitter_id": "medical_history_fcb4c15b62",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "IFG",
+        "hypertension": null,
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_24c861b30a"
+        },
+        "submitter_id": "medical_history_47d1e46da2",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NDM",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_d849e33e8d"
+        },
+        "submitter_id": "medical_history_504f832cec",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NDM",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_c9b0875e49"
+        },
+        "submitter_id": "medical_history_dd508e31ad",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "IGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_394306221b"
+        },
+        "submitter_id": "medical_history_30ddee0822",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "NGT",
+        "hypertension": null,
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_5f89b343c3"
+        },
+        "submitter_id": "medical_history_985a843e0f",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "KDM",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_09ae3e2fe6"
+        },
+        "submitter_id": "medical_history_f92a2b65be",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_0183bb40c3"
+        },
+        "submitter_id": "medical_history_3c51cdb0d0",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_00a75b2683"
+        },
+        "submitter_id": "medical_history_2d2bd1972d",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IFG",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_f089a06455"
+        },
+        "submitter_id": "medical_history_16f688a526",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "IGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_7d865ef643"
+        },
+        "submitter_id": "medical_history_c8eea9771b",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "NGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_b4217a6bcb"
+        },
+        "submitter_id": "medical_history_6f8d3991e8",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "NGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_5cf4aee110"
+        },
+        "submitter_id": "medical_history_83bcba88ab",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": null,
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_2b4aa4030e"
+        },
+        "submitter_id": "medical_history_8c7be56b27",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "IGT",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_8624f8fb8e"
+        },
+        "submitter_id": "medical_history_35da63b6c7",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "NGT",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_468347d33f"
+        },
+        "submitter_id": "medical_history_b7472d65cf",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": null,
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_140e9c4a45"
+        },
+        "submitter_id": "medical_history_a20d82d15d",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "KDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_f89d7d56c6"
+        },
+        "submitter_id": "medical_history_264dbb602a",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_e8dced697c"
+        },
+        "submitter_id": "medical_history_a7e38e121a",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "IGT",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_f0e1a570fd"
+        },
+        "submitter_id": "medical_history_edadd7643c",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "KDM",
+        "hypertension": null,
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_2ece2a647e"
+        },
+        "submitter_id": "medical_history_9ebe8aa464",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "KDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_1027a0b7e5"
+        },
+        "submitter_id": "medical_history_55d59f8300",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "IFG",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_850b7c35af"
+        },
+        "submitter_id": "medical_history_92c28c9ff5",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_53e2779819"
+        },
+        "submitter_id": "medical_history_94c299a5ed",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": null,
+        "hypertension": "no",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_b10f4c2ede"
+        },
+        "submitter_id": "medical_history_cd2b4e6987",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "NGT",
+        "hypertension": null,
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_1cb4e5c35a"
+        },
+        "submitter_id": "medical_history_37ac5fc17e",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": null,
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_8c3a6829f2"
+        },
+        "submitter_id": "medical_history_bd7b352870",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "IFG",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_d69f76013d"
+        },
+        "submitter_id": "medical_history_542f1aa264",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_2f582b493c"
+        },
+        "submitter_id": "medical_history_f1417bf2fa",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NGT",
+        "hypertension": null,
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_80c2bf815b"
+        },
+        "submitter_id": "medical_history_6255d5adc4",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "IGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_96ca8cc191"
+        },
+        "submitter_id": "medical_history_bb6b772d91",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": null,
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_eb95a5ee4f"
+        },
+        "submitter_id": "medical_history_3c63174704",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "NDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_d0e774e9e5"
+        },
+        "submitter_id": "medical_history_182aff2d94",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "IGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_bcb3959a83"
+        },
+        "submitter_id": "medical_history_6f00435140",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "NDM",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_8f28636c83"
+        },
+        "submitter_id": "medical_history_9fcfcb3d62",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "NDM",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_88a42a7996"
+        },
+        "submitter_id": "medical_history_5fd4a6b985",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NGT",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_2272bcf36f"
+        },
+        "submitter_id": "medical_history_1adb2c283a",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_7bda27ffde"
+        },
+        "submitter_id": "medical_history_cfb73ef915",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "IGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_406f31da8b"
+        },
+        "submitter_id": "medical_history_a68ca8bbf3",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "IGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_f2598a4797"
+        },
+        "submitter_id": "medical_history_571a7fea18",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "KDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_53f3153069"
+        },
+        "submitter_id": "medical_history_2a939b61f5",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "KDM",
+        "hypertension": "no",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_00d30ea01e"
+        },
+        "submitter_id": "medical_history_4d4dc507ca",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": null,
+        "hypertension": "not collected",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_68f6f207dd"
+        },
+        "submitter_id": "medical_history_00bf78c095",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IFG",
+        "hypertension": "no",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_f8aaaa6c4b"
+        },
+        "submitter_id": "medical_history_006a104985",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_1cbb1bdf92"
+        },
+        "submitter_id": "medical_history_f43c5205ec",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "NDM",
+        "hypertension": "no",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_0786777fd3"
+        },
+        "submitter_id": "medical_history_ad2f19f9a9",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "NGT",
+        "hypertension": null,
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_55bfdbe0ec"
+        },
+        "submitter_id": "medical_history_b685cbaa28",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "IGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_aa01573fe8"
+        },
+        "submitter_id": "medical_history_7cd87f0f8d",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "KDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_f4a0811de0"
+        },
+        "submitter_id": "medical_history_96fb776de2",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "KDM",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_50c14c717e"
+        },
+        "submitter_id": "medical_history_a31b642f73",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NGT",
+        "hypertension": null,
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_4cf4f9826a"
+        },
+        "submitter_id": "medical_history_b4ecf25007",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "IFG",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_662bdc57f7"
+        },
+        "submitter_id": "medical_history_e26c97fd25",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": null,
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_ab2e5702ea"
+        },
+        "submitter_id": "medical_history_1c289e2d58",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_9d223df2f2"
+        },
+        "submitter_id": "medical_history_dc1da7eb19",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "KDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_5b3843936a"
+        },
+        "submitter_id": "medical_history_1a523b9342",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IFG",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_4d5e4ab6a9"
+        },
+        "submitter_id": "medical_history_1aa9eb007e",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NDM",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_71891389dc"
+        },
+        "submitter_id": "medical_history_45c70f1ed0",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IFG",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_2a64d440fb"
+        },
+        "submitter_id": "medical_history_03df0f413c",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "KDM",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_69c4067793"
+        },
+        "submitter_id": "medical_history_9b08667bac",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": null,
+        "hypertension": null,
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_65b8082ea2"
+        },
+        "submitter_id": "medical_history_68e6de152a",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_9e7a8011bc"
+        },
+        "submitter_id": "medical_history_4ea4badb17",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "IFG",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_25dbb1e236"
+        },
+        "submitter_id": "medical_history_9cf4637fa4",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IFG",
+        "hypertension": null,
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_ce2bad7ff0"
+        },
+        "submitter_id": "medical_history_75b4fa7e6a",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": null,
+        "hypertension": "no",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_8a469d9dcd"
+        },
+        "submitter_id": "medical_history_f8e2f35651",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "IGT",
+        "hypertension": null,
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_bc78c5fa1c"
+        },
+        "submitter_id": "medical_history_2086ff2c97",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "KDM",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_179bdfde22"
+        },
+        "submitter_id": "medical_history_048589fb65",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "KDM",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_50a9d46a48"
+        },
+        "submitter_id": "medical_history_6d28356257",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": null,
+        "hypertension": null,
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_1d528e23a8"
+        },
+        "submitter_id": "medical_history_a7b8db4762",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": null,
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_74db5d7620"
+        },
+        "submitter_id": "medical_history_799c0f7f14",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IFG",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_cfcb19969b"
+        },
+        "submitter_id": "medical_history_885c7d8da5",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "IGT",
+        "hypertension": "no",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_1c8158a4bc"
+        },
+        "submitter_id": "medical_history_731bd687d6",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IFG",
+        "hypertension": null,
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_4af642255b"
+        },
+        "submitter_id": "medical_history_1a25428196",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "IGT",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_e04d21976e"
+        },
+        "submitter_id": "medical_history_f40eb71cb8",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "NDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_f1f845ddc4"
+        },
+        "submitter_id": "medical_history_5b0a66acac",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "KDM",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_af430cc11b"
+        },
+        "submitter_id": "medical_history_d06498df42",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "KDM",
+        "hypertension": null,
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_5f12baad02"
+        },
+        "submitter_id": "medical_history_06761ca3bc",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_b4ed930e53"
+        },
+        "submitter_id": "medical_history_fc4d530270",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_5954f513ce"
+        },
+        "submitter_id": "medical_history_3633728865",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "IGT",
+        "hypertension": null,
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_c870940534"
+        },
+        "submitter_id": "medical_history_3894ccd02b",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "IFG",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_2541631e29"
+        },
+        "submitter_id": "medical_history_96873773fa",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "NDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_d5ffa89396"
+        },
+        "submitter_id": "medical_history_bdfe88cd8e",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "KDM",
+        "hypertension": "no",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_f4ad16a3de"
+        },
+        "submitter_id": "medical_history_51ade3be7a",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "KDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_cacab40f27"
+        },
+        "submitter_id": "medical_history_43001d1be7",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "KDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_084e306e16"
+        },
+        "submitter_id": "medical_history_9730bf0c24",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": null,
+        "diabetes_type": "KDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_e3673a0709"
+        },
+        "submitter_id": "medical_history_5901335115",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "NGT",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_405cbbd7a4"
+        },
+        "submitter_id": "medical_history_619ebf6720",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "NDM",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_291bb5333a"
+        },
+        "submitter_id": "medical_history_8e079d11a7",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NGT",
+        "hypertension": null,
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_ac7def5ba4"
+        },
+        "submitter_id": "medical_history_b12bdafaae",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "unsure",
+        "diabetes_type": "NGT",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_4ebfdc2aae"
+        },
+        "submitter_id": "medical_history_41072a8eb1",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": "NDM",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_57b413161e"
+        },
+        "submitter_id": "medical_history_746c48eeb0",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "yes",
+        "diabetes_type": "KDM",
+        "hypertension": "not collected",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_fb87e85e77"
+        },
+        "submitter_id": "medical_history_272e726bd2",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NDM",
+        "hypertension": "yes, self-reported",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_d3885e07eb"
+        },
+        "submitter_id": "medical_history_229735cc0c",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "IGT",
+        "hypertension": "not reported",
+        "hypertension_measurement_type": null,
+        "subjects": {
+            "submitter_id": "subject_aa2ff9ade7"
+        },
+        "submitter_id": "medical_history_37c136cd05",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not collected",
+        "diabetes_type": "NGT",
+        "hypertension": "yes, measured or on treatment",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_251eb0679e"
+        },
+        "submitter_id": "medical_history_167fbe7a2e",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "not reported",
+        "diabetes_type": "KDM",
+        "hypertension": "no",
+        "hypertension_measurement_type": "measured",
+        "subjects": {
+            "submitter_id": "subject_d2d4558a52"
+        },
+        "submitter_id": "medical_history_822f06d4f9",
+        "type": "medical_history"
+    },
+    {
+        "diabetes": "no",
+        "diabetes_type": null,
+        "hypertension": "not reported",
+        "hypertension_measurement_type": "self-reported",
+        "subjects": {
+            "submitter_id": "subject_d0c02af2c7"
+        },
+        "submitter_id": "medical_history_ac3fb9782e",
+        "type": "medical_history"
+    }
+]

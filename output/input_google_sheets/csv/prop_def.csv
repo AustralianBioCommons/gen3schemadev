@@ -1,0 +1,23 @@
+VARIABLE_NAME,OBJECT,REQUIRED,TYPE,DESCRIPTION,PREFERRED,FORMAT,PATTERN,NUM_MIN,NUM_MAX,UNITS,TERM,TERM_REF,TERM_SOURCE,TERM_VERSION,TERM_ID,TERM_URL,CDE_ID,CDE_VERSION,ARRAY_ITEMS_TYPE
+lipid_names,lipidomics_assay,FALSE,array,A list of all lipids assayed in this method,,,,,,,,,,,,,,,enum_lipids
+consent_codes,project,FALSE,array,"Data Use Restrictions that are used to indicate  permissions/restrictions for datasets and/or materials, and relates to the purposes for which datasets and/or material might be removed, stored or used. \n
+        Based on the Data Use Ontology : see http://www.obofoundry.org/ontology/duo.html",,,,,,,,,,,,,,,enum_du
+data_access_url,project,FALSE,string,A URL link that takes you to a page that explains how to gain access to the project,,,,,,,,,,,,,,,
+consent_codes,subject,FALSE,array,"Data Use Restrictions that are used to indicate  permissions/restrictions for datasets and/or materials, and relates to the purposes for which datasets and/or material might be removed, stored or used. \n
+        Based on the Data Use Ontology : see http://www.obofoundry.org/ontology/duo.html",,,,,,,,,,,,,,,enum_du
+baseline_year,subject,TRUE,string,year when baseline measurements were taken,,,,1998,2022,,,,,,,,,,
+cohort_id,subject,FALSE,string,Identifier for the cohort the subject is a part of,,,,,,,,,,,,,,,
+sample_provider,sample,FALSE,enum_institute,The name of collaborating institute that provided the sample,,,,,,,,,,,,,,,
+sample_source,sample,FALSE,string,"Uberon identifier, anatomical location as described by the Uber Anatomy Ontology (UBERON). (CMG, CCDG)",,,^UBERON:[0-9]{7}$,,,,,,,,,,,,
+sample_type,sample,FALSE,string,A string saying the type of sample,,,,,,,,,,,,,,,
+year_birth,demographic,FALSE,integer,Year of birth at baseline (YYYY),,,,1900,3000,,,,,,,,,,
+month_birth,demographic,FALSE,integer,Month of birth at baseline (MM),,,,1,12,,,,,,,,,,
+diabetes_type,medical_history,FALSE,enum_diabetes,diabetes diagnosed by fasting blood glucose >=7 mmol/l or tx AHA or 2 hour blood glucose >=11.1 mmol/l.,,,,,,,Diabetes mellitus,,hpo,,HP:0000819,http://purl.obolibrary.org/obo/HP_0000819,,2021-10-10,
+hypertension,medical_history,FALSE,enum_hyp_yes_no,Whether the participant has Hypertension,,,,,,,,,,,,,,,
+hypertension_measurement_type,medical_history,FALSE,enum_measurement_type,Whether the hypertension was measured at recruitment/patients on hypertension treatment or self-reported medical diagnosis,,,,,,,,,,,,,,,
+diabetes,medical_history,FALSE,enum_yes_no,Self-reported diabetes in the participant,,,,,,,Diabetes mellitus,,hpo,,HP:0000819,http://purl.obolibrary.org/obo/HP_0000819,,,
+assay_description,lipidomics_assay,TRUE,string,A description of the type of assay used.,,,,,,,,,,,,,,,
+data_type,lipidomics_file,TRUE,enum_ms_data_type,The type of data in this data file,,,,,,,,,,,,,,,
+data_format,lipidomics_file,TRUE,enum_table_data_format,The format of the data in this data file,,,,,,,,,,,,,,,
+data_category,lipidomics_file,TRUE,enum_ms_data_cat,Broad categorization of the contents of the data file.,,,,,,,,,,,,,,,
+cv,lipidomics_file,FALSE,number,Coefficient of variation (%),,,,0,100,,,,,,,,,,

@@ -1,0 +1,9 @@
+SCHEMA,NAME,PARENT,BACKREF,LABEL,MULTIPLICITY,REQUIRED,SUBGROUP,EXCLUSIVE,SG_REQUIRED
+sample,subjects,subject,samples,taken_from,many_to_one,TRUE,,,
+publication,projects,project,publications,refers_to,many_to_many,TRUE,,,
+acknowledgement,projects,project,acknowledgements,contribute_to,many_to_many,TRUE,,,
+subject,projects,project,subjects,part_of,many_to_one,TRUE,,,
+medical_history,subjects,subject,medical_histories,describes,one_to_one,TRUE,,,
+demographic,subjects,subject,demographics,describes,one_to_one,TRUE,,,
+lipidomics_file,samples,sample,lipidomics_files,data_from,many_to_many,FALSE,lip_1,FALSE,TRUE
+lipidomics_file,core_metadata_collection,core_metadata_collection,lipidomics_files,describes,one_to_one,TRUE,lip_1,,
