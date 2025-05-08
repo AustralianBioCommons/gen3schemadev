@@ -14,3 +14,4 @@ synthetic_data/
 .DS_Store
 gen3schemadev/__pycache__/
 logs
+output/
