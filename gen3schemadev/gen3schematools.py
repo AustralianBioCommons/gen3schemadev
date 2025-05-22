@@ -53,10 +53,14 @@ class DictDataTypeUpdater:
             raise
 
     def add_data_type_in_dict(self, data_dict, target_key, add_value):
-        """Recursively add a value under matching keys in a nested dict.
+        """
+        Recursively add a value to all occurrences of a given key in a nested dictionary.
 
-        This method traverses the input dictionary and for each occurrence
-        of target_key, ensures its value is a list and appends add_value.
+        Example:
+            yaml_fn = "gen3schemadev/schema_out/demographic.yaml"
+            updater = DictDataTypeUpdater(yaml_fn)
+            # Add None to all "enum" keys in the dictionary
+            updater.add_data_type_in_dict(updater.data_dict, "enum", None)
 
         Args:
             data_dict (dict): The nested dictionary to search and modify.
@@ -109,11 +113,14 @@ class DictDataTypeUpdater:
 
     def update_data_type_in_dict(self, data_dict, target_key,
                                  target_value, replacement_value):
-        """Recursively update matching key-value pairs in a nested dict.
+        """
+        Recursively update the value of a given key in a nested dictionary if it matches a target value.
 
-        This method traverses the input dictionary and for each occurrence
-        of target_key whose current value equals target_value, replaces
-        it with replacement_value.
+        Example:
+            yaml_fn = "gen3schemadev/schema_out/demographic.yaml"
+            updater = DictDataTypeUpdater(yaml_fn)
+            # Update all "type": "number" to "type": ["number", None]
+            updater.update_data_type_in_dict(updater.data_dict, "type", "number", ["number", None])
 
         Args:
             data_dict (dict): The nested dictionary to search and modify.
