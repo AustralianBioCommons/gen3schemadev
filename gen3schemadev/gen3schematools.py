@@ -60,7 +60,7 @@ class DictDataTypeUpdater:
             yaml_fn = "gen3schemadev/schema_out/demographic.yaml"
             updater = DictDataTypeUpdater(yaml_fn)
             # Add None to all "enum" keys in the dictionary
-            updater.add_data_type_in_dict(updater.data_dict, "enum", None)
+            updater.add_data_type_in_dict(updater.data_dict, "enum", "null")
 
         Args:
             data_dict (dict): The nested dictionary to search and modify.
@@ -119,8 +119,8 @@ class DictDataTypeUpdater:
         Example:
             yaml_fn = "gen3schemadev/schema_out/demographic.yaml"
             updater = DictDataTypeUpdater(yaml_fn)
-            # Update all "type": "number" to "type": ["number", None]
-            updater.update_data_type_in_dict(updater.data_dict, "type", "number", ["number", None])
+            # Update all "type": "number" to "type": ["number", "null"]
+            updater.update_data_type_in_dict(updater.data_dict, "type", "number", ["number", "null"])
 
         Args:
             data_dict (dict): The nested dictionary to search and modify.
