@@ -706,8 +706,7 @@ def check_unlinked_objects(file_path):
     # read json file
     with open(file_path, 'r') as f:
         data = json.load(f)
-        print(f"Metadata read from: {file_path}")
-    
+
     # for each object in the array, check if object_id key exists, if not, pull the value of filename, and append to unlinked_list
     unlinked_list = []
     n_objects = len(data)
@@ -717,11 +716,9 @@ def check_unlinked_objects(file_path):
             filename = f"{entry['file_name']}.{entry['data_format']}"
             unlinked_list.append(filename)
             unlinked_count += 1
-    if unlinked_count == 0:
-        print(f"{file_path} all objects successfully Linked")
-    else:
-        print(f"{file_path} {unlinked_count}/{n_objects} objects unlinked")
-    return unlinked_list
+    if unlinked_count > 0:
+        print(f"WARN {file_path} Unlinked Objects Found: {unlinked_count}/{n_objects}")
+        return unlinked_list
 
 
 
