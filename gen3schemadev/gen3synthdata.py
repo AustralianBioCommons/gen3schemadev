@@ -180,11 +180,18 @@ class gen3SynthFiles:
         :return: The filename of the matching dummy file.
         """
         matched_fn = None
-        for synth_fn, synth_lookup in self.synthetic_file_index.items():
-            if any(data_format in x for x in synth_lookup):
-                return synth_fn
-        if matched_fn is None:
-            print(f'WARNING: "{data_format}" does not match any synthetic files')
+        try:
+            if data_format is None or data_format == "null":
+                print(f'WARNING: data_format is None or "null", cannot find dummy file')
+                return None
+            for synth_fn, synth_lookup in self.synthetic_file_index.items():
+                if any(data_format in x for x in synth_lookup):
+                    return synth_fn
+            if matched_fn is None:
+                print(f'WARNING: "{data_format}" does not match any synthetic files')
+        except Exception as e:
+            print(f"Exception occurred in find_dummy_file: {e}")
+            return None
 
     def copy_file(self, input_fn, rename_fn, project_id):
         """
@@ -256,21 +263,38 @@ class gen3SynthFiles:
     def update_fn_metadata(self):
         """
         Updates the file name metadata in JSON files based on the synthetic file index.
+        Adds exception handling for file operations and key lookups.
         """
         for entry in self.metadata_file_list:
             for project, filename in entry.items():
-                print(f"Processing {project}: {filename}")  # Debugging print
-                metadata = self.read_json_file(os.path.join(self.json_data_path, project, filename))
+                try:
+                    print(f"Processing {project}: {filename}")  # Debugging print
+                    metadata_path = os.path.join(self.json_data_path, project, filename)
+                    metadata = self.read_json_file(metadata_path)
+                except Exception as e:
+                    print(f"Error reading JSON file {metadata_path}: {e}")
+                    continue
 
                 for data_object in metadata:
-                    file_format = data_object['data_format']
-                    synth_filename = self.find_dummy_file(file_format)
-                    print(f"synth_filename: {synth_filename}")
-                    synth_filename = synth_filename.split('.')[0]
-                    print(f"updated synth_filename: {synth_filename}")
-                    data_object['file_name'] = synth_filename
+                    try:
+                        file_format = data_object['data_format']
+                        synth_filename = self.find_dummy_file(file_format)
+                        print(f"synth_filename: {synth_filename}")
+                        synth_filename = synth_filename.split('.')[0]
+                        print(f"updated synth_filename: {synth_filename}")
+                        data_object['file_name'] = synth_filename
+                    except KeyError as ke:
+                        print(f"KeyError in data_object: {ke}. Skipping this object.")
+                        continue
+                    except Exception as e:
+                        print(f"Unexpected error processing data_object: {e}. Skipping this object.")
+                        continue
 
-                self.write_json_file(metadata, os.path.join(self.output_dir, project, filename))
+                try:
+                    output_path = os.path.join(self.output_dir, project, filename)
+                    self.write_json_file(metadata, output_path)
+                except Exception as e:
+                    print(f"Error writing JSON file {output_path}: {e}")
                 
 
 def gen_random_date_time_tz(num_dates: int, start_date="2008-01-01", end_date="2023-03-16"):
