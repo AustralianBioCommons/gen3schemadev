@@ -52,7 +52,16 @@ fi
 echo "Running plausible data generation..."
 echo "current dir = $(pwd)"
 echo "input final path = $INPUT_FINAL_PATH"
-cd gen3schemadev && python3 plausible_data_gen.py --path ../$INPUT_FINAL_PATH --gurl $GURL
+
+if [ -f "gen3schemadev/plausible_data_gen.py" ]; then
+    cd gen3schemadev && python3 plausible_data_gen.py --path ../$INPUT_FINAL_PATH --gurl $GURL
+elif [ -f "plausible_data_gen.py" ]; then
+    python3 plausible_data_gen.py --path $INPUT_FINAL_PATH --gurl $GURL
+else
+    echo "plausible_data_gen.py not found in expected locations."
+    exit 1
+fi
+
 
 # Check if the plausible data generation was successful
 if [ $? -ne 0 ]; then
