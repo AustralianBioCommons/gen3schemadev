@@ -5,19 +5,6 @@ import datetime
 import json
 from collections import defaultdict, deque
 
-# Ensure logs directory exists
-LOG_DIR = os.path.join(os.getcwd(), "logs")
-if not os.path.isdir(LOG_DIR):
-    os.makedirs(LOG_DIR, exist_ok=True)
-
-# Configure logging for this module
-LOG_FILE = os.path.join(LOG_DIR, f"{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}_gen3schematools.log")
-logging.basicConfig(
-    level=logging.INFO,
-    filename=LOG_FILE,
-    filemode="a",
-    format="[%(asctime)s] %(levelname)s %(name)s: %(message)s",
-)
 logger = logging.getLogger(__name__)
 
 
@@ -208,14 +195,34 @@ class EntityPropAdder(DictDataTypeUpdater):
     def add_property(self, property_name: str, property_definition: dict):
         """
         Adds a new property to the 'properties' section of the YAML schema.
-
-        :param property_name: Name of the property to add.
-        :param property_definition: Dictionary defining the property.
+        If the property already exists, combines old and new definitions under 'allOf'.
         """
         logger.info(f"Adding property '{property_name}' to {self.yaml_file_path}")
         if "properties" not in self.data_dict:
             self.data_dict["properties"] = {}
-        self.data_dict["properties"][property_name] = property_definition
+
+        props = self.data_dict["properties"]
+
+        if property_name in props:
+            old_def = props[property_name]
+            # If already an allOf, append the new definition
+            if isinstance(old_def, dict) and "allOf" in old_def:
+                logger.info(f"Property '{property_name}' already has 'allOf', appending new definition.")
+                old_def["allOf"].append(property_definition)
+                props[property_name] = old_def
+            else:
+                # Create an allOf with the old and new definitions
+                logger.info(f"Property '{property_name}' exists, combining under 'allOf'.")
+                props[property_name] = {"allOf": [{property_name: old_def}, {property_name: property_definition}]}
+                # taking contents of props[property_name] and shifting one level up
+                allof_def = props[property_name]
+                del props[property_name]
+                logger.debug(f"Allof definition: {[allof_def][0]['allOf']}")
+                props["allOf"] = [allof_def][0]['allOf']
+        else:
+            props[property_name] = property_definition
+        
+
         self.write_yaml(self.data_dict)
         logger.info(f"Property '{property_name}' added successfully.")
 
