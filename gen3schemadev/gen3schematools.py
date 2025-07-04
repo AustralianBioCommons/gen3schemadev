@@ -198,6 +198,56 @@ def update_definition_to_yaml(yaml_file_path, new_definition):
     logger.info(f"Successfully added new definition to {yaml_file_path}")
 
 
+class EntityPropAdder(DictDataTypeUpdater):
+    """
+    A class to add or update properties in an entity YAML schema file.
+    Inherits from DictDataTypeUpdater.
+    """
+
+    def add_property(self, property_name: str, property_definition: dict):
+        """
+        Adds a new property to the 'properties' section of the YAML schema.
+
+        :param property_name: Name of the property to add.
+        :param property_definition: Dictionary defining the property.
+        """
+        logger.info(f"Adding property '{property_name}' to {self.yaml_file_path}")
+        if "properties" not in self.data_dict:
+            self.data_dict["properties"] = {}
+        self.data_dict["properties"][property_name] = property_definition
+        self.write_yaml(self.data_dict)
+        logger.info(f"Property '{property_name}' added successfully.")
+
+    def update_property(self, property_name: str, property_definition: dict):
+        """
+        Updates an existing property in the 'properties' section of the YAML schema.
+
+        :param property_name: Name of the property to update.
+        :param property_definition: Dictionary defining the property.
+        """
+        logger.info(f"Updating property '{property_name}' in {self.yaml_file_path}")
+        if "properties" not in self.data_dict or property_name not in self.data_dict["properties"]:
+            logger.error(f"Property '{property_name}' does not exist in the schema.")
+            raise KeyError(f"Property '{property_name}' does not exist in the schema.")
+        self.data_dict["properties"][property_name] = property_definition
+        self.write_yaml(self.data_dict)
+        logger.info(f"Property '{property_name}' updated successfully.")
+
+    def remove_property(self, property_name: str):
+        """
+        Removes a property from the 'properties' section of the YAML schema.
+
+        :param property_name: Name of the property to remove.
+        """
+        logger.info(f"Removing property '{property_name}' from {self.yaml_file_path}")
+        if "properties" in self.data_dict and property_name in self.data_dict["properties"]:
+            del self.data_dict["properties"][property_name]
+            self.write_yaml(self.data_dict)
+            logger.info(f"Property '{property_name}' removed successfully.")
+        else:
+            logger.warning(f"Property '{property_name}' not found in the schema.")
+
+
 
 
 class ResolveSchema:
