@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 class DictDataTypeUpdater:
     def __init__(self, yaml_file_path: str):
         self.yaml_file_path = yaml_file_path
-        self.data_dict = self.read_yaml()
+        self.data_dict = None
 
     def read_yaml(self):
         """
@@ -37,6 +37,7 @@ class DictDataTypeUpdater:
         try:
             with open(self.yaml_file_path, "r") as file:
                 data = yaml.safe_load(file)
+            self.data_dict = data
             return data
         except Exception as e:
             logger.error(f"Failed to read YAML file '{self.yaml_file_path}': {e}")
