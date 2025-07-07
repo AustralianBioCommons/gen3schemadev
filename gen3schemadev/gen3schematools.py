@@ -190,12 +190,25 @@ class EntityPropAdder(DictDataTypeUpdater):
     """
     A class to add or update properties in an entity YAML schema file.
     Inherits from DictDataTypeUpdater.
+
+    Example usage:
+        prop_adder = EntityPropAdder("gen3schemadev/schema_out/sample.yaml")
+        prop_adder.add_property(
+            "my_new_prop",
+            {
+                "description": "Where the sample is stored",
+                "enum": [
+                    "freezer",
+                    "LN"
+                ]
+            }
+        )
     """
 
     def add_property(self, property_name: str, property_definition: dict):
         """
         Adds a new property to the 'properties' section of the YAML schema.
-        If the property already exists, combines old and new definitions under 'allOf'.
+        Raises an exception if the property already exists.
         """
         logger.info(f"Adding property '{property_name}' to {self.yaml_file_path}")
         if "properties" not in self.data_dict:
@@ -204,24 +217,12 @@ class EntityPropAdder(DictDataTypeUpdater):
         props = self.data_dict["properties"]
 
         if property_name in props:
-            old_def = props[property_name]
-            # If already an allOf, append the new definition
-            if isinstance(old_def, dict) and "allOf" in old_def:
-                logger.info(f"Property '{property_name}' already has 'allOf', appending new definition.")
-                old_def["allOf"].append(property_definition)
-                props[property_name] = old_def
-            else:
-                # Create an allOf with the old and new definitions
-                logger.info(f"Property '{property_name}' exists, combining under 'allOf'.")
-                props[property_name] = {"allOf": [{property_name: old_def}, {property_name: property_definition}]}
-                # taking contents of props[property_name] and shifting one level up
-                allof_def = props[property_name]
-                del props[property_name]
-                logger.debug(f"Allof definition: {[allof_def][0]['allOf']}")
-                props["allOf"] = [allof_def][0]['allOf']
+            logger.error(f"Property '{property_name}' already exists in the schema.")
+            raise KeyError(f"Property '{property_name}' already exists in the schema.")
         else:
             props[property_name] = property_definition
-        
+            self.write_yaml(self.data_dict)
+            logger.info(f"Property '{property_name}' added successfully.")
 
         self.write_yaml(self.data_dict)
         logger.info(f"Property '{property_name}' added successfully.")
