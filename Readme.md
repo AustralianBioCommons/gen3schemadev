@@ -27,4 +27,9 @@
 - Test
 - Publish pypi on release
 - Update sphinx docs on release
-- 
+
+
+***
+
+# Sofware Architecture
+- Software architecture and designs will go here
