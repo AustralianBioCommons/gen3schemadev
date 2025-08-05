@@ -15,8 +15,8 @@
 2. Documentation
 	1. Conceptual data modelling in gen3
 	2. Linkml syntax for gen3
-  3. Source code documentation
-  4. Example usage   
+	3. Source code documentation
+	4. Example usage   
 3. Templates
 	1. linkml templates
 4. Examples
