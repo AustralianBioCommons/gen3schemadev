@@ -1,47 +1,8 @@
 # Gen3SchemaDev 2.0 Planning
 
-## Target Audience:
-- Junior developer with minimal data modelling experience
 
-## Key functions:
-1. Schema Development in LinkML to gen3 jsonschema
-2. Schema visualisation with ddvis
-3. Synthetic Data Generation (maybe move this to a separate repo)
-	1. Synthetic data is useful to see what the data structure and links will look like, as well as do a test upload.
+## Business Analysis
 
-## What the repo will be:
-1. Python Toolset
-	1. Users can use the classes and functions in the toolset in their own dev environment
-2. Documentation
-	1. Conceptual data modelling in gen3
-	2. Linkml syntax for gen3
-	3. Source code documentation
-	4. Example usage   
-3. Templates
-	1. linkml templates
-4. Examples
-	1. Full schema examples
-
-## Github Workflows:
-- Build
-- Test
-- Publish pypi on release
-- Update sphinx docs on release
-
-
----
-
-
-# Business Analysis
-
-## Use Cases
-1. As a data modeller, I want to write the logic of my data model, and I want a gen3 jsonschema at the end, so that I can upload it straight to gen3.
-1. As a data modeller, I want to have a UI type experience for defining my data model, so that I don't have to work with low level serialisation syntax.
-1. As a new data modeller, I want to learn how to define entities, relationships, properties, etc, in a data model
-1. As a developer, I want to interatively view my graph data model in a browser window.
-
-
-## AI assisted use cases
 
 ### **UC1: Guided Learning for New Modelers**
 *   **As a:** New Data Modeler
