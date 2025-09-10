@@ -11,7 +11,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 pip install -e .
-cd acdc-tools && pip install -e .
 ```
 ### 2. Install Docker
 To install Docker Desktop, download it from the [Docker website](https://www.docker.com/products/docker-desktop) and follow the installation instructions for your operating system. After installation, verify by running `docker --version` in the terminal.
@@ -27,6 +26,19 @@ cd ..
 ```
 
 ## Usage
+
+```bash
+# to run with template google sheet
+bash scripts/generate_schema.sh 
+
+# to run with custom google_sheet
+bash scripts/generate_schema.sh \\
+  --google-id "1zjDBDvXgb0ydswFBwy47r2c8V1TFnpUj1jcG0xsY7ZI" \\
+  --objects-gid "0" \\
+  --links-gid "270346573" \\
+  --properties-gid "613332252" \\
+  --enums-gid "1807456496"
+```
 
 You can run using the [Schema Development Framework Notebook](jupyter/schema_dev_framework.ipynb) or by following the usage below.
 
