@@ -72,24 +72,6 @@ jobs:
             exit 1
           fi
 
-      - name: Upload JSON schema artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: schema_dev_json
-          path: output/schema/json/schema_dev.json
-
-      - name: Upload YAML schema artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: schema_yaml_files
-          path: output/schema/yaml/
-
-      - name: Upload downloaded Google Sheets
-        uses: actions/upload-artifact@v3
-        with:
-          name: input_google_sheets
-          path: output/schema/input_google_sheets
-
       - name: Stop Docker containers
         if: always()
         run: |
