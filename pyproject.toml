@@ -1,0 +1,36 @@
+[project]
+name = "gen3schemadev"
+version = "1.0.0"
+description = "tools to genereate gen3schema from google sheets"
+authors = [
+    {name = "JoshuaHarris391",email = "harjo391@gmail.com"}
+]
+license = {text = "Apache 2.0"}
+readme = "README.md"
+requires-python = ">=3.9,<4"
+dependencies = [
+    "setuptools (>=56.0.0,<70.0.0)",
+    "pyyaml (>=6.0,<7.0.0)",
+    "pandas (>=1.3.0,<2.0.0)",
+    "openpyxl (>=3.0.7,<4.0.0)",
+    "oyaml (>=1.0,<2.0)",
+    "networkx (>=2.5,<3.0)",
+    "matplotlib (>=3.4.0,<3.6.0)",
+    "ete3 (>=3.1.2,<4.0.0)",
+    "dictionaryutils (>=3.5.1,<4.0.0)",
+    "numpy (>=1.20.0,<1.24.0)",
+    "argparse (>=1.4.0,<2.0.0)",
+    "gen3",
+    "requests (>=2.25.1,<3.0.0)",
+    "ldap3 (>=2.8.1,<3.0.0)",
+    "jsonschema (>=3.2.0,<4.0.0)",
+    "wget (>=3.2,<4.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false

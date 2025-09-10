@@ -15,3 +15,4 @@ synthetic_data/
 gen3schemadev/__pycache__/
 logs
 output/
+env
