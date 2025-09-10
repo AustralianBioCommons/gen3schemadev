@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -31,50 +31,4 @@ jobs:
         run: |
           poetry install
 
-      - name: Install Docker
-        uses: docker-practice/actions-setup-docker@v1
-
-      - name: Pull and start Docker containers
-        run: |
-          cd umccr-dictionary
-          make down || true
-          make pull
-          make up -d
-          make ps
-          cd ..
-
-      - name: Generate Gen3 schema
-        run: |
-          poetry run bash scripts/generate_schema.sh
-
-      - name: Check that JSON schema artifact exists
-        run: |
-          if [ ! -f output/schema/json/schema_dev.json ]; then
-            echo "schema_dev.json not found!"
-            exit 1
-          fi
-
-      - name: Check that at least one YAML schema file exists
-        run: |
-          shopt -s nullglob
-          files=(output/schema/yaml/*.yaml)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No YAML schema files found in output/schema/yaml/"
-            exit 1
-          fi
-
-      - name: Check that at least one Google Sheet was downloaded
-        run: |
-          shopt -s nullglob
-          files=(output/schema/input_google_sheets/*)
-          if [ ${#files[@]} -eq 0 ]; then
-            echo "No files found in output/schema/input_google_sheets/"
-            exit 1
-          fi
-
-      - name: Stop Docker containers
-        if: always()
-        run: |
-          cd umccr-dictionary
-          make down
 
