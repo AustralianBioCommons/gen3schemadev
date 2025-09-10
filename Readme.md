@@ -63,10 +63,9 @@
 ## Are there things that already do this?
 |Use Case|Existing Solutions|Pros|Cons|
 |--------|------------------|-----|-----|
-|UC1|||||
-|UC2|[linkml](https://linkml.io/linkml/intro/tutorial01.html)||||
-|UC3|[dictionary-visualiser](https://github.com/bioteam/dictionary-visualizer)|looks exactly like gen3|||
-|UC4|look into gdcdictionary or dict utils for business logic||||
-|UC5|||||
-|UC6|||||
+|UC1|Want to write custom docs| Tailor and curate for our target audience| Info probably already exists out there||
+|UC2|[linkml](https://linkml.io/linkml/intro/tutorial01.html)| good docs, and great adaptor for other formats| Have to learn new syntax||
+|UC3|[dictionary-visualiser](https://github.com/bioteam/dictionary-visualizer)|looks exactly like gen3| reads from s3||
+|UC4|uc-dis/data-simulator|gen3 specific|||
+|UC5|Will write own script||||
 
