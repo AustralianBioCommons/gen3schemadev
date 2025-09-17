@@ -10,6 +10,7 @@ git clone --recurse-submodules "https://github.com/AustralianBioCommons/gen3sche
 cd gen3schemadev
 pip install poetry
 poetry install
+source $(poetry env info --path)/bin/activate
 ```
 ### 2. Install Docker
 To install Docker Desktop, download it from the [Docker website](https://www.docker.com/products/docker-desktop) and follow the installation instructions for your operating system. After installation, verify by running `docker --version` in the terminal.
@@ -44,6 +45,8 @@ poetry run bash scripts/generate_schema.sh \\
 For more detailed step by step instructions can run using the [Schema Development Framework Notebook](jupyter/schema_dev_framework.ipynb).
 
 ## Outputs
+
+Example outputs can be found in the [example_outputs folder](example_outputs/).
 
 The script writes outputs to the `output` directory:
 - The gen3 bundled json file will be in `output/schema/json/schema_dev.json`
