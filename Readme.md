@@ -46,7 +46,7 @@ For more detailed step by step instructions can run using the [Schema Developmen
 
 ## Outputs
 
-Example outputs can be found in the [example_outputs folder](example_outputs/).
+Example outputs can be found in the [example_outputs folder](example_outputs/schema/).
 
 The script writes outputs to the `output` directory:
 - The gen3 bundled json file will be in `output/schema/json/schema_dev.json`
