@@ -1,6 +1,0 @@
-[submodule "umccr-dictionary"]
-	path = umccr-dictionary
-	url = https://github.com/AustralianBioCommons/umccr-dictionary.git
-[submodule "acdc-tools"]
-	path = acdc-tools
-	url = https://github.com/AustralianBioCommons/acdc-tools.git
