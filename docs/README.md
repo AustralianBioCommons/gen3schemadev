@@ -16,8 +16,8 @@ This document is broken up into three parts:
 
 
 # Using Gen3SchemaDev as a data modelling tool
-- Installation
-- Creating your first schema
+- [Installation](setup.md)
+- [Creating your first schema](example_usage_future.md)
 
 
 # Deep dive into Gen3 Data Modelling
