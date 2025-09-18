@@ -1,0 +1,23 @@
+[project]
+name = "Gen3SchemaDev"
+version = "0.1.0"
+description = "Tool for data modelling in Gen3"
+authors = [
+    {name = "JoshuaHarris391",email = "harjo391@gmail.com"}
+]
+license = {text = "Apache 2.0"}
+readme = "README.md"
+requires-python = ">=3.9.5,<4.0"
+dependencies = [
+    "gen3-validator (>=1.1.1,<2.0.0)",
+    "linkml (>=1.9.4,<2.0.0)"
+]
+
+[tool.poetry]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.2"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
