@@ -3,7 +3,6 @@ $schema: "http://json-schema.org/draft-04/schema#"
 id: "this-node-id"
 title: formatted-node-title
 type: object      # basically always this
-nodeTerms: null   # ?
 namespace: url-where-the-schema-is-used
 category: the-category
 program: '*'  # all the programs
@@ -29,20 +28,20 @@ links:  # How this node links to other nodes in the data model graph
     required: true    # or false
 # OR define a subgroup of links
   - exclusive: false  # or true
-      required: true  # or false
-      subgroup:
-        - name: parent-node-ids
-          backref: this-node-ids
-          label: label-for-relationship
-          target_type: parent-node-id
-          multiplicity: cardinality-of-relationship
-          required: false  # or true
-        - name: other-parent-node-ids
-          backref: this-node-ids
-          label: label-for-relationship
-          target_type: other-parent-node-id
-          multiplicity: cardinality-of-relationship
-          required: false  # or true
+    required: true  # or false
+    subgroup:
+      - name: parent-node-ids
+        backref: this-node-ids
+        label: label-for-relationship
+        target_type: parent-node-id
+        multiplicity: cardinality-of-relationship
+        required: false  # or true
+      - name: other-parent-node-ids
+        backref: this-node-ids
+        label: label-for-relationship
+        target_type: other-parent-node-id
+        multiplicity: cardinality-of-relationship
+        required: false  # or true
 
 required:
   - submitter_id     # always need this
