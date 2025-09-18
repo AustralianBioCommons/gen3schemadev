@@ -1,0 +1,116 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+id: "this-node-id"
+title: formatted-node-title
+type: object      # basically always this
+nodeTerms: null   # ?
+namespace: url-where-the-schema-is-used
+category: the-category
+program: '*'  # all the programs
+project: '*'  # all the projects
+description: detailed description of this schema.
+additionalProperties: false  # no other properties allowed except the ones I specify below
+submittable: true  # can be submitted by a used
+validators: null   # ?
+
+systemProperties: # always at least the below unless otherwise configured 
+  - id
+  - project_id
+  - state
+  - created_datetime
+  - updated_datetime
+
+links:  # How this node links to other nodes in the data model graph
+  - name: parent-node-ids  # define indivdual link(s)
+    backref: this-node-ids
+    label: label-for-relationship
+    target_type: parent-node-id
+    multiplicity: cardinality-of-relationship
+    required: true    # or false
+# OR define a subgroup of links
+  - exclusive: false  # or true
+      required: true  # or false
+      subgroup:
+        - name: parent-node-ids
+          backref: this-node-ids
+          label: label-for-relationship
+          target_type: parent-node-id
+          multiplicity: cardinality-of-relationship
+          required: false  # or true
+        - name: other-parent-node-ids
+          backref: this-node-ids
+          label: label-for-relationship
+          target_type: other-parent-node-id
+          multiplicity: cardinality-of-relationship
+          required: false  # or true
+
+required:
+  - submitter_id     # always need this
+  - type             # always need this
+  - parent-node-ids  # always link to the parent node
+  - any-other-required-property
+
+preferred:
+  - any_preferred_property
+
+uniqueKeys: # not sure yet
+  - [id]
+  - [project_id, submitter_id]
+
+properties:
+
+  $ref: "_definitions.yaml#/ubiquitous_properties"  # shared property set common to many schemas
+
+  whole_number_property:
+    description: Description including units if not defined elsewhere.
+    type: integer
+    maximum: 32872  # optional
+    minimum: 0      # optional
+
+  floating_point_number_property:
+    description: Description including units if not defined elsewhere.
+    type: number
+    maximum: 10.5   # optional
+    minimum: 0.0    # optional
+
+  free_text_property:
+    description: Description of the property.
+    type: string
+    termDef: # optional, define external descriptor link e.g. ontology
+      - term: free_text_property
+        source: Source of definition  
+        term_id: identifier                  # e.g. ontology curie
+        term_version: version of the source  # e.g. version and/or release date
+    # OR
+    term:
+      $ref: "_terms.yaml#/controlled_vocab"  # optional definition in terms file
+
+  restricted_text_property:
+    description: Description of the property.
+    type: string
+    pattern: "regex-pattern"
+
+  controlled_vocabulary_property:
+    description: Description of the property.
+    term: # optional
+      $ref: "_terms.yaml#/controlled_vocab"  
+    enum: 
+      - option 1
+      - option 2
+      - option 3 
+    enumDef: # options, external definition for each enum option
+      - enumeration: option 1
+        source: source
+        term_id: ID:0030658
+        version_date:
+      - enumeration: option 2
+        source: source
+        term_id: ID:0030658
+        version_date:
+      - enumeration: option 3
+        source: source
+        term_id: ID:0100523
+        version_date:
+
+  parent-node-ids:  # link to the parent node
+    $ref: "_definitions.yaml#/to_one"  # or other appropriate multiplicity
