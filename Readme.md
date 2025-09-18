@@ -48,6 +48,10 @@ For more detailed step by step instructions can run using the [Schema Developmen
 
 Example outputs can be found in the [example_outputs folder](example_output/schema/).
 
+Here is what the example output dictionary looks like:
+![example_image.png](example_output/schema/example_dd.png)
+
+
 The script writes outputs to the `output` directory:
 - The gen3 bundled json file will be in `output/schema/json/schema_dev.json`
 - The gen3 yaml files will be in `output/schema/yaml/`
