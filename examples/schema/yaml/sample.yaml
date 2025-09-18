@@ -2,7 +2,7 @@ $schema: http://json-schema.org/draft-04/schema#
 id: sample
 title: Sample
 type: object
-namespace: https://data.acdc.ozheart.org
+namespace: http://commons.heartdata.baker.edu.au/
 category: biospecimen
 program: '*'
 project: '*'

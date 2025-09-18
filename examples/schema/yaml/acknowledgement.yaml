@@ -2,7 +2,7 @@ $schema: http://json-schema.org/draft-04/schema#
 id: acknowledgement
 title: Acknowledgement
 type: object
-namespace: https://data.acdc.ozheart.org
+namespace: http://commons.heartdata.baker.edu.au/
 category: administrative
 program: '*'
 project: '*'

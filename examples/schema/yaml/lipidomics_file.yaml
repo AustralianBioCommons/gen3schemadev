@@ -2,7 +2,7 @@ $schema: http://json-schema.org/draft-04/schema#
 id: lipidomics_file
 title: Lipidomics File
 type: object
-namespace: https://data.acdc.ozheart.org
+namespace: http://commons.heartdata.baker.edu.au/
 category: data_file
 program: '*'
 project: '*'

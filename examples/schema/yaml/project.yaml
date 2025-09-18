@@ -130,4 +130,4 @@ properties:
     description: A URL link that takes you to a page that explains how to gain access
       to the project
     type: string
-namespace: https://data.acdc.ozheart.org
+namespace: http://commons.heartdata.baker.edu.au/
