@@ -9,6 +9,7 @@ Data modelling in Gen3SchemaDev focuses on the following core concepts:
   - [Data types](#data-types)
   - [Enums](#enums)
 - [Links](#links)
+  - [Example:](#example)
     - [Example 1](#example-1)
     - [Example 2](#example-2)
 - [Lets make a Gen3 Data Dictionary!](#lets-make-a-gen3-data-dictionary)
@@ -40,15 +41,7 @@ Properties are found within entities. Properties can be thought of as the column
 | null       | Null value (no value)                            | null                 |
 
 *These are the standard [JSON Schema data types](https://json-schema.org/understanding-json-schema/reference/type.html) used to define the kind of data a property can hold.*
-
-The example below shows some properties from the `medical_history` entity. Notice how the first column is the property name, the second column is the data type, the third whether the property is required or not, and the fourth is the description.
-
-![prop_example](prop_example.png)
-
-- Some properties, for example `atrial_fibrillation`, have `yes` and `no` as the data type. This is an example of what an enumeration looks like, the two possible values are `yes` and `no`.
-- Another interesting property is `timepoints`, which has the data type of `array` or `object`. In Gen3, this property serves as a way to store linkage information between entities. For example, the `timepoints` property can be used to link a `subject` with a value of ```{"submitter_id": "subject_3a3312b756"}```. In the subjects entity, the value of `submitter_id` would be `subject_3a3312b756`.
-
-*Note: These link properties are automatically added in when using Gen3SchemaDev so that you can focus more on the unique properties of your data model. For more advanced information you can find [here](../gen3_data_modelling/links.md)**
+  
 
 ## Enums
 In a `property`, a specific data type called an enumeration (`enum`) can be used to specify a set of allowed values, like a controlled vocabulary. `Enums` are an `array` data type, where each value in the array is an allowed value. 
@@ -65,6 +58,13 @@ Importantly, links have a `multiplicity`, which can be one of:
 - `many_to_one`
 - `many_to_many`
 
+## Example:
+
+The example below shows some properties from the `medical_history` entity. Notice how the first column is the property name, the second column is the data type, the third whether the property is required or not, and the fourth is the description.
+
+![prop_example](prop_example.png)
+
+- Some properties, like `atrial_fibrillation`, can only accept a specific set of values. In this case, the only allowed values are `yes` or `no`. This is an example of a controlled vocabulary, which we define using an `enum`.
 
 ---
 
