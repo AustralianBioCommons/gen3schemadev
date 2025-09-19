@@ -10,15 +10,14 @@ This document is broken up into the following parts:
 
 
 ## Data Modelling Core Concepts
-- [Entities](#data-modelling-core-concepts)
-- [Properties](#data-modelling-core-concepts)
-- [Links](#data-modelling-core-concepts)
-- [Enums](#data-modelling-core-concepts)
+- [Entities](docs/core_concepts/core_principles.md#entities)
+- [Properties](docs/core_concepts/core_principles.md#properties)
+- [Links](docs/core_concepts/core_principles.md#links)
 
 
 ## Using Gen3SchemaDev as a data modelling tool
 - [Installation](docs/setup.md)
-- [Creating your first schema](docs/gen3schemadev/example_usage_future.md)
+- [Creating your first dictionary](docs/gen3schemadev/first_dicionary.md)
 
 
 ## Deep dive into Gen3 Data Modelling
