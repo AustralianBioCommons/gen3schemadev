@@ -11,7 +11,7 @@ Data modelling in Gen3SchemaDev focuses on the following core concepts:
 - [Links](#links)
     - [Example 1](#example-1)
     - [Example 2](#example-2)
-- [Now lets try to make a Gen3 Dictionary!](#now-lets-try-to-make-a-gen3-dictionary)
+- [Lets make a Gen3 Data Dictionary!](#lets-make-a-gen3-data-dictionary)
 
 ---
 
@@ -51,7 +51,7 @@ The example below shows some properties from the `medical_history` entity. Notic
 *Note: These link properties are automatically added in when using Gen3SchemaDev so that you can focus more on the unique properties of your data model. For more advanced information you can find [here](../gen3_data_modelling/links.md)**
 
 ## Enums
-A specific data type called an enumeration (enum) can be used to specify a set of allowed values, like a controlled vocabulary. `Enums` are an `array` data type, where each value in the array is an allowed value. 
+In a `property`, a specific data type called an enumeration (`enum`) can be used to specify a set of allowed values, like a controlled vocabulary. `Enums` are an `array` data type, where each value in the array is an allowed value. 
 
 For example, a property that specifies the experiment type could be defined as: `['RNAseq', 'ChIPseq', 'LC-WGS', 'WES', 'WGS']`.
 
@@ -100,5 +100,5 @@ Then, lets define the `links`:
 
 ---
 
-# Now lets try to make a Gen3 Dictionary!
-- 
+# Lets make a Gen3 Data Dictionary!
+- Follow this guide on how to use Gen3SchemaDev to create your first dictionary: [Creating your first dictionary](..//gen3schemadev/first_dictionary.md)

@@ -14,6 +14,7 @@ This document is broken up into the following parts:
   - [Entities](docs/core_concepts/core_principles.md#entities)
   - [Properties](docs/core_concepts/core_principles.md#properties)
   - [Links](docs/core_concepts/core_principles.md#links)
+- [FAIR Concepts for Data Modelling](docs/core_concepts/fair.md)
 
 
 ## Using Gen3SchemaDev as a data modelling tool
