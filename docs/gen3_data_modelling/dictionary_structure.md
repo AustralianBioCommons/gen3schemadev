@@ -28,3 +28,6 @@ In addition, all data files need to be linked to the `core_metadata_collection`.
 - The files that created this example can be found [here](../../examples/schema/).
 
 ![](../../examples/schema/image.png)
+
+## What's next?
+Now lets take a look at a [Gen3 Schema](schemas.md).
