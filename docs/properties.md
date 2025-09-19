@@ -6,17 +6,24 @@ nav_order: 3
 ---
 
 # Properties
-{: .no_toc .text-delta }
-
-1. TOC
-{:toc}
 
 Properties define the rules about the different 'fields' of the node, i.e. what kind of metadata will be stored against each node.
 
 Each node should have:
  - property name
  - `description` - detailed description of the field
- - `type` - any of the existing [json schema](https://cswr.github.io/JsonSchema/spec/basic_types/) types
+ - `type` - any of the existing [json schema](https://cswr.github.io/JsonSchema/spec/basic_types/) types.
+
+For example:
+```yaml
+properties:
+  year_birth:
+    description: Year of birth at baseline (YYYY)
+    type: integer
+  month_birth:
+    description: Month of birth at baseline (MM)
+    type: integer
+```
 
 ## Required & Preferred Properties
 
@@ -24,7 +31,7 @@ Any properties in the schema that are required are specified in a `required` blo
 
 Example from `study.yaml`:
 
-```
+```yaml
 required:
   - submitter_id
   - type
@@ -44,7 +51,7 @@ preferred:
 
 ## Shared Property Definitions
 
-In addition to the properties that you define as unique to a particular node, it is also useful to refer to properties that may be shared across many nodes. These properties can be saved within the `_definitions.yaml` and referred to as needed.
+In addition to the properties that you define as unique to a particular node, it is also useful to refer to properties that may be shared across many nodes. These properties can be saved within the [`_definitions.yaml`](../examples/schema/yaml/_definitions.yaml) and referred to as needed.
 
 Some examples from the gdc dictionary are:
 
@@ -56,7 +63,7 @@ This `_definitions.yaml#/ubiquitous_properties` contains many of the required sy
 
 In each schema, there needs to be a property that stores the link to its parent(s). 
 
-These are referred to by the property that describes the link and reflect the multiplicity of the link. The default link properties that are included in the `_definitions.yaml` are:
+These are referred to by the property that describes the link and reflect the multiplicity of the link. The default link properties that are included in the [`_definitions.yaml`](../examples/schema/yaml/_definitions.yaml) are:
 
 - `to_one`
 - `to_many`
@@ -67,25 +74,24 @@ These refer to the foreign key properties
 - `foreign_key_project`
 - `foreign_key`
 
-As an example from the `case.yaml`, the `links` section of the file looks like:
+As an example from the [`demographic.yaml`](../examples/schema/yaml/demographic.yaml), the `links` section of the file looks like:
 
 ```yaml
 links:
-  - name: experiments 
-    backref: cases
-    label: member_of
-    target_type: experiment
-    multiplicity: many_to_one
-    required: true
+- name: subjects
+  backref: demographics
+  label: describes
+  target_type: subject
+  multiplicity: one_to_one
+  required: true
 ```
 
 which means in the `properties` section, you need to refer to this link by including a property like:
 
 ```yaml
 properties:
-...
-  experiments: 
-    $ref: "_definitions.yaml#/to_one"
+  subjects:
+    $ref: _definitions.yaml#/to_one
 ```
 
 ## Property Types
@@ -95,8 +101,6 @@ Most property types are straight forward. Some of the types are explained in fur
 ### Numeric properties
 
 Properties with a numeric type, that is `integer` or `number` can be restricted with minimum and maximum values.
-
-Example from `diagnosis.yaml`
 
 ```yaml
 age_at_diagnosis:
@@ -115,7 +119,7 @@ A general string property will allow any free text unless a pattern or enumerati
 
 Regex patterns can be used to restrict a string property to a certain format.
 
-Example from  `_definitions.yaml`:
+Example from  [`_definitions.yaml`](../examples/schema/yaml/_definitions.yaml):
 
 ```yaml
 UUID:
@@ -129,17 +133,15 @@ UUID:
 
 Enumerations for a property restrict the values to a set of allowed values. If a value is specified outside of this set, the metadata will fail validation.
 
-Example from `family.yaml`:
+Example from [`medical_history.yaml`](../examples/schema/yaml/medical_history.yaml):
 
 ```yaml
-consanguinity:
-    description: >-
-      Indicate if consanguinity is present or suspected within a family
+  hypertension_measurement_type:
+    description: Whether the hypertension was measured at recruitment/patients on
+      hypertension treatment or self-reported medical diagnosis
     enum:
-      - None suspected
-      - Present
-      - Suspected
-      - Unknown
+    - self-reported
+    - measured
 ```
 
 #### Term definitions
@@ -160,9 +162,9 @@ property_name:
     term_url: "https://direct-link-to-term"
 ```
 
-It is common practice to put the term definitions into a file called `_terms.yaml` and refer to them from a base schema.
+It is common practice to put the term definitions into a file called [`_terms.yaml`](../examples/schema/yaml/_terms.yaml) and refer to them from a base schema.
 
-In the `_terms.yaml`, this would look like this:
+In the [`_terms.yaml`](../examples/schema/yaml/_terms.yaml), this would look like this:
 
 ```yaml
 bmi:
@@ -191,49 +193,33 @@ properties:
 
 As well as defining a term from an external ontology or vocabulary, you can also define each enumerated value.
 
-In the example below from the `medical_history.yaml`, we can see that property itself is defined in both the NCI Thesaurus as well as the Human Phenotype Ontology by using two `termDef` entries. 
+In the example below from the [`medical_history.yaml`](../examples/schema/yaml/medical_history.yaml), we can see that property itself is defined in both SNOMED as well as the Human Phenotype Ontology by using two `termDef` entries. 
 
 Each enum is also linked to an NCI Thesaurus entry using the `enumDef` syntax.
 
 ```yaml
-coronary_artery_disease:
-    description: >
-      Reported Coronary Artery disease in the participant (HARMONIZED)
+  diabetes_type:
+    description: diabetes diagnosed by fasting blood glucose >=7 mmol/l or tx AHA
+      or 2 hour blood glucose >=11.1 mmol/l.
+    termDef:
+    - term: Diabetes mellitus
+      source: hpo
+      term_id: HP:0000819
+      term_version: '2021-10-10'
     enum:
-      - "Positive"
-      - "Negative"
-      - "Reported Unknown"
-      - "Not Reported"
-      - "Not Applicable"
-    termDef:
-       - term: coronary_artery_disease
-         source: NCI Thesaurus
-         term_id: C26732
-         term_version: 19.03d (Release date:2019-03-25)
-    termDef:
-       - term: coronary_artery_disease
-         source: hp
-         term_id: HP:0001677
-         term_version: "2019-04-15"
+    - IGT
+    - KDM
+    - IFG
+    - NDM
+    - NGT
     enumDef:
-       - enumeration: Positive
-         source: NCI Thesaurus
-         term_id: C38758
-         version_date: 19.03d (Release date:2019-03-25)
-       - enumeration: Negative
-         source: NCI Thesaurus
-         term_id: C38757
-         version_date: 19.03d (Release date:2019-03-25)
-       - enumeration: Reported Unknown
-         source: NCI Thesaurus
-         term_id: C17998
-         version_date: 19.03d (Release date:2019-03-25)
-       - enumeration: Not Reported
-         source: NCI Thesaurus
-         term_id: C43234
-         version_date: 19.03d (Release date:2019-03-25)
-       - enumeration: Not Applicable
-         source: NCI Thesaurus
-         term_id: C48660
-         version_date: 19.03d (Release date:2019-03-25)
+    - enumeration: IGT
+      source: hpo
+      term_id: HP:0040270
+    - enumeration: NDM
+      source: SNOMED
+      term_id: '870528001'
+    - enumeration: NGT
+      source: SNOMED
+      term_id: '166926006'
 ```
