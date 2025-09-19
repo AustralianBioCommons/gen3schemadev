@@ -7,7 +7,14 @@ nav_order: 1
 
 # Descriptors
 
-| schema key             | description                                                                                 | required user input | specificity | default value                                                     | data type                                                                                                                     | yaml example                       |
+The descriptors are the top level fields of a schema that describe the schema itself. Some of these fields are specific to [JsonSchema](), whilst others are gen3 specific. The Descriptors or field names are summarised in the table below.
+
+- Feel free to see an example of what these descriptors look like in a gen3 schema yaml called [lipidomics_file](../examples/schema/yaml/lipidomics_file.yaml).
+- You can also get a feel for what the descriptors do based on this [example schema](explainer_schema.yaml)
+
+*Note: `required user input` indicates that the field should be defined by the user, if this value is `no` the field must still exist, but you can use the default value which is generic enough for most cases.*
+
+| field name             | description                                                                                 | required user input | specificity | default value (json format)                                                     | data type                                                                                                                     | yaml example                       |
 |------------------------|---------------------------------------------------------------------------------------------|---------------------|-------------|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
 | `id`                   | Unique identifier for the entity                                                            | yes                 | jsonschema  | n/a                                                               | String                                                                                                                       | lipidomics_file                     |
 | `title`                | Name of the entity                                                                          | yes                 | jsonschema  | n/a                                                               | String                                                                                                                       | Lipidomics File                     |
