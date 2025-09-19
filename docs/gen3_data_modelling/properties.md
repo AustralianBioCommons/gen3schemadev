@@ -30,23 +30,22 @@ properties:
 
 Any properties in the schema that are required are specified in a `required` block. Every schema should have the `submitter_id`, `type` and any parental links listed as required attributes. Any submission of a particular node type that does not contain values for the required nodes will not pass validation.
 
-Example from `study.yaml`:
+Example from [`demographic.yaml`](../../examples/schema/yaml/demographic.yaml):
 
 ```yaml
 required:
-  - submitter_id
-  - type
-  - study_description
-  - projects
+- type
+- submitter_id
+- subjects
 ```
 
 A block of `preferred` attributes may also be specified. This would indicate an important field but submission of nodes without this field will still pass validation.
 
-Example from `demographic.yaml`
+Example from [`demographic.yaml`](../../examples/schema/yaml/demographic.yaml):
 
 ```yaml
 preferred:
-  - year_of_death
+- year_birth
 ```
 
 
