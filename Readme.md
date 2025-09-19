@@ -1,6 +1,6 @@
 # Developing a Gen3 Data Dictionary
 
-This repository aims to provide the documentation, learning materia, and software tools to facilitate the creation of a data model in Gen3.
+This repository aims to provide the documentation, learning materials, and software tools to facilitate the creation of a data model in Gen3.
 
 This document is broken up into the following parts:
 - Developing a Gen3 Data Dictionary:
