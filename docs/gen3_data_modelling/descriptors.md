@@ -7,7 +7,7 @@ nav_order: 1
 
 # Descriptors
 
-The descriptors are the top level fields of a schema that describe the schema itself. Some of these fields are specific to [JsonSchema](), whilst others are gen3 specific. The Descriptors or field names are summarised in the table below.
+The descriptors are the top level fields of a schema that describe the schema itself. Some of these fields are specific to [JsonSchema](https://json-schema.org/overview/what-is-jsonschema), whilst others are gen3 specific. The Descriptors or field names are summarised in the table below.
 
 - Feel free to see an example of what these descriptors look like in a gen3 schema yaml called [lipidomics_file](../../examples/schema/yaml/lipidomics_file.yaml).
 - You can also get a feel for what the descriptors do based on this [example schema](explainer_schema.yaml)
@@ -16,6 +16,7 @@ The descriptors are the top level fields of a schema that describe the schema it
 
 | field name             | description                                                                                 | required user input | specificity | default value (json format)                                                     | data type                                                                                                                     | yaml example                       |
 |------------------------|---------------------------------------------------------------------------------------------|---------------------|-------------|-------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|-------------------------------------|
+| `$schema`              | Declares the version of the JSON Schema standard used                                       | no                  | jsonschema  | http://json-schema.org/draft-04/schema#                             | String                                                                                                                       | http://json-schema.org/draft-04/schema# |
 | `id`                   | Unique identifier for the entity                                                            | yes                 | jsonschema  | n/a                                                               | String                                                                                                                       | lipidomics_file                     |
 | `title`                | Name of the entity                                                                          | yes                 | jsonschema  | n/a                                                               | String                                                                                                                       | Lipidomics File                     |
 | `category`             | Classification of entity                                                                    | yes                 | gen3        | n/a                                                               | Enum ['administrative', 'index_file', 'biospecimen', 'clinical', 'notation', 'data_file', 'analysis', 'experimental_methods'] | data_file                           |
