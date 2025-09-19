@@ -3,6 +3,7 @@ title: Descriptors
 has_children: false
 parent: Schemas
 nav_order: 1
+authors: ["Marion Shadbolt", "Joshua Harris"]
 ---
 
 # Descriptors

@@ -2,6 +2,7 @@
 title: Dictionary Structure
 has_children: false
 nav_order: 1
+authors: ["Marion Shadbolt", "Joshua Harris"]
 ---
 # Dictionary Structure
 The gen3 data dictionary is a graph based data model, where the nodes represent entities and the edges represent relationships between the entities. Each entity is defined by a `schema` which is represented in [yaml format](explainer_schema.yaml). Therefore, an entire data dictionary can be defined by a [folder containing multiple yaml files](../../examples/schema/yaml/).

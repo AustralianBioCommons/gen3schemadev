@@ -3,6 +3,7 @@ title: Properties
 has_children: false
 parent: Schemas
 nav_order: 3
+authors: ["Marion Shadbolt", "Joshua Harris"]
 ---
 
 # Properties

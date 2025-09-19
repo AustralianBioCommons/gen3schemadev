@@ -2,6 +2,7 @@
 title: Dictionary Configuration
 has_children: false
 nav_order: 2
+authors: ["Marion Shadbolt", "Joshua Harris"]
 ---
 
 Work in progress

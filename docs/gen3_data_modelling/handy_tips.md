@@ -3,6 +3,7 @@ title: Handy Tips
 has_children: false
 parent: Schemas
 nav_order: 4
+authors: ["Marion Shadbolt", "Joshua Harris"]
 ---
 # Handy Tips
 
