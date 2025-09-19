@@ -10,9 +10,10 @@ This document is broken up into the following parts:
 
 
 ## Data Modelling Core Concepts
-- [Entities](docs/core_concepts/core_principles.md#entities)
-- [Properties](docs/core_concepts/core_principles.md#properties)
-- [Links](docs/core_concepts/core_principles.md#links)
+- [Core Principles to Data Modelling](docs/core_concepts/core_principles.md)
+  - [Entities](docs/core_concepts/core_principles.md#entities)
+  - [Properties](docs/core_concepts/core_principles.md#properties)
+  - [Links](docs/core_concepts/core_principles.md#links)
 
 
 ## Using Gen3SchemaDev as a data modelling tool
