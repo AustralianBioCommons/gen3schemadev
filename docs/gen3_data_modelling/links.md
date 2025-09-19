@@ -25,7 +25,6 @@ Each link is defined by a set of properties that tell the system how two entitie
 | **multiplicity** | The numeric relationship between the child and parent, such as one-to-one or many-to-many. | `one_to_one`, `one_to_many`, `many_to_one`, `many_to_many`  |
 | **required** | A true or false value indicating if every instance of the child must have this link to a parent. | `true`, `false` |
 
-While `name` and `backref` provide useful field names, they don't define the connection's behavior. To understand the true nature of the relationship, such as how many children can connect to a parent, you must always check the `multiplicity` property.
 
 
 ## Example 1:
