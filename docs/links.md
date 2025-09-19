@@ -3,94 +3,93 @@ title: Links
 has_children: false
 parent: Schemas
 nav_order: 2
+authors: ["Marion Shadbolt", "Joshua Harris"]
 ---
 
-# Links
-{: .no_toc .text-delta }
+# Defining Links in Gen3
 
-1. TOC
-{:toc}
+The Gen3 data model follows a graph structure. At the very top sits the **Program** entity, the ultimate root of your data structure. Links are what connect all the different entities in this graph, establishing how they relate to one another.
 
-Links are what join the nodes of your data model together. The links go **from** the child **to** the parent with the `Program` always being the ultimate root of the data model. Links are also described with a `backref`, `label` and `multiplicity` that should match up to one of the specified relationships in the `_definitions.yaml` file. All nodes must have at least one required link or link subgroup to ensure it will be joined to the rest of the data model.
+A core principle to remember is that links are directional, always connecting a child entity up to its parent. For the data model to be a single, connected graph, **every entity must have at least one link (or link subgroup) that is marked as `required: true`**. This ensures no entity is ever left isolated.
+
+## The Anatomy of a Link
+
+Each link is defined by a set of properties that tell the system how two entities are connected. Here is a quick reference for what each property does.
+
+| Key | Description | Example Values |
+| :--- | :--- | :--- |
+| **name** | The name for the link, as seen from the child entity. This is often the parent's name in plural form. | `subjects` |
+| **backref** | The name for the link from the parent's perspective, pointing back to the child. | `demographics` |
+| **label** | A simple descriptor for the type of relationship between the entities. | String: `describes` |
+| **target_type** | The unique ID of the parent entity you are linking to. | `subject` |
+| **multiplicity** | The numeric relationship between the child and parent, such as one-to-one or many-to-many. | `one_to_one`, `one_to_many`, `many_to_one`, `many_to_many`  |
+| **required** | A true or false value indicating if every instance of the child must have this link to a parent. | `true`, `false` |
+
+While `name` and `backref` provide useful field names, they don't define the connection's behavior. To understand the true nature of the relationship, such as how many children can connect to a parent, you must always check the `multiplicity` property.
 
 
-| Key          | Description                              | example values      |
-|--------------|------------------------------------------|---------------------|
-| name         | The name of the link from this schema to its parent, usually the parent's name in plural form   |                 |
-| backref      | The back reference from the parent back to the child, usually the name of the schema pluralised |                 |
-| label        | A descriptor for the type of relationship. (Not sure if this is a controlled vocabulary or free text) | `describes`, `member_of`, `derived_from`, `data_from`  |
-| target_type  | the node id of the parent                                                                       |                                                              |
-| multiplicity | describes the numeric relationship from the child to the parent, these should be defined in the `_definitions.yaml` | `one_to_one`, `one_to_many`, `many_to_many`, `to_one_project`, `to_many_project` |
-| required     | Whether each instance of this schema needs to have this link                                     | `true`, `false`  |
-
-A simple example links code snippet from the gdc dictionary `case.yaml`:
+## Example 1:
+Let's look at a practical example. Imagine we are inside the `demographic` [entity](../examples/schema/yaml/demographic.yaml) and want to link it to a `subject` [entity](../examples/schema/yaml/subject.yaml).
 
 ```yaml
 links:
-  - name: experiments 
-    backref: cases
-    label: member_of
-    target_type: experiment
-    multiplicity: many_to_one
+  - name: subjects
+    backref: demographics
+    label: describes
+    target_type: subject
+    multiplicity: one_to_one
     required: true
 ```
+In this scenario, we are establishing a strict pairing. The `multiplicity` of `one_to_one` ensures that for every demographic record, there is exactly one subject, and vice versa. Because `required` is set to `true`, a demographic record cannot exist without a corresponding subject. In plain English, this means: "A demographic profile describes one subject, and that subject has one demographic profile."
 
-The above `links` snippet is specifying that a `case` is a `member_of` an `experiment`, that is, the `experiment` is the parent of the `case`. The `multiplicity` indicates it is a `many_to_one` relationship, that is, many cases can be a part of a single experiment. The `required` property indicates this relationship is required, that is, every case that is submitted must be linked to a single experiment.
 
-## Multiple links
 
-If a child can link to multiple parents, that is, be a child of either `parentA` AND/OR `parentB` , simply list an additional link, example from gdc dictionary `clinical_test.yaml`. Bear in mind that there has to be at least one link that has `required: true` to ensure that nodes are always connected to the rest of the graph.
+## Example 2:
+Now, let's consider a more flexible connection. Here, we are inside a `lipidomics_file` [entity](../examples/schema/yaml/lipidomics_file.yaml) and want to link it to the `sample` [entity](../examples/schema/yaml/sample.yaml) from which it was derived.
 
 ```yaml
 links:
-  - name: cases 
-    backref: clinical_tests
-    label: performed_for 
-    target_type: case
-    multiplicity: many_to_one
-    required: true
-  - name: diagnoses
-    backref: clinical_tests
-    label: relates_to
-    target_type: diagnosis
+  - name: samples
+    backref: lipidomics_files
+    label: data_from
+    target_type: sample
     multiplicity: many_to_many
     required: false
 ```
+The `multiplicity` of `many_to_many` allows for a single file to be associated with multiple samples, and it also allows a single sample to be associated with multiple lipidomics files. The link is optional because `required` is `false`. In other words: "A lipidomics file can come from multiple samples, and a sample can be linked to many lipidomics files."
 
-The `links` snippet above indicates that the `clinical_test` node must be linked to a `case` node (`required: true`), and that a single case may be linked to multiple `clinical_tests` (`multiplicity: many_to_one`). In addition, a `clinical_test` node may be optionally linked (`required: false`) to one or more `diagnosis` nodes. Multiple `diagnoses` may be linked to multiple `clinical_tests` (`multiplicity: many_to_many`).
 
-## Link subgroups
+# Advanced Linking with Subgroups
 
-If a single node instance needs to link to multiple parents, and the linking is related in some way, a link `subgroup` can be specified. The nature of how nodes are linked with a subgroup is by using a two boolean fields, `exclusive` and `required`, within the `links` block of the schema.
+Sometimes, an entity needs to connect to one of several possible parents. You can define multiple, independent links, but a more powerful method is to use a subgroup. By grouping links, you can apply rules to the group as a whole using two flags: `exclusive` and `required`.
 
 This allows for the following scenarios:
 
-| exclusive | required | result                                                                            |
-|-----------|----------|-----------------------------------------------------------------------------------|
-| `true`    | `true`   | You must link to only one of the subgroup nodes                                   |
-| `false`   | `true`   | You can pick one or more of the subgroup nodes, but you need to pick at least one |
-| `true`    | `false`  | You can pick one or not, but not more than one subgroup node                      |
-| `false`   | `false`  | You can pick none, one, or more of the subgroup nodes if you want to              |
+| exclusive | required | Result |
+| :--- | :--- | :--- |
+| `true` | `true` | You must link to exactly one entity from the group. |
+| `false` | `true` | You must link to at least one entity from the group, and can link to more. |
+| `true` | `false` | You can link to one entity from the group, or none at all. |
+| `false` | `false` | Linking is completely optional; you can link to none, one, or multiple entities. |
 
-Example from gdc dictionary `submitted_aligned_reads.yaml`
+**Important**: As a requirement in Gen3, any entity classified as a `data_file` must always contain a link to `core_metadata_collection`.
 
 ```yaml
 links:
   - exclusive: false
     required: true
     subgroup:
-    - name: read_groups
-      backref: submitted_aligned_reads_files
-      label: data_from
-      target_type: read_group
-      multiplicity: one_to_many
-      required: false
-    - name: core_metadata_collections
-      backref: submitted_aligned_reads_files
-      label: data_from
-      target_type: core_metadata_collection
-      multiplicity: many_to_many
-      required: false
+      - name: samples
+        backref: lipidomics_files
+        label: data_from
+        target_type: sample
+        multiplicity: many_to_many
+        required: false
+      - name: core_metadata_collection
+        backref: lipidomics_files
+        label: describes
+        target_type: core_metadata_collection
+        multiplicity: one_to_one
+        required: false
 ```
-
-In this example, the `submitted_aligned_reads` node needs to be linked to at least one of `read_groups` OR `core_metadata_collections` (or both). The subgroup is necessary because if they were specified as two individual non-required links, you could end up with the a node that isn't connected to the rest of the graph.
+In this setup, the subgroup has `required: true` and `exclusive: false`. This means a `lipidomics_file` must be linked to at least one of the entities in the group, and it can be linked to more than one. It can be linked to a `sample`, a `core_metadata_collection`, or both. While the individual links inside the group are optional (`required: false`), the subgroup's top-level rule ensures the node is never left orphaned.
