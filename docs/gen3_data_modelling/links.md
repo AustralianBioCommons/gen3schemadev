@@ -29,7 +29,7 @@ While `name` and `backref` provide useful field names, they don't define the con
 
 
 ## Example 1:
-Let's look at a practical example. Imagine we are inside the `demographic` [entity](../examples/schema/yaml/demographic.yaml) and want to link it to a `subject` [entity](../examples/schema/yaml/subject.yaml).
+Let's look at a practical example. Imagine we are inside the `demographic` [entity](../../examples/schema/yaml/demographic.yaml) and want to link it to a `subject` [entity](../../examples/schema/yaml/subject.yaml).
 
 ```yaml
 links:
@@ -45,7 +45,7 @@ In this scenario, we are establishing a strict pairing. The `multiplicity` of `o
 
 
 ## Example 2:
-Now, let's consider a more flexible connection. Here, we are inside a `lipidomics_file` [entity](../examples/schema/yaml/lipidomics_file.yaml) and want to link it to the `sample` [entity](../examples/schema/yaml/sample.yaml) from which it was derived.
+Now, let's consider a more flexible connection. Here, we are inside a `lipidomics_file` [entity](../../examples/schema/yaml/lipidomics_file.yaml) and want to link it to the `sample` [entity](../../examples/schema/yaml/sample.yaml) from which it was derived.
 
 ```yaml
 links:
