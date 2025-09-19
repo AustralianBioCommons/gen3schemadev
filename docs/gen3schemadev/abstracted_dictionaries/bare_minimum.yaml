@@ -1,0 +1,26 @@
+version: 0.1.0
+url: https:://link-to-data-portal
+
+entities:
+- name: project
+  description: Gen3 Compulsory Node
+  category: administrative
+  properties:
+    - name: project_id
+      type: string
+      description: Synthetic_Dataset_1
+      required: true
+
+- name: sample
+  description: Info about sample
+  category: clinical
+  properties:
+    - name: sample_id
+      type: string
+      description: Sample ID (string)
+      required: true
+
+links:
+- parent: project
+  multiplicity: one_to_many
+  child: sample
