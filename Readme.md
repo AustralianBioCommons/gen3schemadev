@@ -1,9 +1,9 @@
 # Developing a Gen3 Data Dictionary
 
-This document provides core concepts on data modelling as well as documentation on data modelling specifically in gen3. 
+This repository aims to provide the documentation, learning materia, and software tools to facilitate the creation of a data model in Gen3.
 
 This document is broken up into the following parts:
-- [Developing a Gen3 Data Dictionary]
+- Developing a Gen3 Data Dictionary:
   - [Data Modelling Core Concepts](#data-modelling-core-concepts)
   - [Using Gen3SchemaDev as a data modelling tool](#using-gen3schemadev-as-a-data-modelling-tool)
   - [Deep dive into Gen3 Data Modelling](#deep-dive-into-gen3-data-modelling)
