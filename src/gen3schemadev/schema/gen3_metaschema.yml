@@ -1,0 +1,214 @@
+# Original Metaschema pulled from: https://github.com/NCI-GDC/gdcdictionary/blob/9be3f2e467891c5e4b9c6f6d0125dc4a2a721a79/src/gdcdictionary/schemas/metaschema.yaml
+$schema: "http://json-schema.org/draft-04/schema#"
+
+id: "gen3_metaschema"
+title: "Gen3 JSON schema extension"
+
+allOf:
+  - $ref: "http://json-schema.org/draft-04/schema#"
+
+required:
+  - id #unique identifier for entity
+  - title #name of the entity
+  - type #type of entity/ should be object by default
+  - category #potentially used in submission system, if not may not be needed
+  - program
+  - project
+  - description #description of entity
+  - submittable #boolean, can data be submitted to this entity
+  - validators #specify to the validator additional functions to run on the values
+  - systemProperties #non-user facing properties required by backend
+  - uniqueKeys #for validator to check uniqueness
+  - links #to specify to the validator what properties are links and their targets
+  - required #list of required properties
+  - properties #properties of the entity
+
+field:
+  type: string
+  pattern: "^[_a-zA-Z0-9]*$" #only letters, numbers, and underscores
+
+
+# Properties:
+properties:
+
+  id:
+    type: string
+    description: "Unique identifier for the entity."
+
+  title:
+    type: string
+    description: "Name of the entity."
+
+  type:
+    type: string
+    description: "Type of entity, should be 'object' by default."
+
+  category:
+    description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object store."
+    type: string
+    enum:
+      - administrative
+      - analysis
+      - biospecimen
+      - clinical
+      - data
+      - data_bundle
+      - data_file
+      - index_file
+      - metadata_file
+      - notation
+      - qc_bundle
+      - TBD
+
+  program:
+    type: string
+    description: "Denotes the programs within the commons for which this schema may be used."
+
+  project:
+    type: string
+    description: "Denotes the projects within the commons for which this schema may be used."
+
+  description:
+    type: string
+    description: "Description of the entity."
+    
+  submittable:
+    description: "True/False keyword used to indicate whether this node should be allowed to be user-submitted through normal submission processes."
+    type: boolean
+
+  validators:
+    description: "Feature under development to allow cross validation among properties. Not intended to be used in its current form."
+    type:
+      - array
+      - "null"
+    items:
+      $ref: "#/$defs/validator_def"
+
+  systemProperties:
+    description: "Properties that will be automatically filled by the system unless otherwise defined by the user."
+    type: array
+    items:
+      type: string
+
+  uniqueKeys:
+    description: "Properties or list of properties that can be used to identify this node, and only this node, within the commons."
+    type: array
+    items:
+      type: array
+      items:
+        type: string
+
+  links:
+    title: "Define a link to other entities"
+    description: "Array used to connect two entities within the commons."
+    type: array
+    items:
+      oneOf:
+        - $ref: "#/$defs/link"
+        - $ref: "#/$defs/link_subgroup"
+
+  required:
+    description: "List of required properties for the entity."
+    type: array
+    items:
+      type: string
+
+  properties:
+    type: object
+    description: "Properties of the entity."
+    additionalProperties:
+      $ref: "#/$defs/propertyDef"
+
+
+# Definitions:
+$defs:
+
+  link:
+    type: object
+    additionalProperties: false
+    required:
+      - name
+      - backref
+      - label
+      - target_type
+      - multiplicity
+      - required
+
+    properties:
+      name:
+        $ref: "#/field"
+      target_type:
+        $ref: "#/field"
+      backref:
+        $ref: "#/field"
+      label:
+        $ref: "#/field"
+      multiplicity:
+        type: string
+        enum:
+          - one_to_one
+          - one_to_many
+          - many_to_one
+          - many_to_many
+      required:
+        type: boolean
+
+  link_subgroup:
+    type: object
+    additionalProperties: false
+    required:
+      - exclusive
+      - required
+      - subgroup
+    properties:
+      exclusive:
+        type: boolean
+      required:
+        type: boolean
+      subgroup:
+        type: array
+        items:
+          $ref: "#/$defs/link"
+
+  validator_def:
+    title: "Define a validator to be used on a property"
+    type: object
+    additionalProperties: false
+    required:
+      - property #the property to be applied to
+      - function #the function name, predefined somewhere, to use
+    properties:
+      property:
+        type: string
+      function:
+        type: string
+      link_to_type:
+        type: string
+      multiplicity:
+        type: string
+        enum:
+          - one_to_one
+          - one_to_many
+          - many_to_one
+          - many_to_many
+
+  propertyDef:
+    type: object
+    properties:
+      description:
+        type: string
+      enum:
+        type: array
+        items:
+          type: string
+      type:
+        type: string
+        enum:
+          - string
+          - number
+          - integer
+          - boolean
+          - array
+          - object
+      # Add more allowed fields as needed
+    additionalProperties: true  # Allow other fields (like format, minimum, etc.)
