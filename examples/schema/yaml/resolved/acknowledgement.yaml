@@ -132,13 +132,10 @@ properties:
 
         '
   submitter_id:
-    description: 'A project-specific identifier for a node. This property is the calling
+    description: A project-specific identifier for a node. This property is the calling
       card/nickname/alias for a unit of submission. It can be used in place of the
       UUID for identifying or recalling a node.
-
-      '
-    type:
-    - string
+    type: string
   type:
     type: string
   updated_datetime:
