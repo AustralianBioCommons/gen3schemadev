@@ -11,7 +11,8 @@ requires-python = ">=3.9.5,<4.0"
 dependencies = [
     "gen3-validator (>=1.1.1,<2.0.0)",
     "linkml (>=1.9.4,<2.0.0)",
-    "check-jsonschema (>=0.34.0,<0.35.0)"
+    "check-jsonschema (>=0.34.0,<0.35.0)",
+    "pydantic (>=2.11.9,<3.0.0)"
 ]
 
 [tool.poetry]
