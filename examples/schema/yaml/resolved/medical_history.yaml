@@ -1,0 +1,221 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: clinical
+description: Medical history of the participant
+id: medical_history
+links:
+- backref: medical_histories
+  label: describes
+  multiplicity: one_to_one
+  name: subjects
+  required: true
+  target_type: subject
+namespace: http://commons.heartdata.baker.edu.au/
+program: '*'
+project: '*'
+properties:
+  created_datetime:
+    oneOf:
+    - format: date-time
+      type: string
+    - type: 'null'
+    term:
+      description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
+
+        '
+  diabetes:
+    description: Self-reported diabetes in the participant
+    enum:
+    - 'yes'
+    - 'no'
+    - unsure
+    - not reported
+    - not collected
+    termDef:
+    - source: hpo
+      term: Diabetes mellitus
+      term_id: HP:0000819
+  diabetes_type:
+    description: diabetes diagnosed by fasting blood glucose >=7 mmol/l or tx AHA
+      or 2 hour blood glucose >=11.1 mmol/l.
+    enum:
+    - IGT
+    - KDM
+    - IFG
+    - NDM
+    - NGT
+    enumDef:
+    - enumeration: IGT
+      source: hpo
+      term_id: HP:0040270
+    - enumeration: NDM
+      source: SNOMED
+      term_id: '870528001'
+    - enumeration: NGT
+      source: SNOMED
+      term_id: '166926006'
+    termDef:
+    - source: hpo
+      term: Diabetes mellitus
+      term_id: HP:0000819
+      term_version: '2021-10-10'
+  hypertension:
+    description: Whether the participant has Hypertension
+    enum:
+    - yes, measured or on treatment
+    - yes, self-reported
+    - 'no'
+    - not reported
+    - not collected
+  hypertension_measurement_type:
+    description: Whether the hypertension was measured at recruitment/patients on
+      hypertension treatment or self-reported medical diagnosis
+    enum:
+    - self-reported
+    - measured
+  id:
+    pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+    systemAlias: node_id
+    term:
+      description: 'A 128-bit identifier. Depending on the mechanism used to generate
+        it, it is either guaranteed to be different from all other UUIDs/GUIDs generated
+        until 3400 AD or extremely likely to be different. Its relatively small size
+        lends itself well to sorting, ordering, and hashing of all sorts, storing
+        in databases, simple allocation, and ease of programming in general.
+
+        '
+      termDef:
+        cde_id: C54100
+        cde_version: null
+        source: NCIt
+        term: Universally Unique Identifier
+        term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
+    type: string
+  project_id:
+    term:
+      description: 'Unique ID for any specific defined piece of work that is undertaken
+        or attempted to meet a single requirement.
+
+        '
+    type: string
+  state:
+    default: validated
+    downloadable:
+    - uploaded
+    - md5summed
+    - validating
+    - validated
+    - error
+    - invalid
+    - released
+    oneOf:
+    - enum:
+      - uploading
+      - uploaded
+      - md5summing
+      - md5summed
+      - validating
+      - error
+      - invalid
+      - suppressed
+      - redacted
+      - live
+    - enum:
+      - validated
+      - submitted
+      - released
+    public:
+    - live
+    term:
+      description: 'The current state of the object.
+
+        '
+  subjects:
+    anyOf:
+    - items:
+        additionalProperties: true
+        maxItems: 1
+        minItems: 1
+        properties:
+          id:
+            pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+            term:
+              description: 'A 128-bit identifier. Depending on the mechanism used
+                to generate it, it is either guaranteed to be different from all other
+                UUIDs/GUIDs generated until 3400 AD or extremely likely to be different.
+                Its relatively small size lends itself well to sorting, ordering,
+                and hashing of all sorts, storing in databases, simple allocation,
+                and ease of programming in general.
+
+                '
+              termDef:
+                cde_id: C54100
+                cde_version: null
+                source: NCIt
+                term: Universally Unique Identifier
+                term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
+            type: string
+          submitter_id:
+            type: string
+        type: object
+      type: array
+    - additionalProperties: true
+      properties:
+        id:
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+          term:
+            description: 'A 128-bit identifier. Depending on the mechanism used to
+              generate it, it is either guaranteed to be different from all other
+              UUIDs/GUIDs generated until 3400 AD or extremely likely to be different.
+              Its relatively small size lends itself well to sorting, ordering, and
+              hashing of all sorts, storing in databases, simple allocation, and ease
+              of programming in general.
+
+              '
+            termDef:
+              cde_id: C54100
+              cde_version: null
+              source: NCIt
+              term: Universally Unique Identifier
+              term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
+          type: string
+        submitter_id:
+          type: string
+      type: object
+  submitter_id:
+    description: 'A project-specific identifier for a node. This property is the calling
+      card/nickname/alias for a unit of submission. It can be used in place of the
+      UUID for identifying or recalling a node.
+
+      '
+    type:
+    - string
+  type:
+    type: string
+  updated_datetime:
+    oneOf:
+    - format: date-time
+      type: string
+    - type: 'null'
+    term:
+      description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
+
+        '
+required:
+- type
+- submitter_id
+- subjects
+submittable: true
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+title: Medical History
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null
