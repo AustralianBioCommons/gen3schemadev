@@ -2,12 +2,11 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
 id: "metaschema"
-title: "GDC JSON schema extension"
+title: "Gen3 JSON schema extension"
 
 allOf:
   - $ref: "http://json-schema.org/draft-04/schema#"
 
-#GDC extensions
 required:
   - id #unique identifier for entity
   - title #name of the entity
@@ -35,19 +34,19 @@ definitions:
     additionalProperties: false
     required:
       - name
-      - target_type
       - backref
       - label
+      - target_type
       - multiplicity
       - required
     properties:
       name:
         type: string
-      target_type:
-        type: string
       backref:
         type: string
       label:
+        type: string
+      target_type:
         type: string
       multiplicity:
         type: string
@@ -60,6 +59,7 @@ definitions:
         type: boolean
 
   link_subgroup:
+    type: object
     required:
       - exclusive
       - required
@@ -82,9 +82,12 @@ definitions:
       - function #the function name, predefined somewhere, to use
 
     properties:
+      property:
+        type: string
+      function:
+        type: string
       link_to_type:
         type: string
-
       multiplicity:
         type: string
         enum:
@@ -94,8 +97,17 @@ definitions:
           - many_to_many
 
 properties:
+  id:
+    type: string
+    description: "Unique identifier for the entity."
+  title:
+    type: string
+    description: "Name of the entity."
+  type:
+    type: string
+    description: "Type of entity, should be 'object' by default."
   category:
-    description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object story."
+    description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object store."
     type: string
     enum:
       - administrative
@@ -110,27 +122,18 @@ properties:
       - notation
       - qc_bundle
       - TBD
-
-  unique_keys:
-    description: "Properties or list of properties that can be used to identify this node, and only this node, within the commons."
-    type: array
-    items:
-      type: array
-      items:
-        type: string
-
+  program:
+    type: string
+    description: "Denotes the programs within the commons for which this schema may be used."
+  project:
+    type: string
+    description: "Denotes the projects within the commons for which this schema may be used."
+  description:
+    type: string
+    description: "Description of the entity."
   submittable:
     description: "True/False keyword used to indicate whether this node should be allowed to be user-submitted through normal submission processes."
     type: boolean
-
-  downloadable:
-    description: "Indicates if a file can be downloaded by a user with downloader access."
-    type: boolean
-
-  previous_version_downloadable:
-    description: "Indicates if the previous version of a file is available for download."
-    type: boolean
-
   validators:
     description: "Feature under development to allow cross validation among properties. Not intended to be used in its current form."
     type:
@@ -138,32 +141,34 @@ properties:
       - "null"
     items:
       $ref: "#/definitions/validator_def"
-
-  system_properties:
+  systemProperties:
     description: "Properties that will be automatically filled by the system unless otherwise defined by the user."
     type: array
-
-  program:
-    type: string
-    description: "Denotes the programs within the commons for which this schema may be used."
-
-  project:
-    type: string
-    description: "Denotes the projects within the commons for which this schema may be used."
-
-  properties:
-    type: object
-    properties: {}
-    additionalProperties: false
-    patternProperties:
-      # Enforce that the property names do not start with numbers, etc
-      "^[_a-zA-Z][_a-zA-Z0-9]*$": {}
-
+    items:
+      type: string
+  uniqueKeys:
+    description: "Properties or list of properties that can be used to identify this node, and only this node, within the commons."
+    type: array
+    items:
+      type: array
+      items:
+        type: string
   links:
-    title: "Define a link to other GDC entities"
+    title: "Define a link to other entities"
     description: "Array used to connect two entities within the commons."
     type: array
     items:
       oneOf:
         - $ref: "#/definitions/link"
         - $ref: "#/definitions/link_subgroup"
+  required:
+    description: "List of required properties for the entity."
+    type: array
+    items:
+      type: string
+  properties:
+    type: object
+    description: "Properties of the entity."
+    additionalProperties: false
+    patternProperties:
+      "^[_a-zA-Z][_a-zA-Z0-9]*$": {}
