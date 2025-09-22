@@ -16,6 +16,9 @@ dependencies = [
 ]
 
 [tool.poetry]
+packages = [
+    { include = "gen3schemadev", from = "src" }
+]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"

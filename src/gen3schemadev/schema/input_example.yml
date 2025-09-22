@@ -1,5 +1,5 @@
 version: 0.1.0
-url: https:://link-to-data-portal
+url: https://link-to-data-portal
 
 entities:
 - name: project
