@@ -1,0 +1,133 @@
+# A unique identifier for the schema.
+$id: https://example.com/data-model-config.schema.json
+# The version of the JSON Schema standard this schema adheres to.
+$schema: https://json-schema.org/draft/2020-12/schema
+
+title: Data Model Configuration
+description: Schema to validate the data model configuration file.
+type: object
+# Disallow any top-level properties other than the ones defined below.
+additionalProperties: false
+
+properties:
+  version:
+    description: The semantic version of the configuration file.
+    type: string
+    pattern: '^\d+\.\d+\.\d+$' # Enforces a pattern like 1.2.3
+  url:
+    description: The URL to the data portal.
+    type: string
+    format: uri
+  entities:
+    description: A list of data entities (nodes) in the model.
+    type: array
+    items:
+      $ref: "#/$defs/entity"
+  links:
+    description: A list of relationships between entities.
+    type: array
+    items:
+      $ref: "#/$defs/link"
+
+required:
+  - version
+  - url
+  - entities
+  - links
+
+# Reusable definitions to keep the schema DRY (Don't Repeat Yourself).
+$defs:
+  entity:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        description: The unique name of the entity.
+        type: string
+      description:
+        description: A human-readable description of the entity.
+        type: string
+      category:
+        description: The category the entity belongs to.
+        type: string
+      properties:
+        description: A list of properties for the entity.
+        type: array
+        items:
+          $ref: "#/$defs/property"
+    required:
+      - name
+      - description
+      - category
+
+  property:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        description: The name of the property.
+        type: string
+      type:
+        description: The data type of the property.
+        type: string
+        enum:
+          - string
+          - integer
+          - number
+          - boolean
+          - datetime
+          - enum
+      description:
+        description: A human-readable description of the property.
+        type: string
+      required:
+        description: Whether this property is required for the entity.
+        type: boolean
+        default: false
+      enums:
+        description: A list of possible values if the type is 'enum'.
+        type: array
+        items:
+          $ref: "#/$defs/enumValue"
+    required:
+      - name
+      - type
+      - description
+    # Conditionally require 'enums' only when 'type' is 'enum'.
+    if:
+      properties:
+        type: { const: "enum" }
+    then:
+      required: [ "enums" ]
+
+  enumValue:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+    required:
+      - name
+
+  link:
+    type: object
+    additionalProperties: false
+    properties:
+      parent:
+        description: The parent entity in the relationship.
+        type: string
+      multiplicity:
+        description: The cardinality of the relationship.
+        type: string
+        enum:
+          - one_to_many
+          - many_to_one
+          - one_to_one
+          - many_to_many
+      child:
+        description: The child entity in the relationship.
+        type: string
+    required:
+      - parent
+      - multiplicity
+      - child
