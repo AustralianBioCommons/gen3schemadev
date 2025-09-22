@@ -9,18 +9,24 @@ allOf:
 
 #GDC extensions
 required:
+  - id #unique identifier for entity
+  - title #name of the entity
+  - type #type of entity/ should be object by default
   - category #potentially used in submission system, if not may not be needed
   - program
   - project
+  - description #description of entity
+  - submittable #boolean, can data be submitted to this entity
+  - validators #specify to the validator additional functions to run on the values
+  - systemProperties #non-user facing properties required by backend
   - uniqueKeys #for validator to check uniqueness
   - links #to specify to the validator what properties are links and their targets
-  - validators #specify to the validator additional functions to run on the values
-  - systemProperties #non-user facing values required by backend
-  - submittable
-  - downloadable
-  - previous_version_downloadable
-  #Require core JSON schema fields here if desired, requiring id
-  - id
+  - required #list of required properties
+  - properties #properties of the entity
+
+
+
+
 
 definitions:
 
