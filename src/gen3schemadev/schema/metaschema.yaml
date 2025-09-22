@@ -27,7 +27,7 @@ field:
   type: string
   pattern: "^[_a-zA-Z0-9]*$" #only letters, numbers, and underscores
 
-definitions:
+$defs:
 
   link:
     type: object
@@ -73,7 +73,7 @@ definitions:
       subgroup:
         type: array
         items:
-          $ref: "#/definitions/link"
+          $ref: "#/$defs/link"
 
   validator_def:
     title: "Define a validator to be used on a property"
@@ -156,7 +156,7 @@ properties:
       - array
       - "null"
     items:
-      $ref: "#/definitions/validator_def"
+      $ref: "#/$defs/validator_def"
   systemProperties:
     description: "Properties that will be automatically filled by the system unless otherwise defined by the user."
     type: array
@@ -175,8 +175,8 @@ properties:
     type: array
     items:
       oneOf:
-        - $ref: "#/definitions/link"
-        - $ref: "#/definitions/link_subgroup"
+        - $ref: "#/$defs/link"
+        - $ref: "#/$defs/link_subgroup"
   required:
     description: "List of required properties for the entity."
     type: array
@@ -186,4 +186,4 @@ properties:
     type: object
     description: "Properties of the entity."
     additionalProperties:
-      $ref: "#/definitions/propertyDef"
+      $ref: "#/$defs/propertyDef"
