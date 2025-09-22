@@ -1,7 +1,7 @@
 # Original Metaschema pulled from: https://github.com/NCI-GDC/gdcdictionary/blob/9be3f2e467891c5e4b9c6f6d0125dc4a2a721a79/src/gdcdictionary/schemas/metaschema.yaml
 $schema: "http://json-schema.org/draft-04/schema#"
 
-id: "metaschema"
+id: "gen3_metaschema"
 title: "Gen3 JSON schema extension"
 
 allOf:
@@ -27,6 +27,100 @@ field:
   type: string
   pattern: "^[_a-zA-Z0-9]*$" #only letters, numbers, and underscores
 
+
+# Properties:
+properties:
+
+  id:
+    type: string
+    description: "Unique identifier for the entity."
+
+  title:
+    type: string
+    description: "Name of the entity."
+
+  type:
+    type: string
+    description: "Type of entity, should be 'object' by default."
+
+  category:
+    description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object store."
+    type: string
+    enum:
+      - administrative
+      - analysis
+      - biospecimen
+      - clinical
+      - data
+      - data_bundle
+      - data_file
+      - index_file
+      - metadata_file
+      - notation
+      - qc_bundle
+      - TBD
+
+  program:
+    type: string
+    description: "Denotes the programs within the commons for which this schema may be used."
+
+  project:
+    type: string
+    description: "Denotes the projects within the commons for which this schema may be used."
+
+  description:
+    type: string
+    description: "Description of the entity."
+    
+  submittable:
+    description: "True/False keyword used to indicate whether this node should be allowed to be user-submitted through normal submission processes."
+    type: boolean
+
+  validators:
+    description: "Feature under development to allow cross validation among properties. Not intended to be used in its current form."
+    type:
+      - array
+      - "null"
+    items:
+      $ref: "#/$defs/validator_def"
+
+  systemProperties:
+    description: "Properties that will be automatically filled by the system unless otherwise defined by the user."
+    type: array
+    items:
+      type: string
+
+  uniqueKeys:
+    description: "Properties or list of properties that can be used to identify this node, and only this node, within the commons."
+    type: array
+    items:
+      type: array
+      items:
+        type: string
+
+  links:
+    title: "Define a link to other entities"
+    description: "Array used to connect two entities within the commons."
+    type: array
+    items:
+      oneOf:
+        - $ref: "#/$defs/link"
+        - $ref: "#/$defs/link_subgroup"
+
+  required:
+    description: "List of required properties for the entity."
+    type: array
+    items:
+      type: string
+
+  properties:
+    type: object
+    description: "Properties of the entity."
+    additionalProperties:
+      $ref: "#/$defs/propertyDef"
+
+
+# Definitions:
 $defs:
 
   link:
@@ -39,6 +133,7 @@ $defs:
       - target_type
       - multiplicity
       - required
+
     properties:
       name:
         $ref: "#/field"
@@ -108,82 +203,12 @@ $defs:
           type: string
       type:
         type: string
-        enum: [string, number, integer, boolean, array, object]
+        enum:
+          - string
+          - number
+          - integer
+          - boolean
+          - array
+          - object
       # Add more allowed fields as needed
     additionalProperties: true  # Allow other fields (like format, minimum, etc.)
-
-properties:
-  id:
-    type: string
-    description: "Unique identifier for the entity."
-  title:
-    type: string
-    description: "Name of the entity."
-  type:
-    type: string
-    description: "Type of entity, should be 'object' by default."
-  category:
-    description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object store."
-    type: string
-    enum:
-      - administrative
-      - analysis
-      - biospecimen
-      - clinical
-      - data
-      - data_bundle
-      - data_file
-      - index_file
-      - metadata_file
-      - notation
-      - qc_bundle
-      - TBD
-  program:
-    type: string
-    description: "Denotes the programs within the commons for which this schema may be used."
-  project:
-    type: string
-    description: "Denotes the projects within the commons for which this schema may be used."
-  description:
-    type: string
-    description: "Description of the entity."
-  submittable:
-    description: "True/False keyword used to indicate whether this node should be allowed to be user-submitted through normal submission processes."
-    type: boolean
-  validators:
-    description: "Feature under development to allow cross validation among properties. Not intended to be used in its current form."
-    type:
-      - array
-      - "null"
-    items:
-      $ref: "#/$defs/validator_def"
-  systemProperties:
-    description: "Properties that will be automatically filled by the system unless otherwise defined by the user."
-    type: array
-    items:
-      type: string
-  uniqueKeys:
-    description: "Properties or list of properties that can be used to identify this node, and only this node, within the commons."
-    type: array
-    items:
-      type: array
-      items:
-        type: string
-  links:
-    title: "Define a link to other entities"
-    description: "Array used to connect two entities within the commons."
-    type: array
-    items:
-      oneOf:
-        - $ref: "#/$defs/link"
-        - $ref: "#/$defs/link_subgroup"
-  required:
-    description: "List of required properties for the entity."
-    type: array
-    items:
-      type: string
-  properties:
-    type: object
-    description: "Properties of the entity."
-    additionalProperties:
-      $ref: "#/$defs/propertyDef"
