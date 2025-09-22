@@ -23,9 +23,9 @@ required:
   - required #list of required properties
   - properties #properties of the entity
 
-
-
-
+field:
+  type: string
+  pattern: "^[_a-zA-Z0-9]*$" #only letters, numbers, and underscores
 
 definitions:
 
@@ -41,13 +41,13 @@ definitions:
       - required
     properties:
       name:
-        type: string
-      backref:
-        type: string
-      label:
-        type: string
+        $ref: "#/field"
       target_type:
-        type: string
+        $ref: "#/field"
+      backref:
+        $ref: "#/field"
+      label:
+        $ref: "#/field"
       multiplicity:
         type: string
         enum:
@@ -60,6 +60,7 @@ definitions:
 
   link_subgroup:
     type: object
+    additionalProperties: false
     required:
       - exclusive
       - required
@@ -77,10 +78,10 @@ definitions:
   validator_def:
     title: "Define a validator to be used on a property"
     type: object
+    additionalProperties: false
     required:
       - property #the property to be applied to
       - function #the function name, predefined somewhere, to use
-
     properties:
       property:
         type: string
@@ -95,6 +96,21 @@ definitions:
           - one_to_many
           - many_to_one
           - many_to_many
+
+  propertyDef:
+    type: object
+    properties:
+      description:
+        type: string
+      enum:
+        type: array
+        items:
+          type: string
+      type:
+        type: string
+        enum: [string, number, integer, boolean, array, object]
+      # Add more allowed fields as needed
+    additionalProperties: true  # Allow other fields (like format, minimum, etc.)
 
 properties:
   id:
@@ -169,6 +185,5 @@ properties:
   properties:
     type: object
     description: "Properties of the entity."
-    additionalProperties: false
-    patternProperties:
-      "^[_a-zA-Z][_a-zA-Z0-9]*$": {}
+    additionalProperties:
+      $ref: "#/definitions/propertyDef"
