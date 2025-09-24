@@ -42,6 +42,10 @@ properties:
   type:
     type: string
     description: "Type of entity, should be 'object' by default."
+  
+  namespace:
+    type: string
+    description: "Namespace of the entity."
 
   category:
     description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object store."
