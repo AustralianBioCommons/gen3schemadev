@@ -63,6 +63,10 @@ links:
   multiplicity: many_to_one
   child: assay
 
+- parent: sample
+  multiplicity: one_to_many
+  child: lipidomics_file
+
 - parent: assay
   multiplicity: one_to_many
   child: lipidomics_file
