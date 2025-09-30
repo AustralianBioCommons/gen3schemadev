@@ -3,4 +3,13 @@ import json
 import os
 import yaml
 from jsonschema import validate
+import logging
+
+# Set up basic logging configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
+
 
