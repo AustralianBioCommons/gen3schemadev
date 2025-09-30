@@ -38,7 +38,7 @@ def write_yaml(data, file_path):
     """
     try:
         with open(file_path, 'w') as f:
-            yaml.safe_dump(data, f)
+            yaml.safe_dump(data, f, sort_keys=False)
             logger.info(f"Successfully wrote YAML file: {file_path}")
     except Exception as e:
         logger.error(f"Failed to write YAML file {file_path}: {e}")
