@@ -31,6 +31,10 @@ field:
 # Properties:
 properties:
 
+  version:
+    type: string
+    description: "Version of the entity."
+
   id:
     type: string
     description: "Unique identifier for the entity."
@@ -115,6 +119,15 @@ properties:
     default:
       - [id]
       - [project_id, submitter_id]
+  
+  required:
+    description: "List of required properties for the entity."
+    type: array
+    items:
+      type: string
+    default:
+      - submitter_id
+      - type
 
   links:
     title: "Define a link to other entities"
@@ -125,24 +138,12 @@ properties:
         - $ref: "#/$defs/link"
         - $ref: "#/$defs/link_subgroup"
 
-  required:
-    description: "List of required properties for the entity."
-    type: array
-    items:
-      type: string
-    default:
-      - submitter_id
-      - type
-
   properties:
     type: object
     description: "Properties of the entity."
     additionalProperties:
       $ref: "#/$defs/propertyDef"
   
-  version:
-    type: string
-    description: "Version of the entity."
 
 
 # Definitions:
