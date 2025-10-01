@@ -74,5 +74,5 @@ class DataModel(BaseModel):
     entities: List[Entity] = Field(description="A list of data entities (nodes) in the model.")
     links: List[Link] = Field(description="A list of relationships between entities.")
 
-    class Config:
+    class ConfigDict:
         extra = 'forbid'
