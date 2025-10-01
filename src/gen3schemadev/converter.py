@@ -1,5 +1,18 @@
+"""
+Gen3 Schema Generation Module
+
+This module provides utilities for converting entity and link data into Gen3 schema format.
+It handles entity properties, links, and special cases like file entities that require
+core metadata collections.
+
+Expected Data Structure:
+    The input data should be a Pydantic model with:
+    - entities: List of entity objects with attributes: name, description, category, properties, links
+    - links: List of link objects with attributes: child, parent, multiplicity
+"""
+
 from dataclasses import dataclass, asdict
-from typing import Optional, List, Union, Any
+from typing import Protocol, runtime_checkable
 import logging
 
 # Set up basic logging configuration
@@ -10,53 +23,114 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class Entity:
+# Protocol definitions for type safety
+@runtime_checkable
+class EntityProtocol(Protocol):
+    """Protocol defining the structure of an entity object."""
     name: str
     description: str
     category: str
     properties: list
     links: list
 
-    def to_dict(self):
+    def model_dump(self) -> dict:
+        """Convert entity to dictionary."""
+        ...
+
+
+@runtime_checkable
+class LinkProtocol(Protocol):
+    """Protocol defining the structure of a link object."""
+    child: str
+    parent: str
+    multiplicity: str
+
+    def model_dump(self) -> dict:
+        """Convert link to dictionary."""
+        ...
+
+
+@runtime_checkable
+class DataSourceProtocol(Protocol):
+    """Protocol defining the expected structure of input data."""
+    entities: list[EntityProtocol]
+    links: list[LinkProtocol]
+
+
+# Data classes
+@dataclass
+class Entity:
+    """Represents a Gen3 entity with its metadata and relationships."""
+    name: str
+    description: str
+    category: str
+    properties: list
+    links: list
+
+    def to_dict(self) -> dict:
+        """Convert entity to dictionary representation."""
         return asdict(self)
+
 
 @dataclass
 class LinkObj:
+    """Represents a link between two entities in Gen3 schema."""
     name: str
     backref: str
-    label: Optional[str]
+    label: str | None
     target_type: str
     multiplicity: str
     required: bool
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Convert link to dictionary representation."""
         return asdict(self)
+
 
 @dataclass
 class LinkGroup:
+    """Represents a group of links with specific constraints."""
     exclusive: bool
     required: bool
-    subgroup: List[dict]
+    subgroup: list[dict]
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """Convert link group to dictionary representation."""
         return asdict(self)
 
-def get_entity_data(entity: str, data: Any) -> Entity:
+
+# Utility functions
+def link_suffix(word: str, suffix='s') -> str:
+    """
+    Adds link suffix to a singular word.
+
+    Args:
+        word: The singular word to suffix
+
+    Returns:
+        The work with the suffix
+    """
+    return word + suffix
+
+
+def get_entity_data(entity: str, data: DataSourceProtocol) -> EntityProtocol:
     """
     Retrieve the Entity object for a given entity name from the data structure.
 
     Args:
-        entity (str): The name of the entity to retrieve.
-        data (Any): The data structure containing entities (should have a .entities attribute).
+        entity: The name of the entity to retrieve.
+        data: The data structure containing entities.
 
     Returns:
-        Entity: The Entity object matching the given name.
+        The Entity object matching the given name.
 
     Raises:
         ValueError: If the entity is not found in data.entities.
         AttributeError: If the data structure is invalid.
-        Exception: For any other unexpected errors.
     """
+    if not hasattr(data, 'entities'):
+        raise AttributeError("Data structure missing 'entities' attribute")
+
     try:
         for ent in data.entities:
             if ent.name == entity:
@@ -64,20 +138,25 @@ def get_entity_data(entity: str, data: Any) -> Entity:
         raise ValueError(f"Entity '{entity}' not found in data.entities")
     except AttributeError as e:
         raise AttributeError(f"Invalid data structure: {e}")
-    except Exception as e:
-        raise Exception(f"An error occurred while retrieving entity data: {e}")
 
-def get_entity_links(entity: str, data: Any) -> list[dict]:
+
+def get_entity_links(entity: str, data: DataSourceProtocol) -> list[dict]:
     """
     Retrieve all links where the given entity is the child.
 
     Args:
-        entity (str): The name of the entity (child) to find links for.
-        data (Any): The data structure containing links (should have a .links attribute).
+        entity: The name of the entity (child) to find links for.
+        data: The data structure containing links.
 
     Returns:
-        list[dict]: A list of link dictionaries where the entity is the child.
+        A list of link dictionaries where the entity is the child.
+
+    Raises:
+        AttributeError: If the data structure is invalid.
     """
+    if not hasattr(data, 'links'):
+        raise AttributeError("Data structure missing 'links' attribute")
+
     links = data.links
     entity_links = []
     for link in links:
@@ -85,99 +164,128 @@ def get_entity_links(entity: str, data: Any) -> list[dict]:
             entity_links.append(link.model_dump())
     return entity_links
 
+
 def create_core_metadata_link(child_name: str) -> dict:
     """
-    Create a special link dictionary for core metadata collections.
+    Create a link dictionary for core metadata collections.
 
     This is used for file entities that must be linked to a core_metadata_collection.
 
     Args:
-        child_name (str): The name of the child entity.
+        child_name: The name of the child entity.
 
     Returns:
-        dict: A dictionary representing the core metadata link.
+        A dictionary representing the core metadata link.
     """
     link_obj = LinkObj(
-        name=f"core_metadata_collections",
-        backref=f"{child_name}s",
+        name=link_suffix("core_metadata_collection"),
+        backref=link_suffix(child_name),
         label=None,
         target_type="core_metadata_collection",
         multiplicity="one_to_one",
-        required=True 
+        required=True
     )
     return link_obj.to_dict()
 
-def convert_entity_links(links: dict, entity_file: bool = False) -> dict:
+
+def convert_entity_links(links: list[dict], required: bool = True) -> list[dict]:
     """
     Convert a list of link dictionaries into the Gen3 schema 'links' format.
 
-    If the entity is a file (entity_file=True), a core metadata link is also added.
-
     Args:
-        links (dict): A list of link dictionaries for the entity.
-        entity_file (bool): Whether the entity is a file (adds core metadata link if True).
+        links: A list of link dictionaries for the entity.
+        required: Whether the links are required (default: True).
 
     Returns:
-        dict: The formatted 'links' section for the Gen3 schema.
+        A list of formatted link dictionaries for the Gen3 schema.
     """
     link_list = []
     for link in links:
         link_obj = LinkObj(
-            name=f"{link['parent']}s",
-            backref=f"{link['child']}s",
+            name=link_suffix(link['parent']),
+            backref=link_suffix(link['child']),
             label=None,
             target_type=link['parent'],
             multiplicity=link['multiplicity'],
-            required=True  # TODO: Remove hardcoding, should pull from input yaml
+            required=required
         )
         link_list.append(link_obj.to_dict())
 
-    if entity_file:
-        core_link = create_core_metadata_link(links[0]['child'])
-        link_list.append(core_link)
+    return link_list
 
-    if len(link_list) > 1:
-        group = LinkGroup(
-            exclusive=False,
-            required=True,
-            subgroup=link_list
-        )
-        output = group.to_dict()
-    else:
-        output = link_list
-    return output
+
+def add_core_metadata_link(links: list[dict], child_name: str) -> list[dict]:
+    """
+    Add a core metadata link to an existing list of links for file entities.
+
+    Args:
+        links: Existing list of link dictionaries.
+        child_name: The name of the child entity.
+
+    Returns:
+        Updated list of link dictionaries including core metadata link.
+    """
+    core_link = create_core_metadata_link(child_name)
+    return links + [core_link]
+
+
+def create_link_group(links: list[dict], exclusive: bool = False, required: bool = True) -> dict:
+    """
+    Create a link group structure from a list of links.
+
+    Args:
+        links: List of link dictionaries to group.
+        exclusive: Whether the links are mutually exclusive.
+        required: Whether at least one link is required.
+
+    Returns:
+        A dictionary representing the link group.
+    """
+    group = LinkGroup(
+        exclusive=exclusive,
+        required=required,
+        subgroup=links
+    )
+    return group.to_dict()
+
 
 def create_link_prop(target_entity: str, multiplicity: str) -> dict:
     """
     Create a property dictionary for a link to another entity.
 
     Args:
-        target_entity (str): The name of the target entity.
-        multiplicity (str): The multiplicity of the link (e.g., 'one_to_one', 'one_to_many').
+        target_entity: The name of the target entity.
+        multiplicity: The multiplicity of the link (e.g., 'one_to_one', 'one_to_many').
 
     Returns:
-        dict: A dictionary representing the link property for the schema.
+        A dictionary representing the link property for the schema.
     """
-    link_prop = {}
-    link_prop[f"{target_entity}s"] = {
-        "$ref": f"_definitions.yaml#/{multiplicity}"
+    link_prop = {
+        link_suffix(target_entity): {
+            "$ref": f"_definitions.yaml#/{multiplicity}"
+        }
     }
     return link_prop
 
-def get_properties(entity_name: str, data: Any) -> list[dict]:
+
+def get_properties(entity_name: str, data: DataSourceProtocol) -> list[dict]:
     """
     Retrieve the list of property dictionaries for a given entity.
 
     Args:
-        entity_name (str): The name of the entity.
-        data (Any): The data structure containing entities.
+        entity_name: The name of the entity.
+        data: The data structure containing entities.
 
     Returns:
-        list[dict] or None: A list of property dictionaries, or None if no properties found.
+        A list of property dictionaries, or an empty list if no properties found.
+
+    Raises:
+        ValueError: If the entity is not found.
     """
-    output = []
     ent = get_entity_data(entity_name, data)
     props = ent.properties
+    
+    output = []
     if props:
         for prop in props:
             pdict = {
@@ -185,103 +293,138 @@ def get_properties(entity_name: str, data: Any) -> list[dict]:
             }
             output.append(pdict)
     else:
-        logger.warn(f'No properties found for entity {entity_name}')
-        output = None
+        logger.debug(f"No properties found for entity '{entity_name}'")
+    
     return output
 
-def construct_props(entity_name: str, data: Any) -> dict:
+
+def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     """
     Construct the 'properties' section for a Gen3 schema entity.
 
     This combines the entity's own properties and any link properties.
 
     Args:
-        entity_name (str): The name of the entity.
-        data (Any): The data structure containing entities and links.
+        entity_name: The name of the entity.
+        data: The data structure containing entities and links.
 
     Returns:
-        dict: A dictionary of all properties (including links) for the entity.
+        A dictionary of all properties (including links) for the entity.
+
+    Raises:
+        ValueError: If the entity is not found.
     """
     links = get_entity_links(entity_name, data)
     props = get_properties(entity_name, data)
-    if props is None:
-        props = []
+    
     # Flatten property dicts into a single dict
     props_dict = {}
     for prop in props:
         if isinstance(prop, dict):
             props_dict.update(prop)
+    
     # Add link properties
     for link in links:
         link_prop = create_link_prop(link['parent'], link['multiplicity'])
         props_dict.update(link_prop)
+    
     return props_dict
 
-def get_category(entity_name: str, data: Any) -> str:
+
+def get_category(entity_name: str, data: DataSourceProtocol) -> str:
     """
     Get the category value for a given entity.
 
     Args:
-        entity_name (str): The name of the entity.
-        data (Any): The data structure containing entities.
+        entity_name: The name of the entity.
+        data: The data structure containing entities.
 
     Returns:
-        str: The category value (as a string).
+        The category value (as a string).
+
+    Raises:
+        ValueError: If the entity is not found.
     """
     ent = get_entity_data(entity_name, data)
     category = ent.category
+    
     # If it's an Enum, get its value; otherwise, return as is
     if hasattr(category, "value"):
         return category.value
     return category
 
-def get_entity_value(entity_name: str, key: str, data: Any):
+
+def get_entity_value(entity_name: str, key: str, data: DataSourceProtocol) -> str | list | dict | None:
     """
-    Returns the value of a single key within an entity object.
+    Return the value of a single key within an entity object.
 
     Args:
-        entity_name (str): The name of the entity to retrieve.
-        key (str): The key whose value is to be returned.
-        data (Any): The data structure containing entities.
+        entity_name: The name of the entity to retrieve.
+        key: The key whose value is to be returned.
+        data: The data structure containing entities.
 
     Returns:
         The value associated with the specified key in the entity object.
+
+    Raises:
+        ValueError: If the entity is not found.
+        KeyError: If the key doesn't exist in the entity.
     """
     ent = get_entity_data(entity_name, data)
-    return ent.model_dump()[key]
+    entity_dict = ent.model_dump()
+    
+    if key not in entity_dict:
+        raise KeyError(f"Key '{key}' not found in entity '{entity_name}'")
+    
+    return entity_dict[key]
 
-def populate_template(entity_name: str, input_data, template) -> dict:
+
+def is_file_entity(entity_name: str, data: DataSourceProtocol) -> bool:
+    """
+    Determine if an entity is a file entity (category: data_file).
+
+    Args:
+        entity_name: The name of the entity.
+        data: The data structure containing entities.
+
+    Returns:
+        True if the entity is a file entity, False otherwise.
+    """
+    try:
+        category_value = get_entity_value(entity_name, 'category', data)
+        return category_value == 'data_file'
+    except (ValueError, KeyError):
+        return False
+
+
+def populate_template(entity_name: str, input_data: DataSourceProtocol, template: dict) -> dict:
     """
     Populate a Gen3 schema template dictionary with values from a Pydantic data model.
 
     This function takes an entity name, a Pydantic model instance containing entity data,
     and a Gen3 schema template dictionary. It fills a copy of the template with values
     from the input data, applying special logic for certain keys (e.g., 'name', 'category',
-    'properties', 'links'). If a key from the input data is not found in the template,
-    it is added with a value of None and a warning is logged.
+    'properties', 'links').
 
     Args:
-        entity_name (str): The name of the entity to populate in the template.
+        entity_name: The name of the entity to populate in the template.
         input_data: A Pydantic model instance containing the entity's data.
-        template (dict): A Gen3 schema template dictionary to be populated.
+        template: A Gen3 schema template dictionary to be populated.
 
     Returns:
-        dict: A new Gen3 schema template dictionary populated with values from the input data.
+        A new Gen3 schema template dictionary populated with values from the input data.
 
-    Side Effects:
-        Logs a warning if a key from the input data is not found in the template.
+    Raises:
+        ValueError: If the entity is not found in input_data.
     """
-
     ent = get_entity_data(entity_name, input_data)
     ent_dict = ent.model_dump()
     output_schema = template.copy()
     
-    # Checking if entity is file category
-    file_cat = False
-    category_value = get_entity_value(entity_name, 'category', input_data)
-    if category_value == 'data_file':
-        file_cat = True
+    # Check if entity is a file category
+    file_entity = is_file_entity(entity_name, input_data)
     
+    # Populate template with entity data
     for key, value in ent_dict.items():
         if key == 'name':
             output_schema['id'] = value
@@ -292,10 +435,20 @@ def populate_template(entity_name: str, input_data, template) -> dict:
         elif key in output_schema:
             output_schema[key] = value
         else:
-            logger.warning(f"Key '{key}' not found in template")
+            logger.debug(f"Key '{key}' from entity '{entity_name}' not found in template")
     
-    # adding links
+    # Process and add links
     links = get_entity_links(entity_name, input_data)
-    output_schema['links'] = convert_entity_links(links, entity_file=file_cat)
+    converted_links = convert_entity_links(links)
+    
+    # Add core metadata link for file entities
+    if file_entity and links:
+        converted_links = add_core_metadata_link(converted_links, links[0]['child'])
+    
+    # Create link group if multiple links exist
+    if len(converted_links) > 1:
+        output_schema['links'] = create_link_group(converted_links)
+    else:
+        output_schema['links'] = converted_links
     
     return output_schema
