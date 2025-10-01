@@ -1,0 +1,1 @@
+# validates gen3 yamls against the metaschema

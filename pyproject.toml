@@ -7,14 +7,18 @@ authors = [
 ]
 license = {text = "Apache 2.0"}
 readme = "README.md"
-requires-python = ">=3.9.5,<4.0"
+requires-python = ">=3.12.10,<4.0"
 dependencies = [
     "gen3-validator (>=1.1.1,<2.0.0)",
     "linkml (>=1.9.4,<2.0.0)",
-    "check-jsonschema (>=0.34.0,<0.35.0)"
+    "check-jsonschema (>=0.34.0,<0.35.0)",
+    "pydantic (>=2.11.9,<3.0.0)"
 ]
 
 [tool.poetry]
+packages = [
+    { include = "gen3schemadev", from = "src" }
+]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"

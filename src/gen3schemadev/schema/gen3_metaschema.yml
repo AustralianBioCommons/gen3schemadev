@@ -31,6 +31,10 @@ field:
 # Properties:
 properties:
 
+  version:
+    type: string
+    description: "Version of the entity."
+
   id:
     type: string
     description: "Unique identifier for the entity."
@@ -42,6 +46,11 @@ properties:
   type:
     type: string
     description: "Type of entity, should be 'object' by default."
+    default: object
+  
+  namespace:
+    type: string
+    description: "Namespace of the entity."
 
   category:
     description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object store."
@@ -63,10 +72,12 @@ properties:
   program:
     type: string
     description: "Denotes the programs within the commons for which this schema may be used."
+    default: '*'
 
   project:
     type: string
     description: "Denotes the projects within the commons for which this schema may be used."
+    default: '*'
 
   description:
     type: string
@@ -75,6 +86,7 @@ properties:
   submittable:
     description: "True/False keyword used to indicate whether this node should be allowed to be user-submitted through normal submission processes."
     type: boolean
+    default: true
 
   validators:
     description: "Feature under development to allow cross validation among properties. Not intended to be used in its current form."
@@ -83,12 +95,19 @@ properties:
       - "null"
     items:
       $ref: "#/$defs/validator_def"
+    default: null
 
   systemProperties:
     description: "Properties that will be automatically filled by the system unless otherwise defined by the user."
     type: array
     items:
       type: string
+    default:
+      - id
+      - project_id
+      - state
+      - created_datetime
+      - updated_datetime
 
   uniqueKeys:
     description: "Properties or list of properties that can be used to identify this node, and only this node, within the commons."
@@ -97,6 +116,18 @@ properties:
       type: array
       items:
         type: string
+    default:
+      - [id]
+      - [project_id, submitter_id]
+  
+  required:
+    description: "List of required properties for the entity."
+    type: array
+    items:
+      type: string
+    default:
+      - submitter_id
+      - type
 
   links:
     title: "Define a link to other entities"
@@ -107,17 +138,12 @@ properties:
         - $ref: "#/$defs/link"
         - $ref: "#/$defs/link_subgroup"
 
-  required:
-    description: "List of required properties for the entity."
-    type: array
-    items:
-      type: string
-
   properties:
     type: object
     description: "Properties of the entity."
     additionalProperties:
       $ref: "#/$defs/propertyDef"
+  
 
 
 # Definitions:

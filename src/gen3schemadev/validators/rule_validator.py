@@ -1,0 +1,1 @@
+# validates gen3 bundled jsonschema (.json) buy testing gen3 specific business rules

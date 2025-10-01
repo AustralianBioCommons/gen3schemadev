@@ -30,5 +30,8 @@ In addition, all data files need to be linked to the `core_metadata_collection`.
 
 ![](../../examples/schema/image.png)
 
+## Official Documentation
+- Official documentation for the Gen3 Data Dictionary can be found [here](https://docs.gen3.org/gen3-resources/operator-guide/create-data-dictionary/).
+
 ## What's next?
 Now lets take a look at a [Gen3 Schema](schemas.md).

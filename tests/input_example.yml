@@ -1,5 +1,5 @@
 version: 0.1.0
-url: https:://link-to-data-portal
+url: https://link-to-data-portal
 
 entities:
 - name: project
@@ -62,6 +62,10 @@ links:
 - parent: sample
   multiplicity: many_to_one
   child: assay
+
+- parent: sample
+  multiplicity: one_to_many
+  child: lipidomics_file
 
 - parent: assay
   multiplicity: one_to_many

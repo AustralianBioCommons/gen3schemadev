@@ -1,0 +1,74 @@
+version: v0.1.0
+url: link-to-data-portal
+
+entities:
+- name: project
+  description: Gen3 Compulsary Node
+  category: random_file
+  properties:
+    - name: project_id
+      type: string
+      description: Synthetic_Dataset_1
+      required: true
+    - name: description
+      type: string
+      description: Project containing synthetic data
+
+- name: sample
+  description: Info about sample
+  category: clinical
+  proprties:
+    - name: sample_id
+      type: strings
+      description: Sample ID (string)
+      required: true
+    - name: sample_count
+      type: integer
+      description: Number of aliquots (integer)
+    - name: sample_volume
+      type: number
+      description: Volume in microliters (number/float)
+    - name: is_viable
+      type: boolean
+      description: Is the sample viable? (boolean)
+    - name: collection_date
+      type: datetime
+      description: Date and time of collection (datetime)
+    - name: sample_tube_type
+      type: enum
+      description: Sample tube type (enum)
+      enum:
+        - name: EDTA
+        - name: Heparin
+        - name: Citrate
+    - name: notes
+      type: string
+      description: Free text notes (string)
+    - name: sample_type
+      type: enum
+      description: Sample type (enum)
+
+- name: assay
+  description: Info about assay
+  category: data_file
+
+- name: lipidomics_file
+  description: Info about lipidomics file
+  category: data_file
+
+- name: genomics_file
+  description: Info about genomics file
+  category: data_file
+
+links:
+- parent: project
+  multiplicity: one_to_heaps
+  child: sample
+
+- parent: sample
+  multiplicity: many_to_one
+  child: assay
+
+- parent: assay
+  multiplicity: one_to_many
+  child: lipidomics_file
