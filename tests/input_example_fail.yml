@@ -56,6 +56,9 @@ entities:
   description: Info about lipidomics file
   category: data_file
 
+- name: genomics_file
+  description: Info about genomics file
+  category: data_file
 
 links:
 - parent: project
