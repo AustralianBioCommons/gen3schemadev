@@ -15,6 +15,13 @@ def fixture_input_yaml_pass():
     return DataModel.model_validate(data)
 
 
+def test_get_entity_names(fixture_input_yaml_pass):
+    entity_names = get_entity_names(fixture_input_yaml_pass)
+    assert 'lipidomics_file' in entity_names
+    assert 'sample' in entity_names
+    assert 'project' in entity_names
+    assert 'assay' in entity_names
+
 def test_get_entity_data(fixture_input_yaml_pass):
     entity = get_entity_data('lipidomics_file', fixture_input_yaml_pass)
     assert entity.name == 'lipidomics_file'
