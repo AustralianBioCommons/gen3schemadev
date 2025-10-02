@@ -6,7 +6,8 @@ from gen3schemadev.converter import *
 
 @pytest.fixture
 def fixture_converter_template():
-    return generate_gen3_template("src/gen3schemadev/schema/schema_templates/gen3_metaschema.yml")
+    metaschema = get_metaschema()
+    return generate_gen3_template(metaschema)
 
 @pytest.fixture
 def fixture_input_yaml_pass():

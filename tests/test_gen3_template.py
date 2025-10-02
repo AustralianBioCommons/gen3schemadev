@@ -5,13 +5,17 @@ import pytest
 from unittest.mock import patch
 from gen3schemadev.schema.gen3_template import generate_gen3_template
 from gen3schemadev.utils import load_yaml
-from gen3schemadev.schema.gen3_template import (
-    read_template_yaml,
-    generate_def_template,
-    generate_setting_template,
-    generate_terms_template,
-    generate_core_metadata_template,
-)
+from gen3schemadev.schema.gen3_template import *
+
+def test_read_template_yaml():
+    result = read_template_yaml('_settings.yaml')
+    assert isinstance(result, dict)
+    assert "enable_case_cache" in result
+
+def test_get_metaschema():
+    metaschema = get_metaschema()
+    assert isinstance(metaschema, dict)
+    assert "properties" in metaschema
 
 @pytest.fixture
 def fixture_minimum_metaschema():
@@ -41,9 +45,7 @@ def fixture_minimum_metaschema():
 
 def test_generate_gen3_template_output(fixture_minimum_metaschema):
     metaschema_dict = fixture_minimum_metaschema
-    dummy_path = "dummy_path.yml"
-    with patch("gen3schemadev.schema.gen3_template.load_yaml", return_value=metaschema_dict):
-        result = generate_gen3_template(dummy_path)
+    result = generate_gen3_template(metaschema_dict)
     expected = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'version': "1.0.0",
@@ -55,12 +57,7 @@ def test_generate_gen3_template_output(fixture_minimum_metaschema):
     assert result == expected
 
 
-@pytest.fixture
-def schema_templates_dir():
-    # Get the directory containing this test file, then go up to src/gen3schemadev/schema/schema_templates
-    here = os.path.dirname(os.path.abspath(__file__))
-    schema_dir = os.path.join(here, "..", "src", "gen3schemadev", "schema", "schema_templates")
-    return os.path.normpath(schema_dir)
+
 
 def test_read_template_yaml_reads_yaml_file(tmp_path):
     # Create a temporary YAML file
@@ -84,34 +81,25 @@ def test_read_template_yaml_reads_yaml_file(tmp_path):
     finally:
         gen3_template_mod.__file__ = orig_file
 
-def test_generate_def_template_reads_definitions_yaml(schema_templates_dir):
-    # The _definitions.yaml file should exist in the schema_templates_dir
-    expected_path = os.path.join(schema_templates_dir, "_definitions.yaml")
-    assert os.path.exists(expected_path)
+def test_generate_def_template_reads_definitions_yaml():
     result = generate_def_template()
     # The result should be a dict and contain some known keys
     assert isinstance(result, dict)
     assert "UUID" in result or "id" in result
 
-def test_generate_setting_template_reads_settings_yaml(schema_templates_dir):
-    expected_path = os.path.join(schema_templates_dir, "_settings.yaml")
-    assert os.path.exists(expected_path)
+def test_generate_setting_template_reads_settings_yaml():
     result = generate_setting_template()
     assert isinstance(result, dict)
     assert "enable_case_cache" in result
 
-def test_generate_terms_template_reads_terms_yaml(schema_templates_dir):
-    expected_path = os.path.join(schema_templates_dir, "_terms.yaml")
-    assert os.path.exists(expected_path)
+def test_generate_terms_template_reads_terms_yaml():
     result = generate_terms_template()
     assert isinstance(result, dict)
     assert "id" in result
     # Should contain at least one term definition
     assert any(isinstance(v, dict) and "description" in v for k, v in result.items() if k != "id")
 
-def test_generate_core_metadata_template_reads_core_metadata_yaml(schema_templates_dir):
-    expected_path = os.path.join(schema_templates_dir, "core_metadata_collection.yaml")
-    assert os.path.exists(expected_path)
+def test_generate_core_metadata_template_reads_core_metadata_yaml():
     result = generate_core_metadata_template()
     assert isinstance(result, dict)
     assert "id" in result
