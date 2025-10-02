@@ -5,6 +5,13 @@ import pytest
 from unittest.mock import patch
 from gen3schemadev.schema.gen3_template import generate_gen3_template
 from gen3schemadev.utils import load_yaml
+from gen3schemadev.schema.gen3_template import (
+    read_template_yaml,
+    generate_def_template,
+    generate_setting_template,
+    generate_terms_template,
+    generate_core_metadata_template,
+)
 
 @pytest.fixture
 def fixture_minimum_metaschema():
@@ -47,23 +54,6 @@ def test_generate_gen3_template_output(fixture_minimum_metaschema):
     # So update expected to only those keys
     assert result == expected
 
-
-
-
-
-
-    # INSERT_YOUR_CODE
-
-import pytest
-from gen3schemadev.schema.gen3_template import (
-    read_template_yaml,
-    generate_def_template,
-    generate_setting_template,
-    generate_terms_template,
-    generate_core_metadata_template,
-)
-import os
-import yaml
 
 @pytest.fixture
 def schema_templates_dir():
