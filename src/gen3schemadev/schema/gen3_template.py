@@ -1,6 +1,8 @@
 # Generates gen3 jsonschema template for a single entity using the gen3 metaschema
 from gen3schemadev.utils import *
-
+import os
+import yaml
+import importlib.resources
 
 def generate_gen3_template(metaschema: str) -> dict:
     """
@@ -31,3 +33,32 @@ def generate_gen3_template(metaschema: str) -> dict:
     except Exception as e:
         print(f"An error occurred while generating the Gen3 template: {e}")
         raise
+    
+
+def read_template_yaml(template_filename='template.yml'):
+    """
+    Reads a YAML template file from the schema_templates directory.
+
+    Args:
+        template_filename (str): The name of the YAML template file.
+
+    Returns:
+        dict: The loaded YAML data as a dictionary.
+    """
+    current_dir = os.path.dirname(__file__)
+    template_path = os.path.join(current_dir, 'schema_templates', template_filename)
+    with open(template_path, 'r') as file:
+        data = yaml.safe_load(file)
+    return data
+
+def generate_def_template():
+    return read_template_yaml('_definitions.yaml')
+
+def generate_setting_template():
+    return read_template_yaml('_settings.yaml')
+
+def generate_terms_template():
+    return read_template_yaml('_terms.yaml')
+
+def generate_core_metadata_template():
+    return read_template_yaml('core_metadata_collection.yaml')
