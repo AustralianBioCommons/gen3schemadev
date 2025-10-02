@@ -17,8 +17,8 @@ from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import *
 
 # Load the Gen3 metaschema template
-metaschema_path = "../src/gen3schemadev/schema/gen3_metaschema.yml"
-converter_template = generate_gen3_template(metaschema_path)
+metaschema = get_metaschema()
+converter_template = generate_gen3_template(metaschema)
 
 # Load and validate the input YAML data model
 data = load_yaml('../tests/input_example.yml')
