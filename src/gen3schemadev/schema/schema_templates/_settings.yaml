@@ -1,1 +1,7 @@
+# Pulled from https://github.com/uc-cdis/dcfdictionary/blob/222de7a88b63d430203164afab01c649c43fe7f9/gdcdictionary/schemas/_settings.yaml
+# Global settings for the graph
+
+# Is the graph case centric, that we want
+# to create a link between all children to case
+# to expedite case filter on nodes
 enable_case_cache: false
