@@ -15,11 +15,6 @@ dependencies = [
     "pydantic (>=2.11.9,<3.0.0)"
 ]
 
-[tool.poetry]
-packages = [
-    { include = "gen3schemadev", from = "src" }
-]
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
 ipykernel = "^6.30.1"
