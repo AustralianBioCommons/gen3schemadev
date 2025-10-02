@@ -112,6 +112,18 @@ def link_suffix(word: str, suffix='s') -> str:
     """
     return word + suffix
 
+def get_entity_names(data: DataSourceProtocol) -> list[str]:
+    """
+    Retrieve a list of entity names from the data structure.
+
+    Args:
+        data: The data structure containing entities.
+
+    Returns:
+        A list of entity names.
+    """
+    return [entity.name for entity in data.entities]
+
 
 def get_entity_data(entity: str, data: DataSourceProtocol) -> EntityProtocol:
     """

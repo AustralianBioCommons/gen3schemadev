@@ -6,13 +6,21 @@ from gen3schemadev.converter import *
 
 @pytest.fixture
 def fixture_converter_template():
-    return generate_gen3_template("src/gen3schemadev/schema/gen3_metaschema.yml")
+    metaschema = get_metaschema()
+    return generate_gen3_template(metaschema)
 
 @pytest.fixture
 def fixture_input_yaml_pass():
     data = load_yaml("tests/input_example.yml")
     return DataModel.model_validate(data)
 
+
+def test_get_entity_names(fixture_input_yaml_pass):
+    entity_names = get_entity_names(fixture_input_yaml_pass)
+    assert 'lipidomics_file' in entity_names
+    assert 'sample' in entity_names
+    assert 'project' in entity_names
+    assert 'assay' in entity_names
 
 def test_get_entity_data(fixture_input_yaml_pass):
     entity = get_entity_data('lipidomics_file', fixture_input_yaml_pass)

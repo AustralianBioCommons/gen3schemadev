@@ -19,18 +19,24 @@ pip install gen3schemadev
 gen3schemadev init
 ```
 
-### Generate schema
+### Generate schemas
 ```
-gen3schemadev generate -i model.csv -o schema.json
+gen3schemadev generate -i input.yaml -o output/
 ```
+
+### Bundle Schemas
+```
+gen3schemadev bundle -i yamls/ -o output/bundled_schema.json
+```
+
 
 ### Validate schema
 ```
-gen3schemadev validate -i schema.json
+gen3schemadev validate -i bundled_schema.json
 ```
 
 ### Visualize schema
 ```
-gen3schemadev visualize -i schema.json
+gen3schemadev visualize -i bundled_schema.json
 ```
 
