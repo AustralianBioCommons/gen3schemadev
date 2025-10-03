@@ -53,7 +53,7 @@ class CategoryEnum(str, Enum):
 class Entity(BaseModel):
     """A data entity (node) in the model."""
     name: str = Field(description="The unique name of the entity.")
-    description: str = Field(description="A human-readable description of the entity.")
+    description: Optional[str] = Field(default=None, description="A human-readable description of the entity.")
     category: CategoryEnum = Field(description="The category the entity belongs to.")
     properties: List[Property] = Field(default_factory=list, description="A list of properties for the entity.")
 
