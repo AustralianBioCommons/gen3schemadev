@@ -282,6 +282,67 @@ def test_strip_required_field():
     assert strip_required_field(input3) == expected3
 
 
+def test_get_required_prop_names():
+    # Typical case: some required, some not
+    props_list = [
+        {
+            "project_id": {
+                "type": "string",
+                "description": "Synthetic_Dataset_1",
+                "required": True,
+                "enums": None
+            }
+        },
+        {
+            "description": {
+                "type": "string",
+                "description": "Project containing synthetic data",
+                "required": False,
+                "enums": None
+            }
+        },
+        {
+            "foo": {
+                "type": "integer"
+                # no 'required' key
+            }
+        }
+    ]
+    result = get_required_prop_names(props_list)
+    assert result == ["project_id"]
+
+    # All required
+    props_list2 = [
+        {"a": {"type": "string", "required": True}},
+        {"b": {"type": "number", "required": True}}
+    ]
+    assert set(get_required_prop_names(props_list2)) == {"a", "b"}
+
+    # None required
+    props_list3 = [
+        {"x": {"type": "string", "required": False}},
+        {"y": {"type": "number"}}
+    ]
+    assert get_required_prop_names(props_list3) == []
+
+    # Empty list
+    assert get_required_prop_names([]) == []
+
+    # Non-dict in list should be ignored
+    props_list4 = [
+        {"z": {"type": "string", "required": True}},
+        "not_a_dict"
+    ]
+    assert get_required_prop_names(props_list4) == ["z"]
+
+    # Dict with non-dict value should be ignored
+    props_list5 = [
+        {"z": "not_a_dict"}
+    ]
+    assert get_required_prop_names(props_list5) == []
+
+
+
 def test_construct_prop(fixture_input_yaml_pass):
     result = construct_props("lipidomics_file", fixture_input_yaml_pass)
     expected = {

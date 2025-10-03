@@ -33,6 +33,7 @@ entities:
       description: Is the sample viable? (boolean)
     - name: collection_date
       type: datetime
+      required: true
       description: Date and time of collection (datetime)
     - name: sample_tube_type
       type: enum

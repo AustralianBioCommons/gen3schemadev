@@ -12,7 +12,7 @@ Expected Data Structure:
 """
 
 from dataclasses import dataclass, asdict
-from typing import Protocol, runtime_checkable, Dict, Any
+from typing import Protocol, runtime_checkable, Dict, Any, List
 import logging
 
 # Set up basic logging configuration
@@ -355,6 +355,38 @@ def strip_required_field(props_list: list[dict]) -> list[dict]:
         else:
             new_list.append(prop)
     return new_list
+
+def get_required_prop_names(props_list: list[dict]) -> List[str]:
+    """
+    Given a list of property dicts (as from get_properties), return a list of property names
+    where the property dict has 'required': True. Can use the output of get_properties() for this function.
+
+    Args:
+        props_list (list): A list of property dictionaries, where each dictionary has a single key
+            (the property name) and its value is a dictionary describing the property. For example:
+                [
+                    {
+                        "project_id": {
+                            "type": "string",
+                            "description": "Synthetic_Dataset_1",
+                            "required": True,
+                            "enums": None
+                        }
+                    },
+                    ...
+                ]
+
+    Returns:
+        List[str]: List of property names with required True.
+    """
+    required_names = []
+    for prop in props_list:
+        if isinstance(prop, dict):
+            for k, v in prop.items():
+                if isinstance(v, dict) and v.get("required") is True:
+                    required_names.append(k)
+    return required_names
+
 
 def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     """
