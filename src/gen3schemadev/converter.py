@@ -528,6 +528,12 @@ def populate_template(entity_name: str, input_data: DataSourceProtocol, template
         else:
             logger.debug(f"Key '{key}' from entity '{entity_name}' not found in template")
     
+    # add required props
+    props = get_properties(entity_name, input_data)
+    required_props = get_required_prop_names(props)
+    if required_props:
+        output_schema['required'] = required_props
+    
     # Process and add links
     links = get_entity_links(entity_name, input_data)
     converted_links = convert_entity_links(links)
