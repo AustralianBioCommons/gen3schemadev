@@ -4,7 +4,7 @@ import yaml
 import json
 import pytest
 
-from gen3schemadev.utils import load_yaml, write_yaml, read_json, write_json
+from gen3schemadev.utils import load_yaml, write_yaml, read_json, write_json, bundle_yamls
 
 def test_load_yaml():
     data = {"foo": "bar"}
@@ -54,3 +54,16 @@ def test_write_json_and_read_json():
     finally:
         os.remove(path)
 
+def test_bundle_yamls():
+    path_of_files = os.path.dirname(__file__)
+    yaml_dir = os.path.join(path_of_files, '../examples/schema/yaml')
+    bundle = bundle_yamls(yaml_dir)
+    assert "demographic" in bundle
+    assert "subject" in bundle
+
+def test_bundle_yamls_no_yamls():
+    path_of_files = os.path.dirname(__file__)
+    yaml_dir = os.path.join(path_of_files, '../examples/schema/json')
+    with pytest.raises(Exception) as excinfo:
+        bundle_yamls(yaml_dir)
+    assert "No YAML files found in directory" in str(excinfo.value)
