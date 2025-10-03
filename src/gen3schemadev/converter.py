@@ -512,6 +512,9 @@ def populate_template(entity_name: str, input_data: DataSourceProtocol, template
     ent_dict = ent.model_dump()
     output_schema = template.copy()
     
+    # add entity name as title
+    output_schema['title'] = ent.name
+    
     # Check if entity is a file category
     file_entity = is_file_entity(entity_name, input_data)
     

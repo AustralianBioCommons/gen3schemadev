@@ -372,7 +372,7 @@ def fixture_expected_output_lipid():
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'version': None,
         'id': 'lipidomics_file',
-        'title': None,
+        'title': 'lipidomics_file',
         'type': 'object',
         'namespace': None,
         'category': 'data_file',
