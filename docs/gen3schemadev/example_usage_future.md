@@ -26,7 +26,7 @@ gen3schemadev generate -i input.yaml -o output/
 
 ### Bundle Schemas
 ```
-gen3schemadev bundle -i yamls/ -o output/bundled_schema.json
+gen3schemadev bundle -i yamls -n output/bundled_schema.json
 ```
 
 

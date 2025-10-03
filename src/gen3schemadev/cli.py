@@ -9,7 +9,7 @@ from gen3schemadev.schema.gen3_template import (
     generate_terms_template,
     generate_core_metadata_template,
 )
-from gen3schemadev.utils import write_yaml, load_yaml
+from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json
 from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_entity_names, populate_template
 
@@ -69,6 +69,24 @@ def main():
         required=True,
         help="Output directory"
     )
+    
+    
+    # Create 'bundle' subcommand
+    bundle_parser = subparsers.add_parser(
+        "bundle",
+        help="Bundle YAML files"
+    )
+    bundle_parser.add_argument(
+        "-i", "--input",
+        required=True,
+        help="Input directory"
+    )
+    bundle_parser.add_argument(
+        "-f", "--filename",
+        required=True,
+        help="Output Filename"
+    )
+    
 
     args = parser.parse_args()
 
@@ -106,7 +124,11 @@ def main():
         write_yaml(generate_core_metadata_template(), f"{args.output}/core_metadata_collection.yaml")
 
         logger.info("Schema generation process complete.")
+    
 
+    if args.command == "bundle":
+        bundle_dict = bundle_yamls(args.input)
+        write_json(bundle_dict, args.filename)
 
 if __name__ == "__main__":
     main()

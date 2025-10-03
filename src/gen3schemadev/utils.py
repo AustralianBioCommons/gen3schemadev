@@ -11,6 +11,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+def create_dir_if_not_exists(dir_path):
+    base_path = os.path.dirname(dir_path)
+    if not os.path.exists(base_path):
+        os.makedirs(base_path)
+        logger.info(f"Created directory: {base_path}")
+
 def load_yaml(file_path):
     """
     Loads a YAML file and returns its contents.
@@ -37,6 +43,7 @@ def write_yaml(data, file_path):
     Logs success or error messages.
     """
     try:
+        create_dir_if_not_exists(file_path)
         with open(file_path, 'w') as f:
             yaml.safe_dump(data, f, sort_keys=False)
             logger.info(f"Successfully wrote YAML file: {file_path}")
@@ -70,9 +77,25 @@ def write_json(data, file_path):
     Logs success or error messages.
     """
     try:
+        create_dir_if_not_exists(file_path)
         with open(file_path, 'w') as f:
             json.dump(data, f)
             logger.info(f"Successfully wrote JSON file: {file_path}")
     except Exception as e:
         logger.error(f"Failed to write JSON file {file_path}: {e}")
         raise
+
+def bundle_yamls(input_dir: str) -> dict:
+    """
+    Bundles all YAML files in a directory into a single dictionary.
+    """
+    bundle = {}
+    yamls_found = 0
+    for file_name in os.listdir(input_dir):
+        if file_name.endswith('.yaml') or file_name.endswith('.yml'):
+            yamls_found += 1
+            file_path = os.path.join(input_dir, file_name)
+            bundle[file_name.replace('.yaml', '')] = load_yaml(file_path)
+    if yamls_found == 0:
+        raise Exception(f"No YAML files found in directory: {input_dir}")
+    return bundle
