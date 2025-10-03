@@ -219,6 +219,67 @@ def test_get_properties(fixture_input_yaml_pass):
     assert result == expected
 
 
+def test_strip_required_field():
+    # Test that strip_required_field removes 'required' from property dicts
+    input_props = [
+        {
+            "project_id": {
+                "type": "string",
+                "description": "Synthetic_Dataset_1",
+                "required": True,
+                "enums": None
+            }
+        },
+        {
+            "description": {
+                "type": "string",
+                "description": "Project containing synthetic data",
+                "required": False,
+                "enums": None
+            }
+        }
+    ]
+    expected = [
+        {
+            "project_id": {
+                "type": "string",
+                "description": "Synthetic_Dataset_1",
+                "enums": None
+            }
+        },
+        {
+            "description": {
+                "type": "string",
+                "description": "Project containing synthetic data",
+                "enums": None
+            }
+        }
+    ]
+    result = strip_required_field(input_props)
+    assert result == expected
+
+    # Test that it works with an empty list
+    assert strip_required_field([]) == []
+
+    # Test that it leaves dicts without 'required' unchanged
+    input2 = [
+        {"foo": {"type": "integer", "description": "bar"}}
+    ]
+    expected2 = [
+        {"foo": {"type": "integer", "description": "bar"}}
+    ]
+    assert strip_required_field(input2) == expected2
+
+    # Test that it leaves non-dict items unchanged
+    input3 = [
+        {"foo": {"type": "string", "required": True}},
+        "not_a_dict"
+    ]
+    expected3 = [
+        {"foo": {"type": "string"}},
+        "not_a_dict"
+    ]
+    assert strip_required_field(input3) == expected3
 
 
 def test_construct_prop(fixture_input_yaml_pass):

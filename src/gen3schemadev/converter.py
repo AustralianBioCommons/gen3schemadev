@@ -12,7 +12,7 @@ Expected Data Structure:
 """
 
 from dataclasses import dataclass, asdict
-from typing import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable, Dict, Any
 import logging
 
 # Set up basic logging configuration
@@ -303,12 +303,58 @@ def get_properties(entity_name: str, data: DataSourceProtocol) -> list[dict]:
             pdict = {
                 prop.name: {k: v for k, v in prop.model_dump().items() if k != "name"}
             }
+            
             output.append(pdict)
+            
     else:
         logger.debug(f"No properties found for entity '{entity_name}'")
     
     return output
 
+
+def strip_required_field(props_list: list[dict]) -> list[dict]:
+    """
+    Remove the 'required' field from all property dicts in the input list.
+    Can use the output of get_properties() for this function
+
+    Args:
+        props_list (list): A list of property dictionaries, where each dictionary has a single key
+            (the property name) and its value is a dictionary describing the property. For example:
+                [
+                    {
+                        "project_id": {
+                            "type": "string",
+                            "description": "Synthetic_Dataset_1",
+                            "required": True,
+                            "enums": None
+                        }
+                    },
+                    ...
+                ]
+
+    Returns:
+        list: A new list with the same structure as props_list, but with the 'required'
+            field removed from each property's dictionary (if present).
+
+    Note:
+        This function expects a list of property definitions as typically returned by
+        get_properties() in the Gen3 schema conversion workflow.
+        If you are working with a DataSourceProtocol object, you should first extract the
+        properties list using the appropriate function.
+    """
+    new_list = []
+    for prop in props_list:
+        if isinstance(prop, dict):
+            # Each prop is {property_name: property_dict}
+            new_prop = {}
+            for k, v in prop.items():
+                if isinstance(v, dict):
+                    v = {key: val for key, val in v.items() if key != 'required'}
+                new_prop[k] = v
+            new_list.append(new_prop)
+        else:
+            new_list.append(prop)
+    return new_list
 
 def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     """
@@ -328,6 +374,7 @@ def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     """
     links = get_entity_links(entity_name, data)
     props = get_properties(entity_name, data)
+    props = strip_required_field(props)
     
     # Flatten property dicts into a single dict
     props_dict = {}
