@@ -11,6 +11,9 @@ from pydantic import (
 class EnumValue(BaseModel):
     """Single enum value"""
     name: str = Field(description="The name of the enum value.")
+    
+    class ConfigDict:
+        extra = 'forbid'
 
 
 class Property(BaseModel):
@@ -32,6 +35,9 @@ class Property(BaseModel):
         if info.data.get('type') == 'enum' and v is None:
             raise ValueError("The 'enums' field is required when the property type is 'enum'")
         return v
+
+    class ConfigDict:
+        extra = 'forbid'
 
 
 # Inherit from str and Enum to create a string-based enumeration
@@ -56,6 +62,9 @@ class Entity(BaseModel):
     description: Optional[str] = Field(default=None, description="A human-readable description of the entity.")
     category: CategoryEnum = Field(description="The category the entity belongs to.")
     properties: List[Property] = Field(default_factory=list, description="A list of properties for the entity.")
+    
+    class ConfigDict:
+        extra = 'forbid'
 
 
 class Link(BaseModel):
@@ -63,6 +72,9 @@ class Link(BaseModel):
     parent: str = Field(description="The parent entity in the relationship.")
     multiplicity: Literal['one_to_many', 'many_to_one', 'one_to_one', 'many_to_many'] = Field(description="The cardinality of the relationship.")
     child: str = Field(description="The child entity in the relationship.")
+    
+    class ConfigDict:
+        extra = 'forbid'
 
 
 class DataModel(BaseModel):
