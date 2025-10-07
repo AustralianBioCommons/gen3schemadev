@@ -23,10 +23,6 @@ required:
   - required #list of required properties
   - properties #properties of the entity
 
-field:
-  type: string
-  pattern: "^[_a-zA-Z0-9]*$" #only letters, numbers, and underscores
-
 
 # Properties:
 properties:
@@ -147,12 +143,19 @@ properties:
     type: object
     description: "Properties of the entity."
     additionalProperties:
-      $ref: "#/$defs/propertyDef"
+      oneOf:
+        - $ref: "#/$defs/propertyDef"
+        - type: string
+          pattern: "^_definitions\\.yaml#/.+"
   
 
 
 # Definitions:
 $defs:
+
+  field:
+    type: string
+    pattern: "^[_a-zA-Z0-9]*$" #only letters, numbers, and underscores
 
   link:
     type: object
@@ -167,13 +170,13 @@ $defs:
 
     properties:
       name:
-        $ref: "#/field"
+        $ref: "#/$defs/field"
       target_type:
-        $ref: "#/field"
+        $ref: "#/$defs/field"
       backref:
-        $ref: "#/field"
+        $ref: "#/$defs/field"
       label:
-        $ref: "#/field"
+        $ref: "#/$defs/field"
       multiplicity:
         type: string
         enum:
