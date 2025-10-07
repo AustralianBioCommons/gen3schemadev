@@ -457,6 +457,58 @@ def format_enum(prop_dict: dict) -> dict:
         raise RuntimeError(f"Error formatting enum property: {e}") from e
 
 
+def format_datetime(prop_dict: dict) -> dict:
+    """
+    Formats a property dictionary with a 'type' of 'datetime' to use a $ref
+    to the Gen3 _definitions.yaml#/datetime definition.
+
+    If the property is not of type 'datetime', returns the property unchanged.
+
+    Example input:
+        {
+            "collection_date": {
+                "type": "datetime",
+                "description": "Date and time of collection (datetime)"
+            }
+        }
+
+    Example output:
+        {
+            "collection_date": {
+                "$ref": "_definitions.yaml#/datetime"
+            }
+        }
+
+    Args:
+        prop_dict (dict): A dictionary with a single property as key and its attributes as value.
+
+    Returns:
+        dict: The formatted property dictionary suitable for Gen3 schema usage.
+
+    Raises:
+        ValueError: If the input dictionary does not contain exactly one property.
+        RuntimeError: If an error occurs during formatting.
+    """
+    try:
+        if len(prop_dict) != 1:
+            raise ValueError("Expected a single property dictionary")
+        
+        first_key = next(iter(prop_dict))
+        value = prop_dict[first_key]
+        formatted_props = {}
+        
+        if 'type' in value and value['type'] == 'datetime':
+            formatted_props['$ref'] = "_definitions.yaml#/datetime"
+        else:
+            formatted_props = value
+        
+        output = {first_key: formatted_props}
+        return output
+    except Exception as e:
+        # You may want to log the error or handle it differently depending on your use case
+        raise RuntimeError(f"Error formatting datetime property: {e}") from e
+
+
 def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     """
     Construct the 'properties' section for a Gen3 schema entity.
@@ -482,6 +534,7 @@ def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     for prop in props:
         if isinstance(prop, dict):
             prop = format_enum(prop)
+            prop = format_datetime(prop)
             props_dict.update(prop)
     
     # Add link properties

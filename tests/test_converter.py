@@ -442,11 +442,51 @@ def test_format_enum_missing_description():
 
 
 
-def test_construct_prop(fixture_input_yaml_pass):
+def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
     result = construct_props("lipidomics_file", fixture_input_yaml_pass)
     expected = {
         'samples': {'$ref': '_definitions.yaml#/to_many'},
         'assays': {'$ref': '_definitions.yaml#/to_many'}
+    }
+    assert result == expected
+
+def test_construct_prop_sample(fixture_input_yaml_pass):
+    result = construct_props("sample", fixture_input_yaml_pass)
+    expected = {
+        "sample_id": {
+            "type": "string",
+            "description": "Sample ID (string)"
+        },
+        "sample_count": {
+            "type": "integer",
+            "description": "Number of aliquots (integer)"
+        },
+        "sample_volume": {
+            "type": "number",
+            "description": "Volume in microliters (number/float)"
+        },
+        "is_viable": {
+            "type": "boolean",
+            "description": "Is the sample viable? (boolean)"
+        },
+        "collection_date": {
+            "$ref": "_definitions.yaml#/datetime"
+        },
+        "sample_tube_type": {
+            "description": "Sample tube type (enum)",
+            "enum": [
+                "EDTA",
+                "Heparin",
+                "Citrate"
+            ]
+        },
+        "notes": {
+            "type": "string",
+            "description": "Free text notes (string)"
+        },
+        "projects": {
+            "$ref": "_definitions.yaml#/to_many"
+        }
     }
     assert result == expected
 
