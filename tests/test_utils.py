@@ -58,8 +58,8 @@ def test_bundle_yamls():
     path_of_files = os.path.dirname(__file__)
     yaml_dir = os.path.join(path_of_files, '../examples/schema/yaml')
     bundle = bundle_yamls(yaml_dir)
-    assert "demographic" in bundle
-    assert "subject" in bundle
+    assert "demographic.yaml" in bundle
+    assert "subject.yaml" in bundle
 
 def test_bundle_yamls_no_yamls():
     path_of_files = os.path.dirname(__file__)
