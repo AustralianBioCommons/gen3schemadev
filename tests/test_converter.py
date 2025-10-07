@@ -166,6 +166,24 @@ def test_create_link_group():
     assert group2["subgroup"] == links
 
 
+def test_format_multiplicity_pass():
+    # The updated function expects a string and returns "to_one" for *_to_one, "to_many" for *_to_many
+    assert format_multiplicity("one_to_one") == "to_one"
+    assert format_multiplicity("one_to_many") == "to_many"
+    assert format_multiplicity("many_to_one") == "to_one"
+    assert format_multiplicity("many_to_many") == "to_many"
+
+    # # Test invalid input: not a string
+    # import pytest
+    # with pytest.raises(ValueError):
+    #     format_multiplicity(123)
+
+    # # Test invalid input: string not ending with _to_one or _to_many
+    # with pytest.raises(ValueError):
+    #     format_multiplicity("foo_bar")
+
+
+
 def test_create_link_prop():
     # Test with a typical entity and multiplicity
     prop = create_link_prop("sample", "one_to_many")
@@ -175,12 +193,12 @@ def test_create_link_prop():
     # The value should be a dict with a $ref key
     assert isinstance(prop["samples"], dict)
     assert "$ref" in prop["samples"]
-    assert prop["samples"]["$ref"] == "_definitions.yaml#/one_to_many"
+    assert prop["samples"]["$ref"] == "_definitions.yaml#/to_many"
 
     # Test with another entity and multiplicity
     prop2 = create_link_prop("core_metadata_collection", "one_to_one")
     assert "core_metadata_collections" in prop2
-    assert prop2["core_metadata_collections"]["$ref"] == "_definitions.yaml#/one_to_one"
+    assert prop2["core_metadata_collections"]["$ref"] == "_definitions.yaml#/to_one"
 
     # Test that only one key exists in the returned dict
     assert len(prop) == 1
@@ -189,7 +207,7 @@ def test_create_link_prop():
     # Test with unusual entity name
     prop3 = create_link_prop("weird_entity", "many_to_one")
     assert "weird_entitys" in prop3
-    assert prop3["weird_entitys"]["$ref"] == "_definitions.yaml#/many_to_one"
+    assert prop3["weird_entitys"]["$ref"] == "_definitions.yaml#/to_one"
 
 
 
@@ -427,8 +445,8 @@ def test_format_enum_missing_description():
 def test_construct_prop(fixture_input_yaml_pass):
     result = construct_props("lipidomics_file", fixture_input_yaml_pass)
     expected = {
-        'samples': {'$ref': '_definitions.yaml#/one_to_many'},
-        'assays': {'$ref': '_definitions.yaml#/one_to_many'}
+        'samples': {'$ref': '_definitions.yaml#/to_many'},
+        'assays': {'$ref': '_definitions.yaml#/to_many'}
     }
     assert result == expected
 
@@ -505,8 +523,8 @@ def fixture_expected_output_lipid():
             ]
         },
         'properties': {
-            'samples': {'$ref': '_definitions.yaml#/one_to_many'},
-            'assays': {'$ref': '_definitions.yaml#/one_to_many'}
+            'samples': {'$ref': '_definitions.yaml#/to_many'},
+            'assays': {'$ref': '_definitions.yaml#/to_many'}
         }
     }
     return output

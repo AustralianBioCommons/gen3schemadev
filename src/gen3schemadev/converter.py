@@ -261,6 +261,33 @@ def create_link_group(links: list[dict], exclusive: bool = False, required: bool
     return group.to_dict()
 
 
+def format_multiplicity(multiplicity: str) -> str:
+    """
+    For gen3 link properties, definitions for one_to_many links 
+    are referenced as to_many. The def, says it is an array with
+    a min length of 1. And for one_to_one, it is referenced as to_one
+    with a max array length of 1. It does not matter if it is many_to 
+    or one_to since that is implied by the number of submitter_ids for 
+    the entity.
+
+    Args:
+        multiplicity: The multiplicity of the link (e.g., 'one_to_one', 'one_to_many').
+
+    Returns:
+        The formatted multiplicity string.
+    """
+    # Map all *_to_one to "to_one", all *_to_many to "to_many"
+    if not isinstance(multiplicity, str):
+        logger.error(f"Multiplicity must be a string, got {type(multiplicity)}")
+        raise ValueError(f"Multiplicity must be a string, got {type(multiplicity)}")
+    if multiplicity.endswith("_to_one"):
+        return "to_one"
+    elif multiplicity.endswith("_to_many"):
+        return "to_many"
+    else:
+        logger.error(f"Invalid multiplicity: {multiplicity}")
+        raise ValueError(f"Invalid multiplicity: {multiplicity}")
+
 def create_link_prop(target_entity: str, multiplicity: str) -> dict:
     """
     Create a property dictionary for a link to another entity.
@@ -274,7 +301,7 @@ def create_link_prop(target_entity: str, multiplicity: str) -> dict:
     """
     link_prop = {
         link_suffix(target_entity): {
-            "$ref": f"_definitions.yaml#/{multiplicity}"
+            "$ref": f"_definitions.yaml#/{format_multiplicity(multiplicity)}"
         }
     }
     return link_prop
@@ -396,7 +423,7 @@ def format_enum(prop_dict: dict) -> dict:
         {'sample_tube_type': {'type': 'enum',
            'description': 'Sample tube type (enum)',
            'required': False,
-           'enums': [{'name': 'EDTA'}, {'name': 'Heparin'}, {'name': 'Citrate'}]
+           'enums': ['EDTA', 'Heparin', 'Citrate']
            }
         }
 
