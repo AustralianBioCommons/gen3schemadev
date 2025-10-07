@@ -3,8 +3,8 @@ import tempfile
 import yaml
 import json
 import pytest
-
-from gen3schemadev.utils import load_yaml, write_yaml, read_json, write_json, bundle_yamls
+import logging
+from gen3schemadev.utils import *
 
 def test_load_yaml():
     data = {"foo": "bar"}
@@ -67,3 +67,28 @@ def test_bundle_yamls_no_yamls():
     with pytest.raises(Exception) as excinfo:
         bundle_yamls(yaml_dir)
     assert "No YAML files found in directory" in str(excinfo.value)
+
+
+
+def test_resolve_schema():
+    path_of_files = os.path.dirname(__file__)
+    schema_file = os.path.join(path_of_files, "../tests/gen3_schema/schema_dev_pass.json")
+    schema = resolve_schema(schema_file)
+    assert isinstance(schema, list)
+    assert len(schema) == 10
+
+@pytest.fixture
+def fixture_resolved_schema_pass():
+    path_of_files = os.path.dirname(__file__)
+    schema_file = os.path.join(path_of_files, "../tests/gen3_schema/schema_dev_pass.json")
+    schema = resolve_schema(schema_file)
+    return schema
+
+
+def test_bundled_schema_to_list_dict(fixture_resolved_schema_pass):
+    bundled_schema_list = bundled_schema_to_list_dict(fixture_resolved_schema_pass)
+    assert isinstance(bundled_schema_list, list)
+    assert len(bundled_schema_list) == 10
+    assert isinstance(bundled_schema_list[0], dict)
+    assert bundled_schema_list[0]["id"] == "demographic"
+
