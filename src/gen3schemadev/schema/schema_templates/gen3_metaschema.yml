@@ -238,13 +238,17 @@ definitions:
         items:
           type: string
       type:
-        type: string
-        enum:
-          - string
-          - number
-          - integer
-          - boolean
-          - array
-          - object
+        oneOf:
+          - type: string
+            enum:
+              - string
+              - number
+              - integer
+              - boolean
+              - array
+              - object
+          - type: array
+            items:
+              type: string
       # Add more allowed fields as needed
     additionalProperties: true  # Allow other fields (like format, minimum, etc.)
