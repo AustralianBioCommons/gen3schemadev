@@ -733,6 +733,10 @@ file_name: # TOREVIEW
   description: >
     The name (or part of a name) of a file (of any type).
 
+file_format:
+  description: >
+    The standard format used for a specific file (object).
+
 file_size: # TOREVIEW
   description: >
     The size of the data file (object) in bytes.
