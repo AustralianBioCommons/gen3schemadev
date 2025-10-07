@@ -95,7 +95,7 @@ properties:
       - array
       - "null"
     items:
-      $ref: "#/$defs/validator_def"
+      $ref: "#/definitions/validator_def"
     default: null
 
   systemProperties:
@@ -136,22 +136,22 @@ properties:
     type: array
     items:
       oneOf:
-        - $ref: "#/$defs/link"
-        - $ref: "#/$defs/link_subgroup"
+        - $ref: "#/definitions/link"
+        - $ref: "#/definitions/link_subgroup"
 
   properties:
     type: object
     description: "Properties of the entity."
     additionalProperties:
       oneOf:
-        - $ref: "#/$defs/propertyDef"
+        - $ref: "#/definitions/propertyDef"
         - type: string
           pattern: "^_definitions\\.yaml#/.+"
   
 
 
 # Definitions:
-$defs:
+definitions:
 
   field:
     type: string
@@ -170,13 +170,15 @@ $defs:
 
     properties:
       name:
-        $ref: "#/$defs/field"
+        $ref: "#/definitions/field"
       target_type:
-        $ref: "#/$defs/field"
+        $ref: "#/definitions/field"
       backref:
-        $ref: "#/$defs/field"
+        $ref: "#/definitions/field"
       label:
-        $ref: "#/$defs/field"
+        anyOf:
+          - $ref: "#/definitions/field"
+          - type: 'null'
       multiplicity:
         type: string
         enum:
@@ -202,7 +204,7 @@ $defs:
       subgroup:
         type: array
         items:
-          $ref: "#/$defs/link"
+          $ref: "#/definitions/link"
 
   validator_def:
     title: "Define a validator to be used on a property"
