@@ -241,7 +241,7 @@ def add_core_metadata_link(links: list[dict], child_name: str) -> list[dict]:
     return links + [core_link]
 
 
-def create_link_group(links: list[dict], exclusive: bool = False, required: bool = True) -> dict:
+def create_link_group(links: list[dict], exclusive: bool = False, required: bool = True) -> list[dict]:
     """
     Create a link group structure from a list of links.
 
@@ -251,14 +251,14 @@ def create_link_group(links: list[dict], exclusive: bool = False, required: bool
         required: Whether at least one link is required.
 
     Returns:
-        A dictionary representing the link group.
+        A list containing a dictionary representing the link group.
     """
     group = LinkGroup(
         exclusive=exclusive,
         required=required,
         subgroup=links
     )
-    return group.to_dict()
+    return [group.to_dict()]
 
 
 def format_multiplicity(multiplicity: str) -> str:

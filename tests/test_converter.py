@@ -150,6 +150,7 @@ def test_create_link_group():
     ]
     # Call the function with default exclusive and required
     group = create_link_group(links)
+    group = group[0]
     assert isinstance(group, dict)
     assert "exclusive" in group
     assert "required" in group
@@ -161,6 +162,7 @@ def test_create_link_group():
 
     # Call the function with exclusive=True, required=False
     group2 = create_link_group(links, exclusive=True, required=False)
+    group2 = group2[0]
     assert group2["exclusive"] is True
     assert group2["required"] is False
     assert group2["subgroup"] == links
@@ -532,7 +534,7 @@ def fixture_expected_output_lipid():
             ['project_id', 'submitter_id']
         ],
         'required': ['submitter_id', 'type'],
-        'links': {
+        'links': [{
             'exclusive': False,
             'required': True,
             'subgroup': [
@@ -561,7 +563,7 @@ def fixture_expected_output_lipid():
                     'required': True
                 }
             ]
-        },
+        }],
         'properties': {
             'samples': {'$ref': '_definitions.yaml#/to_many'},
             'assays': {'$ref': '_definitions.yaml#/to_many'}
