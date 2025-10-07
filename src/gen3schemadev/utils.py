@@ -95,7 +95,7 @@ def bundle_yamls(input_dir: str) -> dict:
         if file_name.endswith('.yaml') or file_name.endswith('.yml'):
             yamls_found += 1
             file_path = os.path.join(input_dir, file_name)
-            bundle[file_name.replace('.yaml', '')] = load_yaml(file_path)
+            bundle[file_name] = load_yaml(file_path)
     if yamls_found == 0:
         raise Exception(f"No YAML files found in directory: {input_dir}")
     return bundle
