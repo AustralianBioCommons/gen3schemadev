@@ -39,9 +39,9 @@ entities:
       type: enum
       description: Sample tube type (enum)
       enums:
-        - name: EDTA
-        - name: Heparin
-        - name: Citrate
+        - EDTA
+        - Heparin
+        - Citrate
     - name: notes
       type: string
       description: Free text notes (string)

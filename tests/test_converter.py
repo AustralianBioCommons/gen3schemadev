@@ -343,6 +343,87 @@ def test_get_required_prop_names():
 
 
 
+def test_format_enum_basic():
+    # Standard enum property
+    prop_dict = {
+        "sample_tube_type": {
+            "type": "enum",
+            "description": "Sample tube type (enum)",
+            "required": False,
+            "enums": ["EDTA", "Heparin", "Citrate"]
+        }
+    }
+    result = format_enum(prop_dict)
+    assert result == {
+        "sample_tube_type": {
+            "description": "Sample tube type (enum)",
+            "enum": ["EDTA", "Heparin", "Citrate"]
+        }
+    }
+
+def test_format_enum_no_enums():
+    # Property with no enums key
+    prop_dict = {
+        "foo": {
+            "type": "string",
+            "description": "A string property",
+            "required": True
+        }
+    }
+    result = format_enum(prop_dict)
+    assert result == {
+        "foo": {
+            "type": "string",
+            "description": "A string property",
+            "required": True
+        }
+    }
+
+def test_format_enum_enums_none():
+    # Property with enums=None
+    prop_dict = {
+        "bar": {
+            "type": "enum",
+            "description": "Bar enum",
+            "required": False,
+            "enums": None
+        }
+    }
+    result = format_enum(prop_dict)
+    assert result == {
+        "bar": {
+            "type": "enum",
+            "description": "Bar enum",
+            "required": False
+        }
+    }
+
+def test_format_enum_invalid_input():
+    # More than one key in dict
+    prop_dict = {
+        "a": {"type": "enum", "description": "desc", "enums": ["A"]},
+        "b": {"type": "enum", "description": "desc", "enums": ["B"]}
+    }
+    with pytest.raises(RuntimeError) as excinfo:
+        format_enum(prop_dict)
+    assert "Expected a single property dictionary" in str(excinfo.value)
+
+def test_format_enum_missing_description():
+    # Property with enums but missing description
+    prop_dict = {
+        "baz": {
+            "type": "enum",
+            "required": True,
+            "enums": ["X", "Y"]
+        }
+    }
+    # Should raise KeyError when trying to access value['description']
+    with pytest.raises(RuntimeError) as excinfo:
+        format_enum(prop_dict)
+    assert "description" in str(excinfo.value)
+
+
+
 def test_construct_prop(fixture_input_yaml_pass):
     result = construct_props("lipidomics_file", fixture_input_yaml_pass)
     expected = {

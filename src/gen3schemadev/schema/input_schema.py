@@ -8,14 +8,6 @@ from pydantic import (
 )
 
 
-class EnumValue(BaseModel):
-    """Single enum value"""
-    name: str = Field(description="The name of the enum value.")
-    
-    class ConfigDict:
-        extra = 'forbid'
-
-
 class Property(BaseModel):
     """Schema for gen3 property"""
     name: str = Field(description="The name of the property.")
@@ -24,7 +16,11 @@ class Property(BaseModel):
     ] = Field(description="The data type of the property.")
     description: str = Field(description="A human-readable description of the property.")
     required: bool = Field(default=False, description="Whether this property is required for the entity.")
-    enums: Optional[List[EnumValue]] = Field(default=None, description="A list of possible values if the type is 'enum'.")
+    # Accepts either a list of EnumValue objects or a list of strings (for YAML input like in input_example.yml)
+    enums: Optional[List[str]] = Field(
+        default=None,
+        description="A string list of possible values."
+    )
 
     @field_validator('enums')
     def check_enums_for_enum_type(cls, v, info):

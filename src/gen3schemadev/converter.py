@@ -388,6 +388,48 @@ def get_required_prop_names(props_list: list[dict]) -> List[str]:
     return required_names
 
 
+def format_enum(prop_dict: dict) -> dict:
+    """
+    Format an enum property dictionary for use in a Gen3 schema.
+
+    Example:
+        {'sample_tube_type': {'type': 'enum',
+           'description': 'Sample tube type (enum)',
+           'required': False,
+           'enums': [{'name': 'EDTA'}, {'name': 'Heparin'}, {'name': 'Citrate'}]
+           }
+        }
+
+    Args:
+        prop_dict (dict): The dictionary representing the enum property.
+
+    Returns:
+        dict: The formatted dictionary for use in a Gen3 schema.
+    """
+    try:
+        if len(prop_dict) != 1:
+            raise ValueError("Expected a single property dictionary")
+        
+        first_key = next(iter(prop_dict))
+        value = prop_dict[first_key]
+        formatted_props = {}
+        
+        if 'enums' in value and value['enums'] is not None:
+            formatted_props['description'] = value['description']
+            formatted_props['enum'] = value['enums']
+        else:
+            # Remove the 'enums' key from value if present
+            value = value.copy()
+            value.pop('enums', None)
+            formatted_props = value
+        
+        output = {first_key: formatted_props}
+        return output
+    except Exception as e:
+        # You may want to log the error or handle it differently depending on your use case
+        raise RuntimeError(f"Error formatting enum property: {e}") from e
+
+
 def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     """
     Construct the 'properties' section for a Gen3 schema entity.
@@ -412,6 +454,7 @@ def construct_props(entity_name: str, data: DataSourceProtocol) -> dict:
     props_dict = {}
     for prop in props:
         if isinstance(prop, dict):
+            prop = format_enum(prop)
             props_dict.update(prop)
     
     # Add link properties
