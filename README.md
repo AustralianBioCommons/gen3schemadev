@@ -1,5 +1,7 @@
 # Developing a Gen3 Data Dictionary
 
+![overview.png](docs/img/overview.png)
+
 This repository aims to provide the documentation, learning materials, and software tools to facilitate the creation of a data model in Gen3.
 
 This document is broken up into the following parts:
