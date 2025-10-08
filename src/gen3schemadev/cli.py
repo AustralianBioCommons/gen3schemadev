@@ -12,15 +12,9 @@ from gen3schemadev.schema.gen3_template import (
 from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json
 from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_entity_names, populate_template
-
-import logging
-
-# Set up basic logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger(__name__)
+from gen3schemadev.schema.gen3_template import *
+from gen3schemadev.utils import bundled_schema_to_list_dict, resolve_schema
+from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
 
 
 def get_version():
@@ -52,7 +46,7 @@ def main():
         action="store_true",
         help="Show version and exit"
     )
-    subparsers = parser.add_subparsers(dest="command", required=False)
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Create 'generate' subcommand
     generate_parser = subparsers.add_parser(
@@ -69,8 +63,7 @@ def main():
         required=True,
         help="Output directory"
     )
-    
-    
+
     # Create 'bundle' subcommand
     bundle_parser = subparsers.add_parser(
         "bundle",
@@ -86,7 +79,22 @@ def main():
         required=True,
         help="Output Filename"
     )
-    
+
+    # Create 'validate' subcommand
+    validate_parser = subparsers.add_parser(
+        "validate",
+        help="Validate schemas"
+    )
+    validate_parser.add_argument(
+        "-b", "--bundled",
+        required=False,
+        help="Bundled JsonSchema file"
+    )
+    validate_parser.add_argument(
+        "-y", "--yamls",
+        required=False,
+        help="Directory of Gen3 Yaml files"
+    )
 
     args = parser.parse_args()
 
@@ -95,40 +103,63 @@ def main():
         sys.exit(0)
 
     if args.command == "generate":
-        import logging
-        logger = logging.getLogger("gen3schemadev.cli")
-
-        logger.info("Starting schema generation process...")
+        print("Starting schema generation process...")
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        logger.debug(f"Current directory: {current_dir}")
+        # print(f"Current directory: {current_dir}")  # debug
         metaschema = get_metaschema()
-        logger.debug(f"Successfully loaded metaschema: {metaschema}")
+        # print(f"Successfully loaded metaschema: {metaschema}")  # debug
         converter_template = generate_gen3_template(metaschema)
-        logger.info(f"Loading input YAML from: {args.input}")
+        print(f"Loading input YAML from: {args.input}")
         data = load_yaml(args.input)
-        logger.info("Validating input data model...")
+        print("Validating input data model...")
         validated_model = DataModel.model_validate(data)
         entity_names = get_entity_names(validated_model)
-        logger.info(f"Found entities: {entity_names}")
-        
+        print(f"Found entities: {entity_names}")
+
         for entity in entity_names:
-            logger.info(f"Populating template for entity: '{entity}'")
+            print(f"Populating template for entity: '{entity}'")
             out_template = populate_template(entity, validated_model, converter_template)
-            logger.info(f"Writing output YAML to: {args.output}/{entity}.yaml")
+            print(f"Writing output YAML to: {args.output}/{entity}.yaml")
             write_yaml(out_template, f"{args.output}/{entity}.yaml")
 
-        logger.info('Writing auxiliary files')
+        print('Writing auxiliary files')
         write_yaml(generate_def_template(), f"{args.output}/_definitions.yaml")
         write_yaml(generate_setting_template(), f"{args.output}/_settings.yaml")
         write_yaml(generate_terms_template(), f"{args.output}/_terms.yaml")
         write_yaml(generate_core_metadata_template(), f"{args.output}/core_metadata_collection.yaml")
 
-        logger.info("Schema generation process complete.")
-    
+        print("Schema generation process complete.")
 
     if args.command == "bundle":
+        print(f"Bundling YAML files from directory: {args.input}")
         bundle_dict = bundle_yamls(args.input)
+        print(f"Writing bundled schema to file: {args.filename}")
         write_json(bundle_dict, args.filename)
+        print("Bundling process complete.")
+
+    if args.command == "validate":
+        metaschema = get_metaschema()
+
+        resolve_schema_obj = None
+        if args.bundled:
+            resolve_schema_obj = resolve_schema(schema_path=args.bundled)
+        elif args.yamls:
+            bundled_dir = bundle_yamls(args.yamls)
+            resolve_schema_obj = resolve_schema(schema_dir=bundled_dir)
+
+        if resolve_schema_obj is None:
+            print("Error: You must provide either --bundled or --yamls for validation.")
+            sys.exit(1)
+
+        schema_list = bundled_schema_to_list_dict(resolve_schema_obj)
+
+        for schema in schema_list:
+            validate_schema_with_metaschema(
+                schema,
+                metaschema=metaschema,
+                verbose=True
+            )
+            print(f"Successfully validated schema: {schema.get('id', '<no id>')}")
 
 if __name__ == "__main__":
     main()
