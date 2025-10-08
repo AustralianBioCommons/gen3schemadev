@@ -53,9 +53,27 @@ def validate_schema_with_metaschema(schema: dict, metaschema: dict, verbose: boo
 
     logger.info(f"Validating schema '{schema.get('id', '<no id>')}' against the Gen3 metaschema.")
 
+    import os
+
     try:
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as schema_file, \
-             tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as metaschema_file:
+        # Write temp files to a .tmp directory in the current working directory
+        tmp_dir = os.path.join(os.getcwd(), ".cache")
+        os.makedirs(tmp_dir, exist_ok=True)
+
+        schema_path = None
+        metaschema_path = None
+
+        with tempfile.NamedTemporaryFile(
+            mode='w',
+            suffix='.json',
+            dir=tmp_dir,
+            delete=False
+        ) as schema_file, tempfile.NamedTemporaryFile(
+            mode='w',
+            suffix='.json',
+            dir=tmp_dir,
+            delete=False
+        ) as metaschema_file:
             json.dump(schema, schema_file)
             schema_file.flush()
             json.dump(metaschema, metaschema_file)
@@ -75,7 +93,9 @@ def validate_schema_with_metaschema(schema: dict, metaschema: dict, verbose: boo
         completed_process = subprocess.run(cmd, capture_output=True, text=True)
 
         if completed_process.returncode != 0:
-            logger.error(f"check-jsonschema failed with exit code {completed_process.returncode}")
+            logger.error(
+                f"check-jsonschema failed with exit code {completed_process.returncode}"
+            )
             if completed_process.stdout:
                 logger.error(f"STDOUT: {completed_process.stdout}")
             if completed_process.stderr:
@@ -85,10 +105,13 @@ def validate_schema_with_metaschema(schema: dict, metaschema: dict, verbose: boo
                 f"See logs for details."
             )
         else:
-            logger.info(f"Schema '{schema.get('id', '<no id>')}' successfully validated against metaschema.")
-
+            logger.info(
+                f"Schema '{schema.get('id', '<no id>')}' successfully validated against metaschema."
+            )
     except FileNotFoundError as e:
-        logger.error("The 'check-jsonschema' tool was not found. Please ensure it is installed and in your PATH.")
+        logger.error(
+            "The 'check-jsonschema' tool was not found. Please ensure it is installed and in your PATH."
+        )
         raise RuntimeError("check-jsonschema tool not found.") from e
     except Exception as e:
         logger.exception("An unexpected error occurred during metaschema validation.")
