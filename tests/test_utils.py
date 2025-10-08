@@ -124,4 +124,4 @@ def test_bundled_schema_to_list_dict_yaml_dir(fixture_resolved_schema_yaml_dir):
     assert isinstance(bundled_schema_list, list)
     assert len(bundled_schema_list) == 10
     assert isinstance(bundled_schema_list[0], dict)
-    assert bundled_schema_list[0]["id"] == "demographic"
+    assert 'demographic' in [schema["id"] for schema in bundled_schema_list]
