@@ -68,27 +68,60 @@ def test_bundle_yamls_no_yamls():
         bundle_yamls(yaml_dir)
     assert "No YAML files found in directory" in str(excinfo.value)
 
+def test_resolve_schema_yaml_dir():
+    path_of_files = os.path.dirname(__file__)
+    schema_file = os.path.join(path_of_files, "../examples/schema/yaml")
+    schema = resolve_schema(schema_dir = schema_file)
+    assert isinstance(schema, list)
+    assert len(schema) == 10
 
-
-def test_resolve_schema():
+def test_resolve_schema_bundled_file():
     path_of_files = os.path.dirname(__file__)
     schema_file = os.path.join(path_of_files, "../tests/gen3_schema/schema_dev_pass.json")
-    schema = resolve_schema(schema_file)
+    schema = resolve_schema(schema_path = schema_file)
     assert isinstance(schema, list)
     assert len(schema) == 10
 
 @pytest.fixture
 def fixture_resolved_schema_pass():
+    """
+    Fixture that returns a resolved Gen3 schema loaded from a bundled JSON file.
+    """
     path_of_files = os.path.dirname(__file__)
     schema_file = os.path.join(path_of_files, "../tests/gen3_schema/schema_dev_pass.json")
-    schema = resolve_schema(schema_file)
+    schema = resolve_schema(schema_path=schema_file)
+    return schema
+
+@pytest.fixture
+def fixture_resolved_schema_yaml_dir():
+    """
+    Fixture that returns a resolved Gen3 schema loaded from a directory of YAML files.
+    """
+    path_of_files = os.path.dirname(__file__)
+    schema_file = os.path.join(path_of_files, "../examples/schema/yaml")
+    schema = resolve_schema(schema_dir=schema_file)
     return schema
 
 
 def test_bundled_schema_to_list_dict(fixture_resolved_schema_pass):
+    """
+    Test that bundled_schema_to_list_dict correctly converts a resolved schema (from JSON)
+    into a list of dictionaries, and checks the structure and content.
+    """
     bundled_schema_list = bundled_schema_to_list_dict(fixture_resolved_schema_pass)
     assert isinstance(bundled_schema_list, list)
     assert len(bundled_schema_list) == 10
     assert isinstance(bundled_schema_list[0], dict)
     assert bundled_schema_list[0]["id"] == "demographic"
 
+
+def test_bundled_schema_to_list_dict_yaml_dir(fixture_resolved_schema_yaml_dir):
+    """
+    Test that bundled_schema_to_list_dict correctly converts a resolved schema (from YAML dir)
+    into a list of dictionaries, and checks the structure and content.
+    """
+    bundled_schema_list = bundled_schema_to_list_dict(fixture_resolved_schema_yaml_dir)
+    assert isinstance(bundled_schema_list, list)
+    assert len(bundled_schema_list) == 10
+    assert isinstance(bundled_schema_list[0], dict)
+    assert bundled_schema_list[0]["id"] == "demographic"

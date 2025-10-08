@@ -67,7 +67,7 @@ def _get_demographic_schema(schema_filename: str) -> dict:
     """Helper to load and parse a specific schema from a test data file."""
     file_loc = os.path.dirname(os.path.abspath(__file__))
     schema_file = os.path.join(file_loc, schema_filename)
-    resolved_schema = resolve_schema(schema_file)
+    resolved_schema = resolve_schema(schema_path=schema_file)
     schema_list = bundled_schema_to_list_dict(resolved_schema)
     demographic_schema = next((s for s in schema_list if s.get('id') == 'demographic'), None)
     if not demographic_schema:

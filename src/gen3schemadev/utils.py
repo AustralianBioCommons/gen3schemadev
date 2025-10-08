@@ -4,6 +4,7 @@ import yaml
 from jsonschema import validate
 import logging
 from gen3_validator.resolve_schema import ResolveSchema
+import tempfile
 
 # Set up basic logging configuration
 logging.basicConfig(
@@ -102,17 +103,41 @@ def bundle_yamls(input_dir: str) -> dict:
     return bundle
 
 
-def resolve_schema(schema_path: str) -> list:
+import os
+import tempfile
+import json
+
+def resolve_schema(schema_dir: str = None, schema_path: str = None) -> list:
     """
-    Resolves a Gen3 JSON schema file and returns the resolved schema as a list of schema dicts.
+    Load and resolve a Gen3 JSON schema from either a directory of YAML files or a bundled JSON file.
+
+    If `schema_dir` is provided, all YAML files in the directory are bundled into a temporary JSON file,
+    which is then resolved. If `schema_path` is provided, it is used directly.
+
+    Returns:
+        list: A list of resolved schema dictionaries.
+
+    Raises:
+        Exception: If neither `schema_dir` nor `schema_path` is provided, or if resolution fails.
     """
-    resolver = ResolveSchema(schema_path)
-    resolver.resolve_schema()
-    # The resolved schema may be a dict (bundled) or a list (already split)
-    # If it's a dict, return its values as a list; if it's already a list, return as is
-    if isinstance(resolver.schema_resolved, dict):
-        return list(resolver.schema_resolved.values())
-    return resolver.schema_resolved
+    temp_file_path = None
+    if schema_dir:
+        bundled_schema = bundle_yamls(schema_dir)
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", dir=".", delete=False) as tf:
+            json.dump(bundled_schema, tf)
+            temp_file_path = tf.name
+            schema_path = temp_file_path
+
+    try:
+        resolver = ResolveSchema(schema_path)
+        resolver.resolve_schema()
+        resolved = resolver.schema_resolved
+        if isinstance(resolved, dict):
+            return list(resolved.values())
+        return resolved
+    finally:
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
 
 def bundled_schema_to_list_dict(bundled_schema: list[dict]) -> list[dict]:
     """
