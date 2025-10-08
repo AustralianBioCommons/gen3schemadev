@@ -1,6 +1,8 @@
 import argparse
+import logging
 import sys
 import os
+
 from gen3schemadev.schema.gen3_template import (
     get_metaschema,
     generate_gen3_template,
@@ -12,7 +14,6 @@ from gen3schemadev.schema.gen3_template import (
 from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json
 from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_entity_names, populate_template
-from gen3schemadev.schema.gen3_template import *
 from gen3schemadev.utils import bundled_schema_to_list_dict, resolve_schema
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
 
@@ -28,7 +29,6 @@ def get_version():
         with open(pyproject_path, "r", encoding="utf-8") as f:
             for line in f:
                 if line.strip().startswith("version"):
-                    # Handles: version = "0.1.0"
                     parts = line.split("=")
                     if len(parts) == 2:
                         return parts[1].strip().strip('"').strip("'")
@@ -46,6 +46,7 @@ def main():
         action="store_true",
         help="Show version and exit"
     )
+    # Subparsers are now required, ensuring a command is always run
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Create 'generate' subcommand
@@ -63,6 +64,11 @@ def main():
         required=True,
         help="Output directory"
     )
+    generate_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Set logging level to DEBUG"
+    )
 
     # Create 'bundle' subcommand
     bundle_parser = subparsers.add_parser(
@@ -78,6 +84,11 @@ def main():
         "-f", "--filename",
         required=True,
         help="Output Filename"
+    )
+    bundle_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Set logging level to DEBUG"
     )
 
     # Create 'validate' subcommand
@@ -95,8 +106,24 @@ def main():
         required=False,
         help="Directory of Gen3 Yaml files"
     )
+    validate_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Set logging level to DEBUG"
+    )
 
     args = parser.parse_args()
+
+    # Set up basic logging configuration
+    # If the subcommand has --debug, set to DEBUG, else INFO
+    log_level = logging.ERROR
+    if hasattr(args, "debug") and getattr(args, "debug", False):
+        log_level = logging.DEBUG
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s [%(levelname)s] %(message)s"
+    )
+    logger = logging.getLogger(__name__)
 
     if getattr(args, "version", False):
         print(get_version())
@@ -104,10 +131,7 @@ def main():
 
     if args.command == "generate":
         print("Starting schema generation process...")
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        # print(f"Current directory: {current_dir}")  # debug
         metaschema = get_metaschema()
-        # print(f"Successfully loaded metaschema: {metaschema}")  # debug
         converter_template = generate_gen3_template(metaschema)
         print(f"Loading input YAML from: {args.input}")
         data = load_yaml(args.input)
@@ -130,36 +154,45 @@ def main():
 
         print("Schema generation process complete.")
 
-    if args.command == "bundle":
+    elif args.command == "bundle":
         print(f"Bundling YAML files from directory: {args.input}")
         bundle_dict = bundle_yamls(args.input)
         print(f"Writing bundled schema to file: {args.filename}")
         write_json(bundle_dict, args.filename)
         print("Bundling process complete.")
 
-    if args.command == "validate":
+    elif args.command == "validate":
+        print("Starting validation process...")
         metaschema = get_metaschema()
 
         resolve_schema_obj = None
         if args.bundled:
+            print(f"Resolving schema from bundled file: {args.bundled}")
             resolve_schema_obj = resolve_schema(schema_path=args.bundled)
         elif args.yamls:
+            print(f"Bundling and resolving schemas from directory: {args.yamls}")
             bundled_dir = bundle_yamls(args.yamls)
             resolve_schema_obj = resolve_schema(schema_dir=bundled_dir)
 
         if resolve_schema_obj is None:
-            print("Error: You must provide either --bundled or --yamls for validation.")
+            logger.error("You must provide either --bundled or --yamls for validation.")
             sys.exit(1)
 
         schema_list = bundled_schema_to_list_dict(resolve_schema_obj)
+        print(f"Found {len(schema_list)} schemas to validate.")
 
         for schema in schema_list:
+            schema_id = schema.get('id', '<no id>')
+            print(f"Validating schema: {schema_id}")
             validate_schema_with_metaschema(
                 schema,
                 metaschema=metaschema,
                 verbose=True
             )
-            print(f"Successfully validated schema: {schema.get('id', '<no id>')}")
+            print(f"Successfully validated schema: {schema_id}")
+        
+        print("Validation process complete.")
+
 
 if __name__ == "__main__":
     main()

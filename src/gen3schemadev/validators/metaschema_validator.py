@@ -22,6 +22,8 @@ import json
 
 logger = logging.getLogger(__name__)
 
+
+
 def validate_schema_with_metaschema(schema: dict, metaschema: dict, verbose: bool = False) -> None:
     """
     Validate a single Gen3 resolved schema dictionary against the Gen3 metaschema using check-jsonschema.

@@ -3,6 +3,9 @@ from gen3schemadev.utils import *
 import os
 import yaml
 import importlib.resources
+import logging
+
+logger = logging.getLogger(__name__)
 
 def read_template_yaml(template_filename='template.yml'):
     """
@@ -40,14 +43,18 @@ def generate_gen3_template(metaschema: dict) -> dict:
         out_template = {}
         properties = metaschema_data.get('properties', {})
         out_template['$schema'] = metaschema_data.get('$schema')
+        logger.info(f"Generating Gen3 template from metaschema with {len(properties)} properties.")
         for k, v in properties.items():
             if 'default' in v:
                 out_template[k] = v['default']
+                logger.debug(f"Set default for property '{k}': {v['default']}")
             else:
                 out_template[k] = None
+                logger.debug(f"No default for property '{k}', set to None.")
+        logger.info("Gen3 template generation completed successfully.")
         return out_template
     except Exception as e:
-        print(f"An error occurred while generating the Gen3 template: {e}")
+        logger.error(f"An error occurred while generating the Gen3 template: {e}")
         raise
 
 

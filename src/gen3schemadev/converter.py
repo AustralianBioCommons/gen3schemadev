@@ -15,11 +15,7 @@ from dataclasses import dataclass, asdict
 from typing import Protocol, runtime_checkable, Dict, Any, List
 import logging
 
-# Set up basic logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
+
 logger = logging.getLogger(__name__)
 
 

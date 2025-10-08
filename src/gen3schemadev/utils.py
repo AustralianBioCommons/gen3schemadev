@@ -6,11 +6,7 @@ import logging
 from gen3_validator.resolve_schema import ResolveSchema
 import tempfile
 
-# Set up basic logging configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
+
 logger = logging.getLogger(__name__)
 
 def create_dir_if_not_exists(dir_path):
