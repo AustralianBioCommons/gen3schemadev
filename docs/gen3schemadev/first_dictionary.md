@@ -1,37 +1,30 @@
 # Creating your first gen3 data dictionary
 
-A data model is a blueprint that defines the structure and format for organising data. The two primary types are relational and graph models.
+Gen3 uses a graph model to represent the data model. A graph model is a collection of nodes and links. Nodes represent entities, and links represent relationships between entities.
 
-### Relational Model
-In a relational model, data is organised into tables.
-*   **Tables**, also called **entities**, represent concepts like `disease`, `patient`, `sample`, etc.
-*   **Columns**, also called **attributes**, define the details of an entity, such as `patient_id`, `bp_systolic`, etc.
-*   **Relationships** are rules that link different tables together. e.g `patient` has a relationship with `disease` through the `disease_id` column.
+A single node in the gen3 graph model can be represented as a single yaml file called a `Gen3 Schema` which is in the jsonschema draft-04 format.
 
-### Graph Model
-A graph model, which is used by Gen3, organises data using nodes and links.
-*   **Nodes** are used to represent entities.
-*   **Links**, or edges, represent the relationships that connect nodes.
-*   **Properties** are key-value pairs that store descriptive details about nodes and links.
+Therefore the gen3 data model can be represented as a either a collection of yaml files (schemas) or a single json file (bundled schema).
 
-### Terminology Comparison
-
-| Concept | Relational Model Term | Graph Model Term |
-| :--- | :--- | :--- |
-| Represents an object | Entity (Table) | Node |
-| Describes the object | Attribute (Column) | Property |
-| Connects objects | Relationship | Link (Edge) |
-
-
-**Importantly: Gen3 uses a graph model to represent the data model.**
+For the purpose of this guide we will use the following terminology:
+- [`Gen3 Schema`](../../tests/gen3_schema/examples/yaml/lipidomics_file.yaml): A single yaml or json file that defines a single node in the data model. [Learn More](schemas.md)
+- [`Gen3 Data Dictionary`](../../tests/gen3_schema/examples/yaml/): A folder containing multiple yaml files for each node in the data model.
+- [`Gen3 Bundled Schema`](../../tests/gen3_schema/examples/json/schema_dev.json): A json file containing a list of jsonschemas for each entity in the data model.
 
 --
 
+## Gen3 `input_yaml` file
 
-Gen3SchemaDev provides a high level input_yaml file where you can define the major components of your data model. This input_yaml file abstracts away some of the complexity and formatting needed for creating gen3 schemas. 
+Gen3SchemaDev provides a high level `input_yaml` file where you can define the major components of your data model. This `input_yaml` file abstracts away some of the complexity and formatting needed for creating gen3 schemas. 
 
+In this file you can define the major components of your data model, including:
+- `nodes`
+- `links`
+- `properties`
 
-# Nodes
+This guide will walk you through how to create the gen3 data dictionary using the `input_yaml` file.
+
+## Nodes
 An node represents a table of data in the data model. nodes encapsulate related information, for example, information about the patient, the sample, sequencing run, output files, etc. When data is submitted to the data model, each table of metadata will correspond to a specific node. 
 
 The example below shows the nodes `program`, `project`, `subject`, `acknowledgement`, `publication`, and `core_metadata_collection`.
