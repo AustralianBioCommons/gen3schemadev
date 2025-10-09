@@ -7,7 +7,7 @@ Note: A single jsonschema represents a single entity in the data model. Multiple
 ## Examples
 
 ## Summary of Gen3 Schema Keys
-- *Note:* Yaml examples of this table can be found [here](../examples/schema/yaml/lipidomics_file.yaml).
+- *Note:* Yaml examples of this table can be found [here](../tests/gen3_schema/examples/yaml/lipidomics_file.yaml).
 
 | schema key           | description                                                                                 | required user input | specificity | default value                                                     | data type                                                                                                                     |
 | -------------------- | ------------------------------------------------------------------------------------------- | ------------------- | ----------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |

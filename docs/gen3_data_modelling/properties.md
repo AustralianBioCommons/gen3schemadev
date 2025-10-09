@@ -30,7 +30,7 @@ properties:
 
 Any properties in the schema that are required are specified in a `required` block. Every schema should have the `submitter_id`, `type` and any parental links listed as required attributes. Any submission of a particular node type that does not contain values for the required nodes will not pass validation.
 
-Example from [`demographic.yaml`](../../examples/schema/yaml/demographic.yaml):
+Example from [`demographic.yaml`](../../tests/gen3_schema/examples/yaml/demographic.yaml):
 
 ```yaml
 required:
@@ -41,7 +41,7 @@ required:
 
 A block of `preferred` attributes may also be specified. This would indicate an important field but submission of nodes without this field will still pass validation.
 
-Example from [`demographic.yaml`](../../examples/schema/yaml/demographic.yaml):
+Example from [`demographic.yaml`](../../tests/gen3_schema/examples/yaml/demographic.yaml):
 
 ```yaml
 preferred:
@@ -51,7 +51,7 @@ preferred:
 
 ## Shared Property Definitions
 
-In addition to the properties that you define as unique to a particular node, it is also useful to refer to properties that may be shared across many nodes. These properties can be saved within the [`_definitions.yaml`](../../examples/schema/yaml/_definitions.yaml) and referred to as needed.
+In addition to the properties that you define as unique to a particular node, it is also useful to refer to properties that may be shared across many nodes. These properties can be saved within the [`_definitions.yaml`](../../tests/gen3_schema/examples/yaml/_definitions.yaml) and referred to as needed.
 
 Some examples from the gdc dictionary are:
 
@@ -63,7 +63,7 @@ This `_definitions.yaml#/ubiquitous_properties` contains many of the required sy
 
 In each schema, there needs to be a property that stores the link to its parent(s). 
 
-These are referred to by the property that describes the link and reflect the multiplicity of the link. The default link properties that are included in the [`_definitions.yaml`](../../examples/schema/yaml/_definitions.yaml) are:
+These are referred to by the property that describes the link and reflect the multiplicity of the link. The default link properties that are included in the [`_definitions.yaml`](../../tests/gen3_schema/examples/yaml/_definitions.yaml) are:
 
 - `to_one`
 - `to_many`
@@ -74,7 +74,7 @@ These refer to the foreign key properties
 - `foreign_key_project`
 - `foreign_key`
 
-As an example from the [`demographic.yaml`](../../examples/schema/yaml/demographic.yaml), the `links` section of the file looks like:
+As an example from the [`demographic.yaml`](../../tests/gen3_schema/examples/yaml/demographic.yaml), the `links` section of the file looks like:
 
 ```yaml
 links:
@@ -119,7 +119,7 @@ A general string property will allow any free text unless a pattern or enumerati
 
 Regex patterns can be used to restrict a string property to a certain format.
 
-Example from  [`_definitions.yaml`](../../examples/schema/yaml/_definitions.yaml):
+Example from  [`_definitions.yaml`](../../tests/gen3_schema/examples/yaml/_definitions.yaml):
 
 ```yaml
 UUID:
@@ -133,7 +133,7 @@ UUID:
 
 Enumerations for a property restrict the values to a set of allowed values. If a value is specified outside of this set, the metadata will fail validation.
 
-Example from [`medical_history.yaml`](../../examples/schema/yaml/medical_history.yaml):
+Example from [`medical_history.yaml`](../../tests/gen3_schema/examples/yaml/medical_history.yaml):
 
 ```yaml
   hypertension_measurement_type:
@@ -162,9 +162,9 @@ property_name:
     term_url: "https://direct-link-to-term"
 ```
 
-It is common practice to put the term definitions into a file called [`_terms.yaml`](../../examples/schema/yaml/_terms.yaml) and refer to them from a base schema.
+It is common practice to put the term definitions into a file called [`_terms.yaml`](../../tests/gen3_schema/examples/yaml/_terms.yaml) and refer to them from a base schema.
 
-In the [`_terms.yaml`](../../examples/schema/yaml/_terms.yaml), this would look like this:
+In the [`_terms.yaml`](../../tests/gen3_schema/examples/yaml/_terms.yaml), this would look like this:
 
 ```yaml
 bmi:
@@ -193,7 +193,7 @@ properties:
 
 As well as defining a term from an external ontology or vocabulary, you can also define each enumerated value.
 
-In the example below from the [`medical_history.yaml`](../../examples/schema/yaml/medical_history.yaml), we can see that property itself is defined in both SNOMED as well as the Human Phenotype Ontology by using two `termDef` entries. 
+In the example below from the [`medical_history.yaml`](../../tests/gen3_schema/examples/yaml/medical_history.yaml), we can see that property itself is defined in both SNOMED as well as the Human Phenotype Ontology by using two `termDef` entries. 
 
 Each enum is also linked to an NCI Thesaurus entry using the `enumDef` syntax.
 
