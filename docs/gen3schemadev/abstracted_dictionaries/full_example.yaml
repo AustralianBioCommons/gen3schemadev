@@ -1,7 +1,7 @@
 version: 0.1.0
 url: https:://link-to-data-portal
 
-entities:
+nodes:
 - name: project
   description: Gen3 Compulsary Node
   category: administrative

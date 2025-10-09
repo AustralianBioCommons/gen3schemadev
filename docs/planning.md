@@ -7,7 +7,7 @@
 ### **UC1: Guided Learning for New Modelers**
 *   **As a:** New Data Modeler
 *   **I want to:** Access tutorials and guided workflows.
-*   **So that I can:** Learn the core concepts of data modeling (such as defining entities, properties, and relationships) while using the tool.
+*   **So that I can:** Learn the core concepts of data modeling (such as defining nodes, properties, and relationships) while using the tool.
 
 **Acceptance Criteria:**
 *   The system should offer documentation and tutorials for the tool.

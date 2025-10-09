@@ -8,19 +8,19 @@ authors: ["Marion Shadbolt", "Joshua Harris"]
 
 # Defining Links in Gen3
 
-The Gen3 data model follows a graph structure. At the very top sits the **Program** entity, the ultimate root of your data structure. Links are what connect all the different entities in this graph, establishing how they relate to one another.
+The Gen3 data model follows a graph structure. At the very top sits the **Program** entity, the ultimate root of your data structure. Links are what connect all the different nodes in this graph, establishing how they relate to one another.
 
 A core principle to remember is that links are directional, always connecting a child entity up to its parent. For the data model to be a single, connected graph, **every entity must have at least one link (or link subgroup) that is marked as `required: true`**. This ensures no entity is ever left isolated.
 
 ## The Anatomy of a Link
 
-Each link is defined by a set of properties that tell the system how two entities are connected. Here is a quick reference for what each property does.
+Each link is defined by a set of properties that tell the system how two nodes are connected. Here is a quick reference for what each property does.
 
 | Key | Description | Example Values |
 | :--- | :--- | :--- |
 | **name** | The name for the link, as seen from the child entity. This is often the parent's name in plural form. | `subjects` |
 | **backref** | The name for the link from the parent's perspective, pointing back to the child. | `demographics` |
-| **label** | A simple descriptor for the type of relationship between the entities. | String: `describes` |
+| **label** | A simple descriptor for the type of relationship between the nodes. | String: `describes` |
 | **target_type** | The unique ID of the parent entity you are linking to. | `subject` |
 | **multiplicity** | The numeric relationship between the child and parent, such as one-to-one or many-to-many. | `one_to_one`, `one_to_many`, `many_to_one`, `many_to_many`  |
 | **required** | A true or false value indicating if every instance of the child must have this link to a parent. | `true`, `false` |
@@ -69,7 +69,7 @@ This allows for the following scenarios:
 | `true` | `true` | You must link to exactly one entity from the group. |
 | `false` | `true` | You must link to at least one entity from the group, and can link to more. |
 | `true` | `false` | You can link to one entity from the group, or none at all. |
-| `false` | `false` | Linking is completely optional; you can link to none, one, or multiple entities. |
+| `false` | `false` | Linking is completely optional; you can link to none, one, or multiple nodes. |
 
 **Important**: As a requirement in Gen3, any entity classified as a `data_file` must always contain a link to `core_metadata_collection`.
 
@@ -91,4 +91,4 @@ links:
         multiplicity: one_to_one
         required: false
 ```
-In this setup, the subgroup has `required: true` and `exclusive: false`. This means a `lipidomics_file` must be linked to at least one of the entities in the group, and it can be linked to more than one. It can be linked to a `sample`, a `core_metadata_collection`, or both. While the individual links inside the group are optional (`required: false`), the subgroup's top-level rule ensures the node is never left orphaned.
+In this setup, the subgroup has `required: true` and `exclusive: false`. This means a `lipidomics_file` must be linked to at least one of the nodes in the group, and it can be linked to more than one. It can be linked to a `sample`, a `core_metadata_collection`, or both. While the individual links inside the group are optional (`required: false`), the subgroup's top-level rule ensures the node is never left orphaned.
