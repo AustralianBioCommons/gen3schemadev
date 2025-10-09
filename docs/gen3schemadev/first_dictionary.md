@@ -9,7 +9,7 @@ Therefore the gen3 data model can be represented as a either a collection of yam
 For the purpose of this guide we will use the following terminology:
 - [`Gen3 Schema`](../../tests/gen3_schema/examples/yaml/lipidomics_file.yaml): A single yaml or json file that defines a single node in the data model. [Learn More](schemas.md)
 - [`Gen3 Data Dictionary`](../../tests/gen3_schema/examples/yaml/): A folder containing multiple yaml files for each node in the data model.
-- [`Gen3 Bundled Schema`](../../tests/gen3_schema/examples/json/schema_dev.json): A json file containing a list of jsonschemas for each entity in the data model.
+- [`Gen3 Bundled Schema`](../../tests/gen3_schema/examples/json/schema_dev.json): A json file containing a list of jsonschemas for each node in the data model.
 
 --
 

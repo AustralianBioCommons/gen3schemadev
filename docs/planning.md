@@ -43,7 +43,7 @@
 **Acceptance Criteria:**
 *   The system provides a `validate model` function that checks the entire data model against the gen3 [metaschema](https://github.com/uc-cdis/dictionaryutils/blob/master/dictionaryutils/schemas/metaschema.yaml).
 *   The system checks the data model against gen3 specific business rules.
-*   Validation errors and warnings are returned to the user, with each item containing a clear, human-readable message explaining the issue and referencing the specific entity or property at fault.
+*   Validation errors and warnings are returned to the user, with each item containing a clear, human-readable message explaining the issue and referencing the specific node or property at fault.
 *   The system prevents the generation of a JSON schema if there are critical errors present in the model.
 
 
