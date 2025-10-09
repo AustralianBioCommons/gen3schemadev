@@ -64,7 +64,7 @@ class node(BaseModel):
 
 
 class Link(BaseModel):
-    """A relationship between entities."""
+    """A relationship between nodes."""
     parent: str = Field(description="The parent node in the relationship.")
     multiplicity: Literal['one_to_many', 'many_to_one', 'one_to_one', 'many_to_many'] = Field(description="The cardinality of the relationship.")
     child: str = Field(description="The child node in the relationship.")
@@ -79,8 +79,8 @@ class DataModel(BaseModel):
     """
     version: str = Field(pattern=r'^\d+\.\d+\.\d+$', description="The semantic version of the configuration file.")
     url: AnyUrl = Field(description="The URL to the data portal.")
-    entities: List[node] = Field(description="A list of data entities (nodes) in the model.")
-    links: List[Link] = Field(description="A list of relationships between entities.")
+    nodes: List[node] = Field(description="A list of data nodes (nodes) in the model.")
+    links: List[Link] = Field(description="A list of relationships between nodes.")
 
     class ConfigDict:
         extra = 'forbid'

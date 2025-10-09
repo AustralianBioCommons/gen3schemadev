@@ -28,7 +28,7 @@ Please become familiar with some core data modelling concepts before starting:
 
 ## Data Modelling Core Concepts
 - [Core Principles to Data Modelling](docs/core_concepts/core_principles.md)
-  - [Entities](docs/core_concepts/core_principles.md#entities)
+  - [nodes](docs/core_concepts/core_principles.md#nodes)
   - [Properties](docs/core_concepts/core_principles.md#properties)
   - [Links](docs/core_concepts/core_principles.md#links)
 - [FAIR Concepts for Data Modelling](docs/core_concepts/fair.md)

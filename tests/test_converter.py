@@ -32,7 +32,7 @@ def test_get_node_data(fixture_input_yaml_pass):
 def test_get_node_data_not_found(fixture_input_yaml_pass):
     with pytest.raises(ValueError) as excinfo:
         get_node_data('nonexistent_node', fixture_input_yaml_pass)
-    assert "node 'nonexistent_node' not found in data.entities" in str(excinfo.value)
+    assert "node 'nonexistent_node' not found in data.nodes" in str(excinfo.value)
 
 
 def test_get_node_links(fixture_input_yaml_pass):

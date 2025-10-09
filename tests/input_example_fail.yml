@@ -1,7 +1,7 @@
 version: v0.1.0
 url: link-to-data-portal
 
-entities:
+nodes:
 - name: project
   description: Gen3 Compulsary Node
   category: random_file

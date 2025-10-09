@@ -138,7 +138,7 @@ def main():
         print("Validating input data model...")
         validated_model = DataModel.model_validate(data)
         node_names = get_node_names(validated_model)
-        print(f"Found entities: {node_names}")
+        print(f"Found nodes: {node_names}")
 
         for node in node_names:
             print(f"Populating template for node: '{node}'")

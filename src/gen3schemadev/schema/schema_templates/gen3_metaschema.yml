@@ -131,8 +131,8 @@ properties:
       - type
 
   links:
-    title: "Define a link to other entities"
-    description: "Array used to connect two entities within the commons."
+    title: "Define a link to other nodes"
+    description: "Array used to connect two nodes within the commons."
     type: array
     items:
       oneOf:

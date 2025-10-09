@@ -2,12 +2,12 @@
 Gen3 Schema Generation Module
 
 This module provides utilities for converting node and link data into Gen3 schema format.
-It handles node properties, links, and special cases like file entities that require
+It handles node properties, links, and special cases like file nodes that require
 core metadata collections.
 
 Expected Data Structure:
     The input data should be a Pydantic model with:
-    - entities: List of node objects with attributes: name, description, category, properties, links
+    - nodes: List of node objects with attributes: name, description, category, properties, links
     - links: List of link objects with attributes: child, parent, multiplicity
 """
 
@@ -49,7 +49,7 @@ class LinkProtocol(Protocol):
 @runtime_checkable
 class DataSourceProtocol(Protocol):
     """Protocol defining the expected structure of input data."""
-    entities: list[nodeProtocol]
+    nodes: list[nodeProtocol]
     links: list[LinkProtocol]
 
 
@@ -70,7 +70,7 @@ class node:
 
 @dataclass
 class LinkObj:
-    """Represents a link between two entities in Gen3 schema."""
+    """Represents a link between two nodes in Gen3 schema."""
     name: str
     backref: str
     label: str | None
@@ -113,12 +113,12 @@ def get_node_names(data: DataSourceProtocol) -> list[str]:
     Retrieve a list of node names from the data structure.
 
     Args:
-        data: The data structure containing entities.
+        data: The data structure containing nodes.
 
     Returns:
         A list of node names.
     """
-    return [node.name for node in data.entities]
+    return [node.name for node in data.nodes]
 
 
 def get_node_data(node: str, data: DataSourceProtocol) -> nodeProtocol:
@@ -127,23 +127,23 @@ def get_node_data(node: str, data: DataSourceProtocol) -> nodeProtocol:
 
     Args:
         node: The name of the node to retrieve.
-        data: The data structure containing entities.
+        data: The data structure containing nodes.
 
     Returns:
         The node object matching the given name.
 
     Raises:
-        ValueError: If the node is not found in data.entities.
+        ValueError: If the node is not found in data.nodes.
         AttributeError: If the data structure is invalid.
     """
-    if not hasattr(data, 'entities'):
-        raise AttributeError("Data structure missing 'entities' attribute")
+    if not hasattr(data, 'nodes'):
+        raise AttributeError("Data structure missing 'nodes' attribute")
 
     try:
-        for ent in data.entities:
+        for ent in data.nodes:
             if ent.name == node:
                 return ent
-        raise ValueError(f"node '{node}' not found in data.entities")
+        raise ValueError(f"node '{node}' not found in data.nodes")
     except AttributeError as e:
         raise AttributeError(f"Invalid data structure: {e}")
 
@@ -177,7 +177,7 @@ def create_core_metadata_link(child_name: str) -> dict:
     """
     Create a link dictionary for core metadata collections.
 
-    This is used for file entities that must be linked to a core_metadata_collection.
+    This is used for file nodes that must be linked to a core_metadata_collection.
 
     Args:
         child_name: The name of the child node.
@@ -224,7 +224,7 @@ def convert_node_links(links: list[dict], required: bool = True) -> list[dict]:
 
 def add_core_metadata_link(links: list[dict], child_name: str) -> list[dict]:
     """
-    Add a core metadata link to an existing list of links for file entities.
+    Add a core metadata link to an existing list of links for file nodes.
 
     Args:
         links: Existing list of link dictionaries.
@@ -309,7 +309,7 @@ def get_properties(node_name: str, data: DataSourceProtocol) -> list[dict]:
 
     Args:
         node_name: The name of the node.
-        data: The data structure containing entities.
+        data: The data structure containing nodes.
 
     Returns:
         A list of property dictionaries, or an empty list if no properties found.
@@ -513,7 +513,7 @@ def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
 
     Args:
         node_name: The name of the node.
-        data: The data structure containing entities and links.
+        data: The data structure containing nodes and links.
 
     Returns:
         A dictionary of all properties (including links) for the node.
@@ -547,7 +547,7 @@ def get_category(node_name: str, data: DataSourceProtocol) -> str:
 
     Args:
         node_name: The name of the node.
-        data: The data structure containing entities.
+        data: The data structure containing nodes.
 
     Returns:
         The category value (as a string).
@@ -571,7 +571,7 @@ def get_node_value(node_name: str, key: str, data: DataSourceProtocol) -> str | 
     Args:
         node_name: The name of the node to retrieve.
         key: The key whose value is to be returned.
-        data: The data structure containing entities.
+        data: The data structure containing nodes.
 
     Returns:
         The value associated with the specified key in the node object.
@@ -595,7 +595,7 @@ def is_file_node(node_name: str, data: DataSourceProtocol) -> bool:
 
     Args:
         node_name: The name of the node.
-        data: The data structure containing entities.
+        data: The data structure containing nodes.
 
     Returns:
         True if the node is a file node, False otherwise.
@@ -660,7 +660,7 @@ def populate_template(node_name: str, input_data: DataSourceProtocol, template: 
     links = get_node_links(node_name, input_data)
     converted_links = convert_node_links(links)
     
-    # Add core metadata link for file entities
+    # Add core metadata link for file nodes
     if file_node and links:
         converted_links = add_core_metadata_link(converted_links, links[0]['child'])
     
