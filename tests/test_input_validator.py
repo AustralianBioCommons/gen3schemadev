@@ -38,5 +38,5 @@ def test_validate_input_yaml_fail(fixture_input_yaml_fail):
     assert "url" in errors  # url: 'link-to-data-portal' is not a valid URL
     # Check for invalid multiplicity value in links
     assert "links.0.multiplicity" in errors  # multiplicity: 'one_to_heaps' is not allowed
-    # Check for invalid category value in entities
-    assert "entities.0.category" in errors  # category: 'random_file' is not allowed
+    # Check for invalid category value in nodes
+    assert "nodes.0.category" in errors  # category: 'random_file' is not allowed

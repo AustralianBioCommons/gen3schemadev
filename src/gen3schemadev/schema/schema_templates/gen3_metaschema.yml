@@ -8,20 +8,20 @@ allOf:
   - $ref: "http://json-schema.org/draft-04/schema#"
 
 required:
-  - id #unique identifier for entity
-  - title #name of the entity
-  - type #type of entity/ should be object by default
+  - id #unique identifier for node
+  - title #name of the node
+  - type #type of node/ should be object by default
   - category #potentially used in submission system, if not may not be needed
   - program
   - project
-  - description #description of entity
-  - submittable #boolean, can data be submitted to this entity
+  - description #description of node
+  - submittable #boolean, can data be submitted to this node
   - validators #specify to the validator additional functions to run on the values
   - systemProperties #non-user facing properties required by backend
   - uniqueKeys #for validator to check uniqueness
   - links #to specify to the validator what properties are links and their targets
   - required #list of required properties
-  - properties #properties of the entity
+  - properties #properties of the node
 
 
 # Properties:
@@ -31,26 +31,26 @@ properties:
     type: 
       - string
       - 'null'
-    description: "Version of the entity."
+    description: "Version of the node."
 
   id:
     type: string
-    description: "Unique identifier for the entity."
+    description: "Unique identifier for the node."
 
   title:
     type: string
-    description: "Name of the entity."
+    description: "Name of the node."
 
   type:
     type: string
-    description: "Type of entity, should be 'object' by default."
+    description: "Type of node, should be 'object' by default."
     default: object
   
   namespace:
     type: 
       - string
       - 'null'
-    description: "Namespace of the entity."
+    description: "Namespace of the node."
 
   category:
     description: "Generalized role that the node has in the commons data model. *_file nodes are reserved for those nodes that have corresponding files in object store."
@@ -81,7 +81,7 @@ properties:
 
   description:
     type: string
-    description: "Description of the entity."
+    description: "Description of the node."
     default: ''
     
   submittable:
@@ -122,7 +122,7 @@ properties:
       - [project_id, submitter_id]
   
   required:
-    description: "List of required properties for the entity."
+    description: "List of required properties for the node."
     type: array
     items:
       type: string
@@ -131,8 +131,8 @@ properties:
       - type
 
   links:
-    title: "Define a link to other entities"
-    description: "Array used to connect two entities within the commons."
+    title: "Define a link to other nodes"
+    description: "Array used to connect two nodes within the commons."
     type: array
     items:
       oneOf:
@@ -141,7 +141,7 @@ properties:
 
   properties:
     type: object
-    description: "Properties of the entity."
+    description: "Properties of the node."
     additionalProperties:
       oneOf:
         - $ref: "#/definitions/propertyDef"

@@ -6,7 +6,7 @@ This repository aims to provide the documentation, learning materials, and softw
 
 **Pre-Reading**
 Please become familiar with some core data modelling concepts before starting:
-- [What is Entity Relationship Diagram? (Conceptual Data Models)](https://www.visual-paradigm.com/guide/data-modeling/what-is-entity-relationship-diagram/#erd-data-models-conceptual)
+- [What is node Relationship Diagram? (Conceptual Data Models)](https://www.visual-paradigm.com/guide/data-modeling/what-is-node-relationship-diagram/#erd-data-models-conceptual)
 
 
 
@@ -28,7 +28,7 @@ Please become familiar with some core data modelling concepts before starting:
 
 ## Data Modelling Core Concepts
 - [Core Principles to Data Modelling](docs/core_concepts/core_principles.md)
-  - [Entities](docs/core_concepts/core_principles.md#entities)
+  - [nodes](docs/core_concepts/core_principles.md#nodes)
   - [Properties](docs/core_concepts/core_principles.md#properties)
   - [Links](docs/core_concepts/core_principles.md#links)
 - [FAIR Concepts for Data Modelling](docs/core_concepts/fair.md)

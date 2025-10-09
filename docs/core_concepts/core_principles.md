@@ -4,7 +4,7 @@
 Data modelling in Gen3SchemaDev focuses on the following core concepts:
 - [Core Principles to Data Modelling](#core-principles-to-data-modelling)
   - [Table of Contents](#table-of-contents)
-- [Entities](#entities)
+- [nodes](#nodes)
 - [Properties](#properties)
   - [Data types](#data-types)
   - [Enums](#enums)
@@ -18,16 +18,16 @@ Data modelling in Gen3SchemaDev focuses on the following core concepts:
 
 
 
-# Entities
-An entity represents a table of data in the data model. Entities encapsulate related information, for example, information about the patient, the sample, sequencing run, output files, etc. When data is submitted to the data model, each table of metadata will correspond to a specific entity. 
+# nodes
+An node represents a table of data in the data model. nodes encapsulate related information, for example, information about the patient, the sample, sequencing run, output files, etc. When data is submitted to the data model, each table of metadata will correspond to a specific node. 
 
-The example below shows the entities `program`, `project`, `subject`, `acknowledgement`, `publication`, and `core_metadata_collection`.
+The example below shows the nodes `program`, `project`, `subject`, `acknowledgement`, `publication`, and `core_metadata_collection`.
 
 
-![entity_example](entity_example.png)
+![node_example](node_example.png)
 
 # Properties
-Properties are found within entities. Properties can be thought of as the columns in a table. Each properties will have the property name (column name), a description of what the property is, and a data type. 
+Properties are found within nodes. Properties can be thought of as the columns in a table. Each properties will have the property name (column name), a description of what the property is, and a data type. 
 
 ## Data types
 | Data Type  | Description                                      | Example Value         |
@@ -50,7 +50,7 @@ For example, a property that specifies the experiment type could be defined as: 
 
 
 # Links
-Links are used to connect entities together. Links are directional, always connecting a child entity up to its parent. 
+Links are used to connect nodes together. Links are directional, always connecting a child node up to its parent. 
 
 Importantly, links have a `multiplicity`, which can be one of: 
 - `one_to_one`
@@ -60,7 +60,7 @@ Importantly, links have a `multiplicity`, which can be one of:
 
 ## Example:
 
-The example below shows some properties from the `medical_history` entity. Notice how the first column is the property name, the second column is the data type, the third whether the property is required or not, and the fourth is the description.
+The example below shows some properties from the `medical_history` node. Notice how the first column is the property name, the second column is the data type, the third whether the property is required or not, and the fourth is the description.
 
 ![prop_example](prop_example.png)
 
@@ -73,7 +73,7 @@ The example below shows some properties from the `medical_history` entity. Notic
 
 How would we define these links?
 
-First, lets define the `entities`:
+First, lets define the `nodes`:
 - `patient`
 - `blood_sample`
 - `mortality`
@@ -87,7 +87,7 @@ Then, lets define the `links`:
 ### Example 2
 > Use case: "Multiple samples are loaded into a mass spectrometry machine each run, which produces a batch of mass spectrometry data files. However, all the data files from every mass spectrometry run are analysed with a single lipidomics workflow."
 
-Lets define the `entities`:
+Lets define the `nodes`:
 - `sample`
 - `mass_spectrometry_run`
 - `mass_spectrometry_data_file`

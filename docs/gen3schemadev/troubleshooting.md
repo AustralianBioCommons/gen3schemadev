@@ -30,7 +30,7 @@ version
 url
   Input should be a valid URL, relative URL without a base [type=url_parsing, input_value='link-to-data-portal', input_type=str]
     For further information visit https://errors.pydantic.dev/2.11/v/url_parsing
-entities.0.category
+nodes.0.category
   Input should be 'administrative', 'analysis', 'biospecimen', 'clinical', 'data', 'data_bundle', 'data_file', 'index_file', 'metadata_file', 'notation', 'qc_bundle' or 'TBD' [type=enum, input_value='random_file', input_type=str]
     For further information visit https://errors.pydantic.dev/2.11/v/enum
 links.0.multiplicity
@@ -50,10 +50,10 @@ Pydantic uses **dot notation** to specify where in the YAML structure each error
 **Examples:**
 
 - `version` → The top-level field called "version"
-- `entities.0.category` → Find the `entities` field, grab the **first** entry (index 0), then get its `category` value
+- `nodes.0.category` → Find the `nodes` field, grab the **first** entry (index 0), then get its `category` value
 - `links.0.multiplicity` → Find the `links` field, grab the **first** entry (index 0), then get its `multiplicity` value
 
-Think of the numbers as counting positions in a list, where the first item is 0, the second is 1, and so on. So `entities.0` means "the first item in the entities list", and `entities.1` would mean "the second item in the entities list".
+Think of the numbers as counting positions in a list, where the first item is 0, the second is 1, and so on. So `nodes.0` means "the first item in the nodes list", and `nodes.1` would mean "the second item in the nodes list".
 
 Each error entry contains several key components that help identify and fix issues:[15]
 
@@ -119,16 +119,16 @@ url: https://link-to-data-portal.example.com
 
 **Error Message:**
 ```
-entities.0.category
+nodes.0.category
   Input should be 'administrative', 'analysis', 'biospecimen', 'clinical', 'data', 'data_bundle', 'data_file', 'index_file', 'metadata_file', 'notation', 'qc_bundle' or 'TBD' [type=enum, input_value='random_file', input_type=str]
 ```
 
-**Location Path:** `entities.0.category` → Find the `entities` field, go to the **first entry** (index 0), then locate the `category` field within that entry.
+**Location Path:** `nodes.0.category` → Find the `nodes` field, go to the **first entry** (index 0), then locate the `category` field within that entry.
 
 **Problematic YAML (from [input_example_fail.yml](../../examples/input/input_example_fail.yml)):**
 ```yaml
-entities:
-- name: project          # This is entities[0] - the first item
+nodes:
+- name: project          # This is nodes[0] - the first item
   description: Gen3 Compulsory Node
   category: random_file  # This is the problematic field
 ```
@@ -137,7 +137,7 @@ entities:
 
 **Solution:**
 ```yaml
-entities:
+nodes:
 - name: project
   description: Gen3 Compulsory Node
   category: administrative  # Changed to a valid enum value
