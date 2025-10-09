@@ -527,6 +527,8 @@ def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
     
     # Flatten property dicts into a single dict
     props_dict = {}
+    # add ubiquitous property ref
+    props_dict['$ref'] = "_definitions.yaml#/ubiquitous_properties"
     for prop in props:
         if isinstance(prop, dict):
             prop = format_enum(prop)

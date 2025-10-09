@@ -447,14 +447,16 @@ def test_format_enum_missing_description():
 def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
     result = construct_props("lipidomics_file", fixture_input_yaml_pass)
     expected = {
-        'samples': {'$ref': '_definitions.yaml#/to_many'},
-        'assays': {'$ref': '_definitions.yaml#/to_many'}
+        "$ref": "_definitions.yaml#/ubiquitous_properties",
+        "samples": {"$ref": "_definitions.yaml#/to_many"},
+        "assays": {"$ref": "_definitions.yaml#/to_many"}
     }
     assert result == expected
 
 def test_construct_prop_sample(fixture_input_yaml_pass):
     result = construct_props("sample", fixture_input_yaml_pass)
     expected = {
+        "$ref": "_definitions.yaml#/ubiquitous_properties",
         "sample_id": {
             "type": "string",
             "description": "Sample ID (string)"
@@ -565,6 +567,7 @@ def fixture_expected_output_lipid():
             ]
         }],
         'properties': {
+            '$ref': '_definitions.yaml#/ubiquitous_properties',
             'samples': {'$ref': '_definitions.yaml#/to_many'},
             'assays': {'$ref': '_definitions.yaml#/to_many'}
         }
