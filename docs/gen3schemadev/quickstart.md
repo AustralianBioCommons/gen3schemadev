@@ -40,10 +40,10 @@ gen3schemadev validate -y gen3_data_dictionary
 ```
 
 
-## Visualize schema
+## Visualise the `Gen3 Data Dictionary`
 - To view what the `Gen3 Bundled Schema` looks like, we can use the `gen3schemadev visualize` command.
 ```bash
-gen3schemadev visualize -i gen3_data_dictionary/gen3_bundled_schema.json
+gen3schemadev visualise -i gen3_data_dictionary/gen3_bundled_schema.json
 ```
 
 
