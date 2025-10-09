@@ -1,9 +1,9 @@
 # Creating your first gen3 data dictionary
 
 ## Table of Contents
-
 - [Creating your first gen3 data dictionary](#creating-your-first-gen3-data-dictionary)
   - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
   - [Gen3 `input_yaml` file](#gen3-input_yaml-file)
   - [1. Adding Version and URL](#1-adding-version-and-url)
   - [2. Nodes](#2-nodes)
@@ -25,6 +25,9 @@
     - [Example 1](#example-1)
     - [Example 2](#example-2)
 
+***
+
+## Introduction
 
 Gen3 uses a graph model to represent the data model. A graph model is a collection of nodes and links. Nodes represent entities, and links represent relationships between entities.
 
@@ -39,7 +42,7 @@ For the purpose of this guide we will use the following terminology:
 
 You can read more about the structure of the gen3 data model [here](../../docs/gen3_data_modelling/dictionary_structure.md).
 
---
+***
 
 ## Gen3 `input_yaml` file
 
