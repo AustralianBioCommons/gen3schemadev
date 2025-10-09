@@ -1,9 +1,0 @@
-ID,TITLE,CATEGORY,DESCRIPTION,DEFINITION_REFS,NAMESPACE,SYSTEM_PROPERTIES
-project,Project,administrative,The study the data is coming from,,http://commons.heartdata.baker.edu.au/,id;state;released;releasable;intended_release_date
-publication,Publication,administrative,Publication for a project,,http://commons.heartdata.baker.edu.au/,id;project_id;state;created_datetime;updated_datetime
-acknowledgement,Acknowledgement,administrative,Acknowledgement of an individual or group involved in a project.,,http://commons.heartdata.baker.edu.au/,id;project_id;state;created_datetime;updated_datetime
-sample,Sample,biospecimen,Biospecimen information that links subjects to samples including sample's provider and source.,,http://commons.heartdata.baker.edu.au/,id;project_id;state;created_datetime;updated_datetime
-subject,Subject,clinical,An individual participant in the study with baseline measurements.,,http://commons.heartdata.baker.edu.au/,id;project_id;state;created_datetime;updated_datetime
-demographic,Demographic,clinical,"Data for the characterization of the patient by means of segementing the population (e.g. characterization by age, sex, or race).",,http://commons.heartdata.baker.edu.au/,id;project_id;state;created_datetime;updated_datetime
-medical_history,Medical History,clinical,Medical history of the participant,,http://commons.heartdata.baker.edu.au/,id;project_id;state;created_datetime;updated_datetime
-lipidomics_file,Lipidomics File,data_file,Data file containing lipidomics data,[data_file_properties],http://commons.heartdata.baker.edu.au/,id;project_id;state;created_datetime;updated_datetime

@@ -32,8 +32,6 @@ uniqueKeys:
 - - id
 - - project_id
   - submitter_id
-preferred:
-- year_birth
 properties:
   $ref: _definitions.yaml#/ubiquitous_properties
   subjects:

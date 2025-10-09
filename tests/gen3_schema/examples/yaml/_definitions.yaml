@@ -207,7 +207,9 @@ ubiquitous_properties:
     type: string
     description: 'A project-specific identifier for a node. This property is the calling
       card/nickname/alias for a unit of submission. It can be used in place of the
-      UUID for identifying or recalling a node.'
+      UUID for identifying or recalling a node.
+
+      '
   state:
     $ref: '#/state'
   project_id:

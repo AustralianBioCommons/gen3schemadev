@@ -1,33 +1,40 @@
 $schema: http://json-schema.org/draft-04/schema#
-additionalProperties: false
-category: internal
-description: 'Internal node to store different data releases.
-
-  '
-id: data_release
-links:
-- backref: data_releases
-  label: describes
-  multiplicity: many_to_one
-  name: roots
-  required: true
-  target_type: root
-namespace: http://gdc.nci.nih.gov
+id: acknowledgement
+title: Acknowledgement
+type: object
+namespace: http://commons.heartdata.baker.edu.au/
+category: administrative
 program: '*'
 project: '*'
+description: Acknowledgement of an individual or group involved in a project.
+additionalProperties: false
+submittable: true
+validators: null
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+links:
+- name: projects
+  backref: acknowledgements
+  label: contribute_to
+  target_type: project
+  multiplicity: many_to_many
+  required: true
+required:
+- type
+- submitter_id
+- projects
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
 properties:
-  created_datetime:
-    oneOf:
-    - format: date-time
-      type: string
-    - type: 'null'
-    term:
-      description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
-
-        '
+  type:
+    type: string
   id:
-    pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
-    systemAlias: node_id
     term:
       description: 'A 128-bit identifier. Depending on the mechanism used to generate
         it, it is either guaranteed to be different from all other UUIDs/GUIDs generated
@@ -37,51 +44,86 @@ properties:
 
         '
       termDef:
+        term: Universally Unique Identifier
+        source: NCIt
         cde_id: C54100
         cde_version: null
-        source: NCIt
-        term: Universally Unique Identifier
         term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
     type: string
-  major_version:
-    description: 'The number identifying the major version.
-
-      '
-    type: integer
-  minor_version:
-    description: 'The number identifying the minor version.
-
-      '
-    type: integer
-  name:
-    description: 'String representing release name.
-
-      '
+    pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+    systemAlias: node_id
+  submitter_id:
     type: string
-  release_date:
+    description: 'A project-specific identifier for a node. This property is the calling
+      card/nickname/alias for a unit of submission. It can be used in place of the
+      UUID for identifying or recalling a node.
+
+      '
+  state:
+    term:
+      description: 'The current state of the object.
+
+        '
+    default: validated
+    downloadable:
+    - uploaded
+    - md5summed
+    - validating
+    - validated
+    - error
+    - invalid
+    - released
+    public:
+    - live
     oneOf:
-    - format: date-time
-      type: string
+    - enum:
+      - uploading
+      - uploaded
+      - md5summing
+      - md5summed
+      - validating
+      - error
+      - invalid
+      - suppressed
+      - redacted
+      - live
+    - enum:
+      - validated
+      - submitted
+      - released
+  project_id:
+    type: string
+    term:
+      description: 'Unique ID for any specific defined piece of work that is undertaken
+        or attempted to meet a single requirement.
+
+        '
+  created_datetime:
+    oneOf:
+    - type: string
+      format: date-time
     - type: 'null'
     term:
       description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
 
         '
-  released:
-    default: false
-    description: 'Indicates if it is the current release.
+  updated_datetime:
+    oneOf:
+    - type: string
+      format: date-time
+    - type: 'null'
+    term:
+      description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
 
-      '
-    type: boolean
-  roots:
+        '
+  projects:
     anyOf:
-    - items:
+    - type: array
+      items:
+        type: object
         additionalProperties: true
-        maxItems: 1
-        minItems: 1
         properties:
           id:
-            pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
             term:
               description: 'A 128-bit identifier. Depending on the mechanism used
                 to generate it, it is either guaranteed to be different from all other
@@ -92,20 +134,20 @@ properties:
 
                 '
               termDef:
+                term: Universally Unique Identifier
+                source: NCIt
                 cde_id: C54100
                 cde_version: null
-                source: NCIt
-                term: Universally Unique Identifier
                 term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
             type: string
-          submitter_id:
+            pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+          code:
             type: string
-        type: object
-      type: array
-    - additionalProperties: true
+        minItems: 1
+    - type: object
+      additionalProperties: true
       properties:
         id:
-          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
           term:
             description: 'A 128-bit identifier. Depending on the mechanism used to
               generate it, it is either guaranteed to be different from all other
@@ -116,39 +158,12 @@ properties:
 
               '
             termDef:
+              term: Universally Unique Identifier
+              source: NCIt
               cde_id: C54100
               cde_version: null
-              source: NCIt
-              term: Universally Unique Identifier
               term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
           type: string
-        submitter_id:
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        code:
           type: string
-      type: object
-  type:
-    enum:
-    - data_release
-  updated_datetime:
-    oneOf:
-    - format: date-time
-      type: string
-    - type: 'null'
-    term:
-      description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
-
-        '
-required:
-- name
-- major_version
-- minor_version
-- type
-submittable: false
-systemProperties:
-- id
-- created_datetime
-- updated_datetime
-title: Data Release
-type: object
-uniqueKeys:
-- - id
-validators: null
