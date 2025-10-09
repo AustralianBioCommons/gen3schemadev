@@ -1,0 +1,186 @@
+$schema: http://json-schema.org/draft-04/schema#
+id: sample
+title: Sample
+type: object
+namespace: http://commons.heartdata.baker.edu.au/
+category: biospecimen
+program: '*'
+project: '*'
+description: Biospecimen information that links subjects to samples including sample's
+  provider and source.
+additionalProperties: false
+submittable: true
+validators: null
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+links:
+- name: subjects
+  backref: samples
+  label: taken_from
+  target_type: subject
+  multiplicity: many_to_one
+  required: true
+required:
+- type
+- submitter_id
+- subjects
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+properties:
+  type:
+    type: string
+  id:
+    term:
+      description: 'A 128-bit identifier. Depending on the mechanism used to generate
+        it, it is either guaranteed to be different from all other UUIDs/GUIDs generated
+        until 3400 AD or extremely likely to be different. Its relatively small size
+        lends itself well to sorting, ordering, and hashing of all sorts, storing
+        in databases, simple allocation, and ease of programming in general.
+
+        '
+      termDef:
+        term: Universally Unique Identifier
+        source: NCIt
+        cde_id: C54100
+        cde_version: null
+        term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
+    type: string
+    pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+    systemAlias: node_id
+  submitter_id:
+    type: string
+    description: 'A project-specific identifier for a node. This property is the calling
+      card/nickname/alias for a unit of submission. It can be used in place of the
+      UUID for identifying or recalling a node.
+
+      '
+  state:
+    term:
+      description: 'The current state of the object.
+
+        '
+    default: validated
+    downloadable:
+    - uploaded
+    - md5summed
+    - validating
+    - validated
+    - error
+    - invalid
+    - released
+    public:
+    - live
+    oneOf:
+    - enum:
+      - uploading
+      - uploaded
+      - md5summing
+      - md5summed
+      - validating
+      - error
+      - invalid
+      - suppressed
+      - redacted
+      - live
+    - enum:
+      - validated
+      - submitted
+      - released
+  project_id:
+    type: string
+    term:
+      description: 'Unique ID for any specific defined piece of work that is undertaken
+        or attempted to meet a single requirement.
+
+        '
+  created_datetime:
+    oneOf:
+    - type: string
+      format: date-time
+    - type: 'null'
+    term:
+      description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
+
+        '
+  updated_datetime:
+    oneOf:
+    - type: string
+      format: date-time
+    - type: 'null'
+    term:
+      description: 'A combination of date and time of day in the form [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]
+
+        '
+  subjects:
+    anyOf:
+    - type: array
+      items:
+        type: object
+        additionalProperties: true
+        properties:
+          id:
+            term:
+              description: 'A 128-bit identifier. Depending on the mechanism used
+                to generate it, it is either guaranteed to be different from all other
+                UUIDs/GUIDs generated until 3400 AD or extremely likely to be different.
+                Its relatively small size lends itself well to sorting, ordering,
+                and hashing of all sorts, storing in databases, simple allocation,
+                and ease of programming in general.
+
+                '
+              termDef:
+                term: Universally Unique Identifier
+                source: NCIt
+                cde_id: C54100
+                cde_version: null
+                term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
+            type: string
+            pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+          submitter_id:
+            type: string
+        minItems: 1
+        maxItems: 1
+    - type: object
+      additionalProperties: true
+      properties:
+        id:
+          term:
+            description: 'A 128-bit identifier. Depending on the mechanism used to
+              generate it, it is either guaranteed to be different from all other
+              UUIDs/GUIDs generated until 3400 AD or extremely likely to be different.
+              Its relatively small size lends itself well to sorting, ordering, and
+              hashing of all sorts, storing in databases, simple allocation, and ease
+              of programming in general.
+
+              '
+            termDef:
+              term: Universally Unique Identifier
+              source: NCIt
+              cde_id: C54100
+              cde_version: null
+              term_url: https://ncit.nci.nih.gov/ncitbrowser/ConceptReport.jsp?dictionary=NCI_Thesaurus&version=16.02d&ns=NCI_Thesaurus&code=C54100
+          type: string
+          pattern: ^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$
+        submitter_id:
+          type: string
+  sample_provider:
+    description: The name of collaborating institute that provided the sample
+    enum:
+    - Baker
+    - USYD
+    - UMELB
+    - UQ
+  sample_source:
+    description: Uberon identifier, anatomical location as described by the Uber Anatomy
+      Ontology (UBERON). (CMG, CCDG)
+    type: string
+    pattern: ^UBERON:[0-9]{7}$
+  sample_type:
+    description: A string saying the type of sample
+    type: string

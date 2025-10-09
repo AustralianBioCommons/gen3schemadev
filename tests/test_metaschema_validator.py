@@ -84,12 +84,12 @@ def fixture_metaschema() -> dict:
 @pytest.fixture
 def fixture_gen3_schema_pass() -> dict:
     """Provides a valid Gen3 schema."""
-    return _get_demographic_schema('gen3_schema/schema_dev_pass.json')
+    return _get_demographic_schema('gen3_schema/testing/schema_dev_pass.json')
 
 @pytest.fixture
 def fixture_gen3_schema_fail() -> dict:
     """Provides an invalid Gen3 schema."""
-    return _get_demographic_schema('gen3_schema/schema_dev_fail.json')
+    return _get_demographic_schema('gen3_schema/testing/schema_dev_fail.json')
 
 
 # --- Test Cases ---
