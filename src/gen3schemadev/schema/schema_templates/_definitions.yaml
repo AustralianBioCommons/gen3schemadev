@@ -108,7 +108,7 @@ object_id:
     description: "The GUID of the object in the index service."
 
 release_state:
-    description: "Release state of an entity."
+    description: "Release state of an node."
     default: unreleased
     enum:
       - unreleased

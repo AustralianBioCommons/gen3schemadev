@@ -15,28 +15,28 @@ def fixture_input_yaml_pass():
     return DataModel.model_validate(data)
 
 
-def test_get_entity_names(fixture_input_yaml_pass):
-    entity_names = get_entity_names(fixture_input_yaml_pass)
-    assert 'lipidomics_file' in entity_names
-    assert 'sample' in entity_names
-    assert 'project' in entity_names
-    assert 'assay' in entity_names
+def test_get_node_names(fixture_input_yaml_pass):
+    node_names = get_node_names(fixture_input_yaml_pass)
+    assert 'lipidomics_file' in node_names
+    assert 'sample' in node_names
+    assert 'project' in node_names
+    assert 'assay' in node_names
 
-def test_get_entity_data(fixture_input_yaml_pass):
-    entity = get_entity_data('lipidomics_file', fixture_input_yaml_pass)
-    assert entity.name == 'lipidomics_file'
-    assert entity.description == 'Info about lipidomics file'
-    assert entity.category.value == 'data_file'
-    assert isinstance(entity.properties, list)
+def test_get_node_data(fixture_input_yaml_pass):
+    node = get_node_data('lipidomics_file', fixture_input_yaml_pass)
+    assert node.name == 'lipidomics_file'
+    assert node.description == 'Info about lipidomics file'
+    assert node.category.value == 'data_file'
+    assert isinstance(node.properties, list)
 
-def test_get_entity_data_not_found(fixture_input_yaml_pass):
+def test_get_node_data_not_found(fixture_input_yaml_pass):
     with pytest.raises(ValueError) as excinfo:
-        get_entity_data('nonexistent_entity', fixture_input_yaml_pass)
-    assert "Entity 'nonexistent_entity' not found in data.entities" in str(excinfo.value)
+        get_node_data('nonexistent_node', fixture_input_yaml_pass)
+    assert "node 'nonexistent_node' not found in data.entities" in str(excinfo.value)
 
 
-def test_get_entity_links(fixture_input_yaml_pass):
-    links = get_entity_links('lipidomics_file', fixture_input_yaml_pass)
+def test_get_node_links(fixture_input_yaml_pass):
+    links = get_node_links('lipidomics_file', fixture_input_yaml_pass)
     assert len(links) == 2
     assert dict(links[0]) == {'parent': 'sample', 'multiplicity': 'one_to_many', 'child': 'lipidomics_file'}
 
@@ -59,14 +59,14 @@ def test_create_core_metadata_link():
 
 
 
-def test_convert_entity_links():
-    # Prepare a list of link dicts as would be returned by get_entity_links
+def test_convert_node_links():
+    # Prepare a list of link dicts as would be returned by get_node_links
     links = [
         {"parent": "sample", "multiplicity": "many_to_one", "child": "lipidomics_file"},
         {"parent": "project", "multiplicity": "one_to_many", "child": "sample"},
     ]
     # Call the function
-    result = convert_entity_links(links, required=True)
+    result = convert_node_links(links, required=True)
     # Should return a list of dicts, one for each input link
     assert isinstance(result, list)
     assert len(result) == 2
@@ -89,13 +89,13 @@ def test_convert_entity_links():
     assert "label" in link1 and link1["label"] is None
 
     # Test with required=False
-    result2 = convert_entity_links(links, required=False)
+    result2 = convert_node_links(links, required=False)
     assert all(link["required"] is False for link in result2)
 
 
 
 def test_add_core_metadata_link():
-    # Prepare a list of link dicts (as would be output from convert_entity_links)
+    # Prepare a list of link dicts (as would be output from convert_node_links)
     links = [
         {
             "name": "samples",
@@ -187,7 +187,7 @@ def test_format_multiplicity_pass():
 
 
 def test_create_link_prop():
-    # Test with a typical entity and multiplicity
+    # Test with a typical node and multiplicity
     prop = create_link_prop("sample", "one_to_many")
     assert isinstance(prop, dict)
     # The key should be the link_suffix of "sample", which is "samples"
@@ -197,7 +197,7 @@ def test_create_link_prop():
     assert "$ref" in prop["samples"]
     assert prop["samples"]["$ref"] == "_definitions.yaml#/to_many"
 
-    # Test with another entity and multiplicity
+    # Test with another node and multiplicity
     prop2 = create_link_prop("core_metadata_collection", "one_to_one")
     assert "core_metadata_collections" in prop2
     assert prop2["core_metadata_collections"]["$ref"] == "_definitions.yaml#/to_one"
@@ -206,10 +206,10 @@ def test_create_link_prop():
     assert len(prop) == 1
     assert len(prop2) == 1
 
-    # Test with unusual entity name
-    prop3 = create_link_prop("weird_entity", "many_to_one")
-    assert "weird_entitys" in prop3
-    assert prop3["weird_entitys"]["$ref"] == "_definitions.yaml#/to_one"
+    # Test with unusual node name
+    prop3 = create_link_prop("weird_node", "many_to_one")
+    assert "weird_nodes" in prop3
+    assert prop3["weird_nodes"]["$ref"] == "_definitions.yaml#/to_one"
 
 
 
@@ -499,13 +499,13 @@ def test_get_category(fixture_input_yaml_pass):
     assert result == expected
 
 
-def test_get_entity_value(fixture_input_yaml_pass):
-    assert 'Info about lipidomics file' == get_entity_value("lipidomics_file", 'description', fixture_input_yaml_pass)
+def test_get_node_value(fixture_input_yaml_pass):
+    assert 'Info about lipidomics file' == get_node_value("lipidomics_file", 'description', fixture_input_yaml_pass)
 
 
-def test_is_file_entity(fixture_input_yaml_pass):
-    assert is_file_entity("lipidomics_file", fixture_input_yaml_pass)
-    assert not is_file_entity("sample", fixture_input_yaml_pass)
+def test_is_file_node(fixture_input_yaml_pass):
+    assert is_file_node("lipidomics_file", fixture_input_yaml_pass)
+    assert not is_file_node("sample", fixture_input_yaml_pass)
 
 @pytest.fixture
 def fixture_expected_output_lipid():

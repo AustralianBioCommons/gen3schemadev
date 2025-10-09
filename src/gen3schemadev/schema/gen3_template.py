@@ -1,4 +1,4 @@
-# Generates gen3 jsonschema template for a single entity using the gen3 metaschema
+# Generates gen3 jsonschema template for a single node using the gen3 metaschema
 from gen3schemadev.utils import *
 import os
 import yaml
@@ -25,7 +25,7 @@ def read_template_yaml(template_filename='template.yml'):
 
 def generate_gen3_template(metaschema: dict) -> dict:
     """
-    Generates a Gen3 JSON schema template for a single entity using the provided metaschema YAML file.
+    Generates a Gen3 JSON schema template for a single node using the provided metaschema YAML file.
 
     Args:
         metaschema (str): Path to the metaschema YAML file.

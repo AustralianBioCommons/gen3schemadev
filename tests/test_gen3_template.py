@@ -27,17 +27,17 @@ def fixture_minimum_metaschema():
         "properties": {
             "version": {
                 "type": "string",
-                "description": "Version of the entity.",
+                "description": "Version of the node.",
                 "default": "1.0.0"
             },
             "id": {
                 "type": "string",
-                "description": "Unique identifier for the entity."
+                "description": "Unique identifier for the node."
             },
             "title": {
                 "type": "string",
-                "description": "Name of the entity.",
-                "default": "default_entity_title"
+                "description": "Name of the node.",
+                "default": "default_node_title"
             }
         }
     }
@@ -50,7 +50,7 @@ def test_generate_gen3_template_output(fixture_minimum_metaschema):
         '$schema': 'http://json-schema.org/draft-04/schema#',
         'version': "1.0.0",
         'id': None,
-        'title': "default_entity_title"
+        'title': "default_node_title"
     }
     # Only keys present in the metaschema properties will be in the result
     # So update expected to only those keys

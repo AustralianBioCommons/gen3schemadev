@@ -13,7 +13,7 @@ from gen3schemadev.schema.gen3_template import (
 )
 from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json
 from gen3schemadev.schema.input_schema import DataModel
-from gen3schemadev.converter import get_entity_names, populate_template
+from gen3schemadev.converter import get_node_names, populate_template
 from gen3schemadev.utils import bundled_schema_to_list_dict, resolve_schema
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
 
@@ -137,14 +137,14 @@ def main():
         data = load_yaml(args.input)
         print("Validating input data model...")
         validated_model = DataModel.model_validate(data)
-        entity_names = get_entity_names(validated_model)
-        print(f"Found entities: {entity_names}")
+        node_names = get_node_names(validated_model)
+        print(f"Found entities: {node_names}")
 
-        for entity in entity_names:
-            print(f"Populating template for entity: '{entity}'")
-            out_template = populate_template(entity, validated_model, converter_template)
-            print(f"Writing output YAML to: {args.output}/{entity}.yaml")
-            write_yaml(out_template, f"{args.output}/{entity}.yaml")
+        for node in node_names:
+            print(f"Populating template for node: '{node}'")
+            out_template = populate_template(node, validated_model, converter_template)
+            print(f"Writing output YAML to: {args.output}/{node}.yaml")
+            write_yaml(out_template, f"{args.output}/{node}.yaml")
 
         print('Writing auxiliary files')
         write_yaml(generate_def_template(), f"{args.output}/_definitions.yaml")

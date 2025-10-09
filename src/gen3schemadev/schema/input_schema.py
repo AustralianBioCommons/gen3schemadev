@@ -15,7 +15,7 @@ class Property(BaseModel):
         'string', 'integer', 'number', 'boolean', 'datetime', 'enum'
     ] = Field(description="The data type of the property.")
     description: str = Field(description="A human-readable description of the property.")
-    required: bool = Field(default=False, description="Whether this property is required for the entity.")
+    required: bool = Field(default=False, description="Whether this property is required for the node.")
     # Accepts either a list of EnumValue objects or a list of strings (for YAML input like in input_example.yml)
     enums: Optional[List[str]] = Field(
         default=None,
@@ -52,12 +52,12 @@ class CategoryEnum(str, Enum):
     TBD = "TBD"
 
 
-class Entity(BaseModel):
-    """A data entity (node) in the model."""
-    name: str = Field(description="The unique name of the entity.")
-    description: Optional[str] = Field(default=None, description="A human-readable description of the entity.")
-    category: CategoryEnum = Field(description="The category the entity belongs to.")
-    properties: List[Property] = Field(default_factory=list, description="A list of properties for the entity.")
+class node(BaseModel):
+    """A data node (node) in the model."""
+    name: str = Field(description="The unique name of the node.")
+    description: Optional[str] = Field(default=None, description="A human-readable description of the node.")
+    category: CategoryEnum = Field(description="The category the node belongs to.")
+    properties: List[Property] = Field(default_factory=list, description="A list of properties for the node.")
     
     class ConfigDict:
         extra = 'forbid'
@@ -65,9 +65,9 @@ class Entity(BaseModel):
 
 class Link(BaseModel):
     """A relationship between entities."""
-    parent: str = Field(description="The parent entity in the relationship.")
+    parent: str = Field(description="The parent node in the relationship.")
     multiplicity: Literal['one_to_many', 'many_to_one', 'one_to_one', 'many_to_many'] = Field(description="The cardinality of the relationship.")
-    child: str = Field(description="The child entity in the relationship.")
+    child: str = Field(description="The child node in the relationship.")
     
     class ConfigDict:
         extra = 'forbid'
@@ -79,7 +79,7 @@ class DataModel(BaseModel):
     """
     version: str = Field(pattern=r'^\d+\.\d+\.\d+$', description="The semantic version of the configuration file.")
     url: AnyUrl = Field(description="The URL to the data portal.")
-    entities: List[Entity] = Field(description="A list of data entities (nodes) in the model.")
+    entities: List[node] = Field(description="A list of data entities (nodes) in the model.")
     links: List[Link] = Field(description="A list of relationships between entities.")
 
     class ConfigDict:
