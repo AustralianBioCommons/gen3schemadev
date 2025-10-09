@@ -12,8 +12,8 @@ Please become familiar with some core data modelling concepts before starting:
 
 ## Using Gen3SchemaDev as a data modelling tool
 - [Installation](docs/setup.md)
-- [Example Usage](docs/example_usage.md)
-- [Creating your first dictionary](docs/gen3schemadev/first_dicionary.md)
+- [Quickstart](docs/gen3schemadev/quickstart.md)
+- [Guide to creating your first dictionary](docs/gen3schemadev/first_dicionary.md)
 
 
 ## Deep dive into Gen3 Data Modelling
