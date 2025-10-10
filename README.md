@@ -4,14 +4,10 @@
 
 This repository aims to provide the documentation, learning materials, and software tools to facilitate the creation of a data model in Gen3.
 
-**Pre-Reading**
-Please become familiar with some core data modelling concepts before starting:
-- [What is node Relationship Diagram? (Conceptual Data Models)](https://www.visual-paradigm.com/guide/data-modeling/what-is-node-relationship-diagram/#erd-data-models-conceptual)
-
+***Pre-Reading**: Please become familiar with some [core data modelling concepts](docs/core_concepts/pre_reading.md) before starting.*
 
 
 ## Using Gen3SchemaDev as a data modelling tool
-- [Installation](docs/setup.md)
 - [Quickstart](docs/gen3schemadev/quickstart.md)
 - [Guide to creating your first dictionary](docs/gen3schemadev/first_dictionary.md)
 
@@ -25,11 +21,30 @@ Please become familiar with some core data modelling concepts before starting:
    3. [Properties](docs/gen3_data_modelling/properties.md)
 2. [Example of a Gen3 Schema yaml](docs/gen3_data_modelling/explainer_schema.yaml)
 3. [Handy tips](docs/gen3_data_modelling/handy_tips.md)
+4. [FAIR Concepts for Data Modelling](docs/core_concepts/fair.md)
 
-## Data Modelling Core Concepts
-- [Core Principles to Data Modelling](docs/core_concepts/core_principles.md)
-  - [nodes](docs/core_concepts/core_principles.md#nodes)
-  - [Properties](docs/core_concepts/core_principles.md#properties)
-  - [Links](docs/core_concepts/core_principles.md#links)
-- [FAIR Concepts for Data Modelling](docs/core_concepts/fair.md)
+## For Developers
+
+### Installation and testing
+```bash
+# To install
+pip install poetry
+poetry install
+source $(poetry env info --path)/bin/activate
+gen3schemadev --version
+
+# To run tests
+poetry run pytest
+```
+
+### Contributing
+Gen3SchemaDev is an open source project, and we highly encourage any contributions and PRs. Specifically we need the community to help with the following:
+1. Keeping the [gen3 metaschema](src/gen3schemadev/schema/schema_templates/gen3_metaschema.yml) up to date 
+2. Adding business rule logic to the [rule validator](src/gen3schemadev/validators/rule_validator.py) module. 
+   1. For example, a node with the category `data_file` should have a collection of required data file properties such as md5sum, filesize, etc.
+
+For PRs, please follow the [contributing guidelines](CONTRIBUTING.md).
+
+## License
+[Apache 2.0](LICENSE)
 
