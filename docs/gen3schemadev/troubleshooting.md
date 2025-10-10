@@ -1,14 +1,10 @@
 # Troubleshooting Input YAML Validation Errors
 
-## What Is Data Validation and Why Does It Matter?
+## Running `gen3schemadev generate` gives Pydantic errors
 
-Think of data validation as a quality control checkpoint for information entering a system. Just as a form might require an email address to contain an "@" symbol, or a date to be in a specific format, validation ensures that data meets certain rules before it's processed.
+After filling out the `input_yaml` file with your intended data model, running the `gen3schemadev generate` command triggers validation of your file's structure. The tool checks that your `input_yaml` follows the correct format and adheres to all required rules before proceeding with dictionary generation. If your `input_yaml` contains errors such as missing fields, incorrect data types, or invalid values the tool uses the Pydantic library to halt execution and display a detailed error message. This message indicates precisely what needs to be corrected in your `input_yaml` file.
 
-In this context, the Pydantic library acts as an automated checker that reads the YAML file and compares it against a predefined set of rules (called a schema). This schema acts as a blueprint, specifying what format, structure, and data types are expected. If the data doesn't match these rules—for example, if a URL is missing, or a category uses an invalid value—Pydantic stops the process and provides detailed feedback about what went wrong.
-
-This prevents errors from propagating through the system and helps maintain data quality and consistency. Rather than discovering problems later when the data is being used, validation catches issues immediately, making them easier to identify and fix.
-
-## What a Full Validation Error Looks Like
+## What the Pydantic error looks Like
 
 When validation fails, Pydantic generates a detailed error output that shows exactly where problems occurred. Here's the complete error output generated from the example input file [input_example_fail.yml](../../examples/input/input_example_fail.yml):
 
@@ -193,7 +189,8 @@ Beyond the four validation errors shown, [input_example_fail.yml](../../examples
 
 ***
 
-## Best Practices for Avoiding Validation Errors
+
+# Best Practices for Avoiding Validation Errors
 
 - **Check spelling carefully**: Ensure field names match the schema exactly (e.g., `properties` not `proprties`)
 - **Review allowed values**: When using enums or restricted fields, verify values against the schema documentation

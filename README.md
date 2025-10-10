@@ -10,6 +10,7 @@ This repository aims to provide the documentation, learning materials, and softw
 ## Using Gen3SchemaDev as a data modelling tool
 - [Quickstart](docs/gen3schemadev/quickstart.md)
 - [Guide to creating your first dictionary](docs/gen3schemadev/first_dictionary.md)
+- [Troubleshooting](docs/gen3schemadev/troubleshooting.md)
 
 
 ## Deep dive into Gen3 Data Modelling
