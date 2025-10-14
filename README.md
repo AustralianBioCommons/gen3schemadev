@@ -4,6 +4,8 @@
 
 This repository aims to provide the documentation, learning materials, and software tools to facilitate the creation of a data model in Gen3.
 
+[Github Repo](https://github.com/AustralianBioCommons/gen3schemadev)
+
 ***Pre-Reading**: Please become familiar with some [core data modelling concepts](docs/core_concepts/pre_reading.md) before starting.*
 
 
