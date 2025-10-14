@@ -20,7 +20,7 @@ from gen3schemadev.ddvis import visualise_with_docker
 
 
 def get_version():
-    return "2.0.4"
+    return "2.0.5"
 
 
 def main():
@@ -33,12 +33,7 @@ def main():
         help="Version of gen3schemadev",
         version=get_version()
     )
-    subparsers = parser.add_subparsers(dest="command", required=False)
-
-    # Print help and exit if no arguments are provided
-    if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
-        sys.exit(0)
+    subparsers = parser.add_subparsers(dest="command")
 
     # Create 'generate' subcommand
     generate_parser = subparsers.add_parser(
@@ -120,6 +115,11 @@ def main():
     )
 
     args = parser.parse_args()
+    
+    # Handle case where no command is provided
+    if args.command is None:
+        parser.print_help(sys.stderr)
+        sys.exit(0)
 
     # Set up basic logging configuration
     # If the subcommand has --debug, set to DEBUG, else INFO
@@ -132,9 +132,6 @@ def main():
     )
     logger = logging.getLogger(__name__)
 
-    if getattr(args, "version", False):
-        print(get_version())
-        sys.exit(0)
 
     if args.command == "generate":
         print("Starting schema generation process...")
