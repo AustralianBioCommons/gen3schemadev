@@ -185,7 +185,7 @@ nodes:
       properties:
         - name: db_gap_accession_number
           description: "The dbgap accession number provided for the program."
-          data_type: string
+          type: string
 ```
 
 Lets add some more properties to the `input_yaml` file:
@@ -197,30 +197,30 @@ nodes:
     properties:
       - name: db_gap_accession_number
         description: "The dbgap accession number provided for the program."
-        data_type: string
+        type: string
   - name: project
     category: administrative
     description: "Project node"
     properties:
       - name: project_id
         description: "The project ID."
-        data_type: string
+        type: string
   - name: subject
     category: clinical
     description: "Subject node"
     properties:
       - name: patient_id
         description: "The patient ID."
-        data_type: string
+        type: string
       - name: age
         description: "The age of the subject."
-        data_type: integer
+        type: integer
       - name: height
         description: "The height of the subject."
-        data_type: number
+        type: number
       - name: consent_to_research
         description: "Whether the subject has consented to research."
-        data_type: boolean
+        type: boolean
 ```
 
   
@@ -240,33 +240,33 @@ nodes:
     properties:
       - name: db_gap_accession_number
         description: "The dbgap accession number provided for the program."
-        data_type: string
+        type: string
   - name: project
     category: administrative
     description: "Project node"
     properties:
       - name: project_id
         description: "The project ID."
-        data_type: string
+        type: string
   - name: subject
     category: clinical
     description: "Subject node"
     properties:
       - name: patient_id
         description: "The patient ID."
-        data_type: string
+        type: string
       - name: age
         description: "The age of the subject."
-        data_type: integer
+        type: integer
       - name: height
         description: "The height of the subject."
-        data_type: number
+        type: number
       - name: consent_to_research
         description: "Whether the subject has consented to research."
-        data_type: boolean
+        type: boolean
       - name: ethnicity
         description: "The ethnicity of the subject."
-        data_type: enum
+        type: enum
         enums:
           - "Aboriginal"
           - "Torres Strait Islander"
@@ -300,7 +300,7 @@ nodes:
     properties:
       - name: db_gap_accession_number
         description: "The dbgap accession number provided for the program."
-        data_type: string
+        type: string
 
 links:
     - parent: program
@@ -357,33 +357,33 @@ nodes:
     properties:
       - name: db_gap_accession_number
         description: "The dbgap accession number provided for the program."
-        data_type: string
+        type: string
   - name: project
     category: administrative
     description: "Project node"
     properties:
       - name: project_id
         description: "The project ID."
-        data_type: string
+        type: string
   - name: subject
     category: clinical
     description: "Subject node"
     properties:
       - name: patient_id
         description: "The patient ID."
-        data_type: string
+        type: string
       - name: age
         description: "The age of the subject."
-        data_type: integer
+        type: integer
       - name: height
         description: "The height of the subject."
-        data_type: number
+        type: number
       - name: consent_to_research
         description: "Whether the subject has consented to research."
-        data_type: boolean
+        type: boolean
       - name: ethnicity
         description: "The ethnicity of the subject."
-        data_type: enum
+        type: enum
         enums:
           - "Aboriginal"
           - "Torres Strait Islander"
@@ -493,21 +493,21 @@ nodes:
     properties:
       - name: patient_id
         description: "The patient ID."
-        data_type: string
+        type: string
   - name: blood_sample
     category: biospecimen
     description: "Blood sample node"
     properties:
       - name: blood_sample_id
         description: "The blood sample ID."
-        data_type: string
+        type: string
   - name: mortality
     category: clinical
     description: "Mortality node"
     properties:
       - name: mortality_id
         description: "The mortality ID."
-        data_type: string
+        type: string
 ```
 
 Then, lets define the `links`:
@@ -522,21 +522,21 @@ nodes:
     properties:
       - name: patient_id
         description: "The patient ID."
-        data_type: string
+        type: string
   - name: blood_sample
     category: biospecimen
     description: "Blood sample node"
     properties:
       - name: blood_sample_id
         description: "The blood sample ID."
-        data_type: string
+        type: string
   - name: mortality
     category: clinical
     description: "Mortality node"
     properties:
       - name: mortality_id
         description: "The mortality ID."
-        data_type: string
+        type: string
 
 links:
     - parent: patient
@@ -579,28 +579,28 @@ nodes:
     properties:
       - name: sample_id
         description: "The sample ID."
-        data_type: string
+        type: string
   - name: mass_spectrometry_run
     category: biospecimen
     description: "Mass spectrometry run node"
     properties:
       - name: mass_spectrometry_run_id
         description: "The mass spectrometry run ID."
-        data_type: string
+        type: string
   - name: mass_spectrometry_data_file
     category: data_file
     description: "Mass spectrometry data file node"
     properties:
       - name: mass_spectrometry_data_file_id
         description: "The mass spectrometry data file ID."
-        data_type: string
+        type: string
   - name: lipidomics_workflow
     category: workflow
     description: "Lipidomics workflow node"
     properties:
       - name: lipidomics_workflow_id
         description: "The lipidomics workflow ID."
-        data_type: string
+        type: string
 ```
 
 Then, lets define the `links`:
@@ -616,28 +616,28 @@ nodes:
     properties:
       - name: sample_id
         description: "The sample ID."
-        data_type: string
+        type: string
   - name: mass_spectrometry_run
     category: biospecimen
     description: "Mass spectrometry run node"
     properties:
       - name: mass_spectrometry_run_id
         description: "The mass spectrometry run ID."
-        data_type: string
+        type: string
   - name: mass_spectrometry_data_file
     category: data_file
     description: "Mass spectrometry data file node"
     properties:
       - name: mass_spectrometry_data_file_id
         description: "The mass spectrometry data file ID."
-        data_type: string
+        type: string
   - name: lipidomics_workflow
     category: workflow
     description: "Lipidomics workflow node"
     properties:
       - name: lipidomics_workflow_id
         description: "The lipidomics workflow ID."
-        data_type: string
+        type: string
 
 links:
     - parent: sample
