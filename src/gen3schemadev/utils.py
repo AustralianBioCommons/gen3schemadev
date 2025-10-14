@@ -75,7 +75,9 @@ def write_json(data, file_path):
     Logs success or error messages.
     """
     try:
-        create_dir_if_not_exists(file_path)
+        dir_path = os.path.dirname(file_path)
+        if dir_path:
+            create_dir_if_not_exists(file_path)
         with open(file_path, 'w') as f:
             json.dump(data, f)
             logger.info(f"Successfully wrote JSON file: {file_path}")
