@@ -20,11 +20,7 @@ from gen3schemadev.ddvis import visualise_with_docker
 
 
 def get_version():
-    try:
-        from . import __version__
-        return __version__
-    except ImportError:
-        return "unknown"
+    return "2.0.4"
 
 
 def main():
@@ -33,8 +29,9 @@ def main():
     )
     parser.add_argument(
         "--version",
-        action="store_true",
-        help="Show version and exit"
+        action="version",
+        help="Version of gen3schemadev",
+        version=get_version()
     )
     subparsers = parser.add_subparsers(dest="command", required=False)
 
