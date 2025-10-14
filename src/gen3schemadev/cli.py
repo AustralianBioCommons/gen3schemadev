@@ -20,7 +20,7 @@ from gen3schemadev.ddvis import visualise_with_docker
 
 
 def get_version():
-    return "2.0.5"
+    return "2.0.6"
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
         help="Version of gen3schemadev",
         version=get_version()
     )
-    subparsers = parser.add_subparsers(dest="command")
+    subparsers = parser.add_subparsers(dest="command", required = False)
 
     # Create 'generate' subcommand
     generate_parser = subparsers.add_parser(
