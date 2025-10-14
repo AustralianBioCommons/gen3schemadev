@@ -3,6 +3,7 @@
 ## Table of Contents
 - [Creating your first gen3 data dictionary](#creating-your-first-gen3-data-dictionary)
   - [Table of Contents](#table-of-contents)
+  - [Pre-requisites](#pre-requisites)
   - [Introduction](#introduction)
   - [Gen3 `input_yaml` file](#gen3-input_yaml-file)
   - [1. Adding Version and URL](#1-adding-version-and-url)
@@ -26,6 +27,11 @@
     - [Example 2](#example-2)
 
 ***
+
+## Pre-requisites
+- `python v3.12.10` or higher
+- `poetry v2.1.3` or higher 
+- `docker compose` (optional for dictionary visualisation)
 
 ## Introduction
 
