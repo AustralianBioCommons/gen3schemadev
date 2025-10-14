@@ -12,6 +12,7 @@ except ImportError:
     from importlib_metadata import version, PackageNotFoundError  # for Python<3.8
 
 try:
-    __version__ = version("gen3schemadev")
-except PackageNotFoundError:
-    __version__ = "unknown"
+    from importlib.metadata import version
+    __version__ = version('gen3schemadev')
+except Exception:
+    __version__ = 'unknown'

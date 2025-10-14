@@ -16,11 +16,11 @@ from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_node_names, populate_template
 from gen3schemadev.utils import bundled_schema_to_list_dict, resolve_schema
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
+from importlib.metadata import version
 from gen3schemadev.ddvis import visualise_with_docker
 
-
-def get_version():
-    return "2.0.6"
+# def get_version():
+#     return "2.0.6"
 
 
 def main():
@@ -28,11 +28,11 @@ def main():
         description="Gen3 Schema Development Tool"
     )
     parser.add_argument(
-        "--version",
-        action="version",
-        help="Version of gen3schemadev",
-        version=get_version()
+        '--version',
+        action='version',
+        version=f"%(prog)s {version('gen3schemadev')}"
     )
+    
     subparsers = parser.add_subparsers(dest="command", required = False)
 
     # Create 'generate' subcommand
