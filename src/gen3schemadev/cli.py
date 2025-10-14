@@ -47,8 +47,12 @@ def main():
         action="store_true",
         help="Show version and exit"
     )
-    # Subparsers are now required, ensuring a command is always run
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(dest="command", required=False)
+
+    # Print help and exit if no arguments are provided
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(0)
 
     # Create 'generate' subcommand
     generate_parser = subparsers.add_parser(
