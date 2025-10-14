@@ -16,6 +16,7 @@ from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_node_names, populate_template
 from gen3schemadev.utils import bundled_schema_to_list_dict, resolve_schema
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
+from gen3schemadev.ddvis import visualise_with_docker
 
 
 def get_version():
@@ -111,6 +112,22 @@ def main():
         action="store_true",
         help="Set logging level to DEBUG"
     )
+    
+    # Create 'visualise' subcomand
+    visualise_parser = subparsers.add_parser(
+        "visualise",
+        help="Visualise schemas"
+    )
+    visualise_parser.add_argument(
+        "-i", "--input",
+        required=True,
+        help="Path to Bundled Gen3 JsonSchema file"
+    )
+    visualise_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Set logging level to DEBUG"
+    )
 
     args = parser.parse_args()
 
@@ -193,6 +210,9 @@ def main():
         
         print("Validation process complete.")
 
+    elif args.command == "visualise":
+        print(f"Visualising schema from file: {args.input}")
+        visualise_with_docker(args.input)
 
 if __name__ == "__main__":
     main()

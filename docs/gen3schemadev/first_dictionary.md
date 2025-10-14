@@ -3,6 +3,7 @@
 ## Table of Contents
 - [Creating your first gen3 data dictionary](#creating-your-first-gen3-data-dictionary)
   - [Table of Contents](#table-of-contents)
+  - [Pre-requisites](#pre-requisites)
   - [Introduction](#introduction)
   - [Gen3 `input_yaml` file](#gen3-input_yaml-file)
   - [1. Adding Version and URL](#1-adding-version-and-url)
@@ -26,6 +27,13 @@
     - [Example 2](#example-2)
 
 ***
+
+## Pre-requisites
+- `python v3.12.10` or higher
+- `poetry v2.1.3` or higher 
+- `docker compose` (optional for dictionary visualisation)
+
+ **For detailed setup instructions [click here](../../docs/setup.md)**
 
 ## Introduction
 
@@ -410,6 +418,8 @@ You can also find the example used in the [quickstart guide](../gen3schemadev/qu
 
 ### 6. Converting the input_yaml to a folder containing the `Gen3 Data Dictionary`
 Now that we have the input_yaml file, we can convert it to a folder of gen3 schemas using the `gen3schemadev generate` command. This folder of yaml files is called the `Gen3 Data Dictionary`.
+
+*For detailed setup instructions [click here](../../docs/setup.md)*
 
 ```bash
 gen3schemadev generate -i input_example.yml -o gen3_data_dictionary/

@@ -1,9 +1,14 @@
 # Quickstart
 
+## Pre-requisites
+- `python v3.12.10` or higher
+- `poetry v2.1.3` or higher
+- `docker compose` (optional for dictionary visualisation)
+
+*For detailed setup instructions [click here](../../docs/setup.md)*
+
 ## 1. Installation
-```bash
-pip install gen3schemadev
-```
+- Follow the instructions [here](../../docs/setup.md)
 
 ## 2. Create the input_yaml template
 - Learn how to create one [here](first_dictionary.md).
@@ -41,6 +46,7 @@ gen3schemadev validate -y gen3_data_dictionary
 
 
 ## Visualise the `Gen3 Data Dictionary`
+- Important: You must have `docker compose` installed on your system. To install, follow the instructions [here](https://docs.docker.com/compose/install/).
 - To view what the `Gen3 Bundled Schema` looks like, we can use the `gen3schemadev visualize` command.
 ```bash
 gen3schemadev visualise -i gen3_data_dictionary/gen3_bundled_schema.json

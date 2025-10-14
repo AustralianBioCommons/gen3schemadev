@@ -16,6 +16,7 @@ gen3schemadev/__pycache__/
 logs
 output/
 env/
+.ddvis
 
 .DS_Store
 data/.DS_Store
