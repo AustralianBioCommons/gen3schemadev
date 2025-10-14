@@ -12,7 +12,7 @@ dependencies = [
     "setuptools>=70.0",
     "gen3-validator (>=1.1.1,<2.0.0)",
     "linkml (>=1.9.4,<2.0.0)",
-    "check-jsonschema (0.34.1.dev1)",
+    "check-jsonschema (>=0.34.1, <0.35.0)",
     "pydantic (>=2.11.9,<3.0.0)"
 ]
 
