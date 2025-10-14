@@ -20,22 +20,11 @@ from gen3schemadev.ddvis import visualise_with_docker
 
 
 def get_version():
-    """
-    Returns the version string from pyproject.toml, or 'unknown' if not found.
-    """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.abspath(os.path.join(current_dir, "..", ".."))
-    pyproject_path = os.path.join(root_dir, "pyproject.toml")
     try:
-        with open(pyproject_path, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip().startswith("version"):
-                    parts = line.split("=")
-                    if len(parts) == 2:
-                        return parts[1].strip().strip('"').strip("'")
-    except Exception:
-        pass
-    return "unknown"
+        from . import __version__
+        return __version__
+    except ImportError:
+        return "unknown"
 
 
 def main():
