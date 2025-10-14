@@ -33,6 +33,8 @@
 - `poetry v2.1.3` or higher 
 - `docker compose` (optional for dictionary visualisation)
 
+ **For detailed setup instructions [click here](../../docs/setup.md)**
+
 ## Introduction
 
 Gen3 uses a graph model to represent the data model. A graph model is a collection of nodes and links. Nodes represent entities, and links represent relationships between entities.
@@ -416,6 +418,8 @@ You can also find the example used in the [quickstart guide](../gen3schemadev/qu
 
 ### 6. Converting the input_yaml to a folder containing the `Gen3 Data Dictionary`
 Now that we have the input_yaml file, we can convert it to a folder of gen3 schemas using the `gen3schemadev generate` command. This folder of yaml files is called the `Gen3 Data Dictionary`.
+
+*For detailed setup instructions [click here](../../docs/setup.md)*
 
 ```bash
 gen3schemadev generate -i input_example.yml -o gen3_data_dictionary/

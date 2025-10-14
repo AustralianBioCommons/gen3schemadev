@@ -5,10 +5,10 @@
 - `poetry v2.1.3` or higher
 - `docker compose` (optional for dictionary visualisation)
 
+*For detailed setup instructions [click here](../../docs/setup.md)*
+
 ## 1. Installation
-```bash
-pip install gen3schemadev
-```
+- Follow the instructions [here](../../docs/setup.md)
 
 ## 2. Create the input_yaml template
 - Learn how to create one [here](first_dictionary.md).
