@@ -60,14 +60,21 @@ properties:
       - analysis
       - biospecimen
       - clinical
-      - data
-      - data_bundle
       - data_file
-      - index_file
       - metadata_file
       - notation
-      - qc_bundle
-      - TBD
+      - index_file
+      - clinical_assessment
+      - medical_history
+      - data_observations
+      - experimental_methods
+      - subject_characteristics
+      - imaging
+      - study_administration
+      - satellite
+      - radar
+      - stream_gauge
+      - weather_station
 
   program:
     type: string

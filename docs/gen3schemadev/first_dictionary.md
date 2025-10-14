@@ -105,13 +105,21 @@ Each node must have a category. The category is used to classify the node into a
 - `analysis`
 - `biospecimen`
 - `clinical`
-- `data`
-- `data_bundle`
 - `data_file`
-- `index_file`
 - `metadata_file`
 - `notation`
-- `qc_bundle`
+- `index_file`
+- `clinical_assessment`
+- `medical_history`
+- `data_observations`
+- `experimental_methods`
+- `subject_characteristics`
+- `imaging`
+- `study_administration`
+- `satellite`
+- `radar`
+- `stream_gauge`
+- `weather_station`
 
 For example, the `program` node would have the category `administrative`.
 ```yaml
