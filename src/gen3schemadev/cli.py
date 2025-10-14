@@ -24,6 +24,15 @@ from gen3schemadev.ddvis import visualise_with_docker
 
 
 def main():
+    version_parser = argparse.ArgumentParser(add_help=False)
+    version_parser.add_argument(
+        '--version',
+        action='version',
+        version=f"gen3schemadev {version('gen3schemadev')}"
+    )
+
+    version_parser.parse_known_args()
+
     parser = argparse.ArgumentParser(
         description="Gen3 Schema Development Tool"
     )
@@ -32,8 +41,8 @@ def main():
         action='version',
         version=f"%(prog)s {version('gen3schemadev')}"
     )
-    
-    subparsers = parser.add_subparsers(dest="command", required = False)
+
+    subparsers = parser.add_subparsers(dest="command", required=False)
 
     # Create 'generate' subcommand
     generate_parser = subparsers.add_parser(
