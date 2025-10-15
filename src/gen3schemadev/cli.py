@@ -184,8 +184,7 @@ def main():
             resolve_schema_obj = resolve_schema(schema_path=args.bundled)
         elif args.yamls:
             print(f"Bundling and resolving schemas from directory: {args.yamls}")
-            bundled_dir = bundle_yamls(args.yamls)
-            resolve_schema_obj = resolve_schema(schema_dir=bundled_dir)
+            resolve_schema_obj = resolve_schema(schema_dir=args.yamls)
 
         if resolve_schema_obj is None:
             logger.error("You must provide either --bundled or --yamls for validation.")
