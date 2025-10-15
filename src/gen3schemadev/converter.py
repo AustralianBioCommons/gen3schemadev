@@ -524,6 +524,8 @@ def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
     links = get_node_links(node_name, data)
     props = get_properties(node_name, data)
     props = strip_required_field(props)
+    node_data = get_node_data(node_name, data)
+    category =  node_data.category
     
     # Flatten property dicts into a single dict
     props_dict = {}
@@ -539,6 +541,10 @@ def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
     for link in links:
         link_prop = create_link_prop(link['parent'], link['multiplicity'])
         props_dict.update(link_prop)
+    
+    # if it's an Enum, add the enum values
+    if category == "data_file":
+        props_dict['core_metadata_collections'] = {"$ref": "_definitions.yaml#/to_one"}
     
     return props_dict
 

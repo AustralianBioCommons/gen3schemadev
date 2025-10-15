@@ -449,7 +449,8 @@ def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
     expected = {
         "$ref": "_definitions.yaml#/ubiquitous_properties",
         "samples": {"$ref": "_definitions.yaml#/to_many"},
-        "assays": {"$ref": "_definitions.yaml#/to_many"}
+        "assays": {"$ref": "_definitions.yaml#/to_many"},
+        "core_metadata_collections": {"$ref": "_definitions.yaml#/to_one"},
     }
     assert result == expected
 
@@ -568,7 +569,8 @@ def fixture_expected_output_lipid():
         'properties': {
             '$ref': '_definitions.yaml#/ubiquitous_properties',
             'samples': {'$ref': '_definitions.yaml#/to_many'},
-            'assays': {'$ref': '_definitions.yaml#/to_many'}
+            'assays': {'$ref': '_definitions.yaml#/to_many'},
+            'core_metadata_collections': {'$ref': '_definitions.yaml#/to_one'}
         }
     }
     return output
