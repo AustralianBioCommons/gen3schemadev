@@ -638,9 +638,11 @@ def populate_template(node_name: str, input_data: DataSourceProtocol, template: 
     ent = get_node_data(node_name, input_data)
     ent_dict = ent.model_dump()
     output_schema = template.copy()
+    namespace = str(input_data.model_dump()['url'])
     
     # add node name as title
     output_schema['title'] = ent.name
+    output_schema['namespace'] = namespace
     
     # Check if node is a file category
     file_node = is_file_node(node_name, input_data)

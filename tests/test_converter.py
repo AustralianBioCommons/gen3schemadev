@@ -517,7 +517,7 @@ def fixture_expected_output_lipid():
         'id': 'lipidomics_file',
         'title': 'lipidomics_file',
         'type': 'object',
-        'namespace': None,
+        'namespace': 'https://link-to-data-portal/',
         'category': 'data_file',
         'program': '*',
         'project': '*',
