@@ -161,7 +161,9 @@ def main():
 
         print('Writing auxiliary files')
         write_yaml(generate_def_template(), f"{args.output}/_definitions.yaml")
-        write_yaml(generate_setting_template(), f"{args.output}/_settings.yaml")
+        setting_dict = generate_setting_template()
+        setting_dict['_dict_version'] = validated_model.version
+        write_yaml(setting_dict, f"{args.output}/_settings.yaml")
         write_yaml(generate_terms_template(), f"{args.output}/_terms.yaml")
         write_yaml(generate_core_metadata_template(), f"{args.output}/core_metadata_collection.yaml")
 
