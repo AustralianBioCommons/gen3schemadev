@@ -447,10 +447,26 @@ def test_format_enum_missing_description():
 def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
     result = construct_props("lipidomics_file", fixture_input_yaml_pass)
     expected = {
-        "$ref": "_definitions.yaml#/ubiquitous_properties",
+        "$ref": "_definitions.yaml#/data_file_properties",
         "samples": {"$ref": "_definitions.yaml#/to_many"},
         "assays": {"$ref": "_definitions.yaml#/to_many"},
         "core_metadata_collections": {"$ref": "_definitions.yaml#/to_one"},
+        
+    }
+    assert result == expected
+
+def test_construct_prop_project(fixture_input_yaml_pass):
+    result = construct_props("project", fixture_input_yaml_pass)
+    expected = {
+        "$ref": "_definitions.yaml#/ubiquitous_properties",
+        "project_id": {
+            "type": "string",
+            "description": "Synthetic_Dataset_1"
+        },
+        "description": {
+            "type": "string",
+            "description": "Project containing synthetic data"
+        }
     }
     assert result == expected
 
@@ -567,7 +583,7 @@ def fixture_expected_output_lipid():
             ]
         }],
         'properties': {
-            '$ref': '_definitions.yaml#/ubiquitous_properties',
+            '$ref': '_definitions.yaml#/data_file_properties',
             'samples': {'$ref': '_definitions.yaml#/to_many'},
             'assays': {'$ref': '_definitions.yaml#/to_many'},
             'core_metadata_collections': {'$ref': '_definitions.yaml#/to_one'}
