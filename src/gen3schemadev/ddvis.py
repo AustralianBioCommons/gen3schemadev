@@ -56,8 +56,8 @@ def visualise_with_docker(schema_path):
     """
     import os
 
-    if not shutil.which("docker-compose"):
-        logging.error("Error: docker-compose is not installed. Please install it to continue.")
+    if not shutil.which("docker"):
+        logging.error("Error: docker is not installed. Please install it to continue.")
         return
 
     if not os.path.exists(schema_path):
@@ -122,8 +122,8 @@ def visualise_with_docker(schema_path):
     try:
         # Run docker-compose commands
         logging.info("Pulling Docker image and starting container...")
-        subprocess.run(["docker-compose", "pull"], check=True)
-        subprocess.run(["docker-compose", "up", "-d"], check=True)
+        subprocess.run(["docker", "compose", "pull"], check=True)
+        subprocess.run(["docker", "compose", "up", "-d"], check=True)
     except subprocess.CalledProcessError as e:
         logging.error(f"Error running docker-compose command: {e}")
         return
