@@ -27,12 +27,6 @@ required:
 # Properties:
 properties:
 
-  version:
-    type: 
-      - string
-      - 'null'
-    description: "Version of the node."
-
   id:
     type: string
     description: "Unique identifier for the node."

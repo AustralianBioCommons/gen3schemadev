@@ -513,7 +513,6 @@ def test_is_file_node(fixture_input_yaml_pass):
 def fixture_expected_output_lipid():
     output = {
         '$schema': 'http://json-schema.org/draft-04/schema#',
-        'version': None,
         'id': 'lipidomics_file',
         'title': 'lipidomics_file',
         'type': 'object',
