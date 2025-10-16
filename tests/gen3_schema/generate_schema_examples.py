@@ -4,15 +4,6 @@ from gen3schemadev.utils import read_json, write_yaml, write_json, resolve_schem
 
 def main():
     try:
-        parser = argparse.ArgumentParser(description="Generate schemas from a bundled JSON file.")
-        parser.add_argument(
-            "--bundled",
-            type=str,
-            required=True,
-            help="Path to the bundled JSON schema file (source of truth)."
-        )
-        args = parser.parse_args()
-
         # Get the current file path
         current_file_path = os.path.abspath(__file__)
         print(f"Current file path: {current_file_path}")
@@ -30,7 +21,7 @@ def main():
         print(f"YAML directory: {yaml_dir}")
         print(f"Resolved YAML directory: {resolved_yaml_dir}")
 
-        bundled_schema_path = args.bundled
+        bundled_schema_path = os.path.join(json_dir, "schema_dev.json")
         print(f"Bundled schema path: {bundled_schema_path}")
 
         try:
@@ -80,6 +71,7 @@ def main():
             return
 
         print("All done.")
+
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
