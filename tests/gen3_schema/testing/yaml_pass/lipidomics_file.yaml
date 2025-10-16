@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-04/schema#
+id: lipidomics_file
+title: Lipidomics File
+type: object
+namespace: http://commons.heartdata.baker.edu.au/
+category: data_file
+program: '*'
+project: '*'
+description: Data file containing lipidomics data
+additionalProperties: false
+submittable: true
+validators: null
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+links:
+- exclusive: false
+  required: true
+  subgroup:
+  - name: samples
+    backref: lipidomics_files
+    label: data_from
+    target_type: sample
+    multiplicity: many_to_many
+    required: false
+  - name: core_metadata_collection
+    backref: lipidomics_files
+    label: describes
+    target_type: core_metadata_collection
+    multiplicity: one_to_one
+    required: true
+required:
+- type
+- submitter_id
+- core_metadata_collection
+- data_type
+- data_format
+- data_category
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+properties:
+  $ref: _definitions.yaml#/data_file_properties
+  samples:
+    $ref: _definitions.yaml#/to_many
+  core_metadata_collection:
+    $ref: _definitions.yaml#/to_one
+  data_type:
+    description: The type of data in this data file
+    enum:
+    - TIC/XIC
+    - MS
+    - MS/MS
+    - Image
+  data_format:
+    description: The format of the data in this data file
+    enum:
+    - csv
+    - tsv
+    - xls
+    - xlsx
+  data_category:
+    description: Broad categorization of the contents of the data file.
+    enum:
+    - mass spec raw
+    - mass spec analysed
+    - summarised results
+  cv:
+    description: Coefficient of variation (%)
+    type: number

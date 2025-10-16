@@ -119,8 +119,8 @@ properties:
 
         '
   contributor:
-    description: 'An node responsible for making contributions to the resource.
-      Examples of a Contributor include a person, an organization, or a service. Typically,
+    description: 'An node responsible for making contributions to the resource. Examples
+      of a Contributor include a person, an organization, or a service. Typically,
       the name of a Contributor should be used to indicate the node.
 
       '

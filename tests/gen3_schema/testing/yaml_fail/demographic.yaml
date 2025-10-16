@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-04/schema#
+id: demographic
+title: Demographic
+type: object
+namespace: http://commons.heartdata.baker.edu.au/
+category: clinical
+program: '*'
+project: '*'
+description: Data for the characterization of the patient by means of segementing
+  the population (e.g. characterization by age, sex, or race).
+additionalProperties: false
+submittable: true
+validators: null
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+links:
+- name: subjects
+  backref: demographics
+  label: describes
+  target_type: subject
+  multiplicity: one_to_one
+  required: true
+required:
+- type
+- submitter_id
+- subjects
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+properties:
+  $ref: _definitions.yaml#/ubiquitous_properties
+  subjects:
+    $ref: _definitions.yaml#/to_one
+  year_birth:
+    description: Year of birth at baseline (YYYY)
+    type: integer
+  month_birth:
+    description: Month of birth at baseline (MM)
+    type: integer

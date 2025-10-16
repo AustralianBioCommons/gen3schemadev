@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-04/schema#
+id: subject
+title: Subject
+type: object
+namespace: http://commons.heartdata.baker.edu.au/
+category: clinical
+program: '*'
+project: '*'
+description: An individual participant in the study with baseline measurements.
+additionalProperties: false
+submittable: true
+validators: null
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+links:
+- name: projects
+  backref: subjects
+  label: part_of
+  target_type: project
+  multiplicity: many_to_one
+  required: true
+required:
+- type
+- submitter_id
+- projects
+- baseline_year
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+properties:
+  $ref: _definitions.yaml#/ubiquitous_properties
+  projects:
+    $ref: _definitions.yaml#/to_one_project
+  consent_codes:
+    description: "Data Use Restrictions that are used to indicate  permissions/restrictions\
+      \ for datasets and/or materials, and relates to the purposes for which datasets\
+      \ and/or material might be removed, stored or used. \\n\n        Based on the\
+      \ Data Use Ontology : see http://www.obofoundry.org/ontology/duo.html"
+    type: array
+  baseline_year:
+    description: year when baseline measurements were taken
+    type: string
+  cohort_id:
+    description: Identifier for the cohort the subject is a part of
+    type: string

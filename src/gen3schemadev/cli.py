@@ -11,16 +11,13 @@ from gen3schemadev.schema.gen3_template import (
     generate_terms_template,
     generate_core_metadata_template,
 )
-from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json
+from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json, resolve_schema, read_json
 from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_node_names, populate_template
-from gen3schemadev.utils import bundled_schema_to_list_dict, resolve_schema
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
 from importlib.metadata import version
 from gen3schemadev.ddvis import visualise_with_docker
-
-# def get_version():
-#     return "2.0.6"
+from gen3schemadev.validators.rule_validator import RuleValidator
 
 
 def main():
@@ -180,31 +177,46 @@ def main():
         print("Starting validation process...")
         metaschema = get_metaschema()
 
-        resolve_schema_obj = None
+        # Conducting business rule validation
+        if args.bundled:
+            schema_dict = read_json(args.bundled)
+        elif args.yamls:
+            schema_dict = bundle_yamls(args.yamls)
+        
+        for schema_name, schema in schema_dict.items():
+            print(f"Conducting Business Rule Validation for: {schema_name}")
+            rule_validator = RuleValidator(schema)
+            rule_validator.validate()
+            print(f"SUCCESS: Rule validation complete for: {schema_name}")
+
+        # Resolving bundled schema which is required for metaschema validation
+        resolved_schema_dict = None
+
         if args.bundled:
             print(f"Resolving schema from bundled file: {args.bundled}")
-            resolve_schema_obj = resolve_schema(schema_path=args.bundled)
+            resolved_schema_dict = resolve_schema(schema_path=args.bundled)
         elif args.yamls:
             print(f"Bundling and resolving schemas from directory: {args.yamls}")
-            resolve_schema_obj = resolve_schema(schema_dir=args.yamls)
+            resolved_schema_dict = resolve_schema(schema_dir=args.yamls)
 
-        if resolve_schema_obj is None:
+        if resolved_schema_dict is None:
             logger.error("You must provide either --bundled or --yamls for validation.")
             sys.exit(1)
 
-        schema_list = bundled_schema_to_list_dict(resolve_schema_obj)
-        print(f"Found {len(schema_list)} schemas to validate.")
 
-        for schema in schema_list:
-            schema_id = schema.get('id', '<no id>')
-            print(f"Validating schema: {schema_id}")
+        print(f"Found {len(resolved_schema_dict)} schemas to validate.")
+
+        for schema_name, schema in resolved_schema_dict.items():
+            print(f"Conducting Metaschema Validation for: {schema_name}")
             validate_schema_with_metaschema(
                 schema,
                 metaschema=metaschema,
                 verbose=True
             )
-            print(f"Successfully validated schema: {schema_id}")
-        
+            print(f"SUCCESS: Metaschema validation complete for: {schema_name}")
+
+        # doing business rule validation
+
         print("Validation process complete.")
 
     elif args.command == "visualise":
