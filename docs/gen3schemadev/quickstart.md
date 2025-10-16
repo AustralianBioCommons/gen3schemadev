@@ -14,13 +14,15 @@
 - Learn how to create one [here](first_dictionary.md).
 - You can also create a template starting file with the command below.
 ```bash
-gen3schemadev template -o input_example.yml
+gen3schemadev init
+# alternatively you can define the template file name
+gen3schemadev init -o input_example.yaml
 ```
 
 ## 3. Generate Gen3 Schemas
 - Will convert the input_yaml to a folder of gen3 schemas.
 ```bash
-gen3schemadev generate -i tests/input_example.yml -o gen3_data_dictionary/
+gen3schemadev generate -i input_example.yaml -o gen3_data_dictionary/
 ```
 
 ### 3.1 Further Gen3 Yaml Configuration (optional)
@@ -31,7 +33,7 @@ gen3schemadev generate -i tests/input_example.yml -o gen3_data_dictionary/
 
 ## 4. Validate schema
 - After you are happy with the folder of gen3 schemas, you can validate them using the `gen3schemadev validate` command.
-- This will do two things, first it will do a validation against the [gen3 metaschema](../../src/gen3schemadev/schema/schema_templates/gen3_metaschema.yml) and secondly it will do business rule validation based on the logic in the [`rule_validator.py` module](../../src/gen3schemadev/validators/rule_validator.py) 
+- This will do two things, first it will do a validation against the [gen3 metaschema](../../src/gen3schemadev/schema/schema_templates/gen3_metaschema.yaml) and secondly it will do business rule validation based on the logic in the [`rule_validator.py` module](../../src/gen3schemadev/validators/rule_validator.py) 
 ```bash
 gen3schemadev validate -y gen3_data_dictionary
 ```

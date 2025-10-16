@@ -108,7 +108,7 @@ def main():
         action="store_true",
         help="Disables the exclusion of specific schema from the validation"
     )
-    
+
     # Create 'visualise' subcomand
     visualise_parser = subparsers.add_parser(
         "visualise",
@@ -125,6 +125,22 @@ def main():
         help="Set logging level to DEBUG"
     )
 
+    # Create 'init' subcommand
+    init_parser = subparsers.add_parser(
+        "init",
+        help="Initialize gen3schemadev"
+    )
+    init_parser.add_argument(
+        "-o", "--output",
+        required=False,
+        help="Output directory"
+    )
+    init_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Set logging level to DEBUG"
+    )
+    
     args = parser.parse_args()
     
     # Handle case where no command is provided
@@ -237,6 +253,51 @@ def main():
     elif args.command == "visualise":
         print(f"Visualising schema from file: {args.input}")
         visualise_with_docker(args.input)
+    
+    
+    elif args.command == "init":
+        init_yaml = {
+            "version": "0.1.0",
+            "url": "https://link-to-data-portal",
+            "nodes": [
+                {
+                    "name": "subject",
+                    "description": "The subject or patient",
+                    "category": "clinical",
+                    "properties": [
+                        {
+                            "name": "subject_id",
+                            "type": "string",
+                            "description": "A deidentified identifier for the subject",
+                            "required": True
+                        }
+                    ]
+                },
+                {
+                    "name": "sample",
+                    "description": "Info about sample",
+                    "category": "clinical",
+                    "properties": [
+                        {
+                            "name": "sample_id",
+                            "type": "string",
+                            "description": "Sample ID (string)",
+                            "required": True
+                        }
+                    ]
+                }
+            ],
+            "links": [
+                {
+                    "parent": "subject",
+                    "multiplicity": "one_to_many",
+                    "child": "sample"
+                }
+            ]
+        }
+
+        output_path = args.output or "input_example.yaml"
+        write_yaml(init_yaml, output_path)
 
 if __name__ == "__main__":
     main()
