@@ -53,6 +53,11 @@ nodes:
 - name: lipidomics_file
   description: Info about lipidomics file
   category: data_file
+  properties:
+    - name: cv
+      type: number
+      description: Coefficient of variation (%)
+      required: true
 
 
 links:

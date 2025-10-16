@@ -665,6 +665,8 @@ def populate_template(node_name: str, input_data: DataSourceProtocol, template: 
     props = get_properties(node_name, input_data)
     required_props = get_required_prop_names(props)
     if required_props:
+        required_props.append('submitter_id')
+        required_props.append('type')
         output_schema['required'] = required_props
     
     # Process and add links

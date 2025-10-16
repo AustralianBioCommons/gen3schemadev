@@ -451,6 +451,7 @@ def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
         "samples": {"$ref": "_definitions.yaml#/to_many"},
         "assays": {"$ref": "_definitions.yaml#/to_many"},
         "core_metadata_collections": {"$ref": "_definitions.yaml#/to_one"},
+        'cv': {'description': 'Coefficient of variation (%)', 'type': 'number'}
         
     }
     assert result == expected
@@ -551,7 +552,7 @@ def fixture_expected_output_lipid():
             ['id'],
             ['project_id', 'submitter_id']
         ],
-        'required': ['submitter_id', 'type'],
+        'required': ['cv', 'submitter_id', 'type'],
         'links': [{
             'exclusive': False,
             'required': True,
@@ -586,7 +587,8 @@ def fixture_expected_output_lipid():
             '$ref': '_definitions.yaml#/data_file_properties',
             'samples': {'$ref': '_definitions.yaml#/to_many'},
             'assays': {'$ref': '_definitions.yaml#/to_many'},
-            'core_metadata_collections': {'$ref': '_definitions.yaml#/to_one'}
+            'core_metadata_collections': {'$ref': '_definitions.yaml#/to_one'},
+            'cv': {'description': 'Coefficient of variation (%)', 'type': 'number'}
         },
         'additionalProperties': False
     }
