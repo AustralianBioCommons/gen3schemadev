@@ -177,6 +177,14 @@ def main():
         print("Starting validation process...")
         metaschema = get_metaschema()
 
+
+        # Exclusion list
+        exclude_schema_list = [
+            'project', '_definitions', '_settings',
+            '_terms', 'core_metadata_collection',
+            'program'
+        ]
+
         # Conducting business rule validation
         if args.bundled:
             schema_dict = read_json(args.bundled)
@@ -184,7 +192,13 @@ def main():
             schema_dict = bundle_yamls(args.yamls)
         
         for schema_name, schema in schema_dict.items():
-            print(f"Conducting Business Rule Validation for: {schema_name}")
+
+            if '.' in schema_name:
+                schema_name = os.path.splitext(schema_name)[0]
+            
+            if schema_name in exclude_schema_list:
+                continue
+            
             rule_validator = RuleValidator(schema)
             rule_validator.validate()
             print(f"SUCCESS: Rule validation complete for: {schema_name}")
@@ -204,18 +218,13 @@ def main():
             sys.exit(1)
 
 
-        print(f"Found {len(resolved_schema_dict)} schemas to validate.")
-
         for schema_name, schema in resolved_schema_dict.items():
-            print(f"Conducting Metaschema Validation for: {schema_name}")
             validate_schema_with_metaschema(
                 schema,
                 metaschema=metaschema,
                 verbose=True
             )
             print(f"SUCCESS: Metaschema validation complete for: {schema_name}")
-
-        # doing business rule validation
 
         print("Validation process complete.")
 
