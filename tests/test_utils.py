@@ -103,25 +103,25 @@ def fixture_resolved_schema_yaml_dir():
     return schema
 
 
-def test_bundled_schema_to_list_dict(fixture_resolved_schema_pass):
-    """
-    Test that bundled_schema_to_list_dict correctly converts a resolved schema (from JSON)
-    into a list of dictionaries, and checks the structure and content.
-    """
-    bundled_schema_list = bundled_schema_to_list_dict(fixture_resolved_schema_pass)
-    assert isinstance(bundled_schema_list, list)
-    assert len(bundled_schema_list) == 10
-    assert isinstance(bundled_schema_list[0], dict)
-    assert bundled_schema_list[0]["id"] == "demographic"
+# def test_bundled_schema_to_list_dict(fixture_resolved_schema_pass):
+#     """
+#     Test that bundled_schema_to_list_dict correctly converts a resolved schema (from JSON)
+#     into a list of dictionaries, and checks the structure and content.
+#     """
+#     bundled_schema_list = bundled_schema_to_list_dict(fixture_resolved_schema_pass)
+#     assert isinstance(bundled_schema_list, list)
+#     assert len(bundled_schema_list) == 10
+#     assert isinstance(bundled_schema_list[0], dict)
+#     assert bundled_schema_list[0]["id"] == "demographic"
 
 
-def test_bundled_schema_to_list_dict_yaml_dir(fixture_resolved_schema_yaml_dir):
-    """
-    Test that bundled_schema_to_list_dict correctly converts a resolved schema (from YAML dir)
-    into a list of dictionaries, and checks the structure and content.
-    """
-    bundled_schema_list = bundled_schema_to_list_dict(fixture_resolved_schema_yaml_dir)
-    assert isinstance(bundled_schema_list, list)
-    assert len(bundled_schema_list) == 10
-    assert isinstance(bundled_schema_list[0], dict)
-    assert 'demographic' in [schema["id"] for schema in bundled_schema_list]
+# def test_bundled_schema_to_list_dict_yaml_dir(fixture_resolved_schema_yaml_dir):
+#     """
+#     Test that bundled_schema_to_list_dict correctly converts a resolved schema (from YAML dir)
+#     into a list of dictionaries, and checks the structure and content.
+#     """
+#     bundled_schema_list = bundled_schema_to_list_dict(fixture_resolved_schema_yaml_dir)
+#     assert isinstance(bundled_schema_list, list)
+#     assert len(bundled_schema_list) == 10
+#     assert isinstance(bundled_schema_list[0], dict)
+#     assert 'demographic' in [schema["id"] for schema in bundled_schema_list]

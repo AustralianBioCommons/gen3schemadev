@@ -1,75 +1,19 @@
-# from gen3schemadev.schema.gen3_template import *
-# from gen3schemadev.utils import bundled_schema_to_list_dict
-# from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
-# import pytest
-# import os
-# from unittest.mock import patch, MagicMock
-
-
-# @pytest.fixture
-# def fixture_metaschema() -> dict:
-#     metaschema = get_metaschema()
-#     return metaschema
-
-
-# @pytest.fixture
-# def fixture_gen3_demographic_schema_pass() -> dict:
-#     return _get_demographic_schema('./gen3_schema/schema_dev_pass.json')
-
-# @pytest.fixture
-# def fixture_gen3_demographic_schema_fail() -> dict:
-#     return _get_demographic_schema('./gen3_schema/schema_dev_fail.json')
-
-
-# def _get_demographic_schema(schema_filename: str) -> dict:
-#     file_loc = os.path.dirname(os.path.abspath(__file__))
-#     schema_file = os.path.join(file_loc, schema_filename)
-#     resolved_schema = resolve_schema(schema_file)
-#     schema_list = bundled_schema_to_list_dict(resolved_schema)
-#     demographic_schema = [schema for schema in schema_list if schema['id'] == 'demographic'][0]
-#     return demographic_schema
-
-
-# @patch('gen3schemadev.validators.metaschema_validator.subprocess.run')
-# def test_successful_validation_with_valid_schema(mock_subprocess_run, fixture_metaschema, fixture_gen3_demographic_schema_pass):
-#     """
-#     Tests that validation passes for a schema that is compliant with the metaschema.
-#     """
-#     # Configure the mock to simulate a successful subprocess run
-#     mock_subprocess_run.return_value = MagicMock(returncode=0, stdout="", stderr="")
-
-#     try:
-#         validate_schema_with_metaschema(
-#             schema=fixture_gen3_demographic_schema_pass,
-#             metaschema=fixture_metaschema
-#         )
-#     except (RuntimeError, ValueError) as e:
-#         pytest.fail(f"A valid schema should not have raised an exception, but got {type(e).__name__}: {e}")
-
-#     # Verify that the mocked subprocess.run was called exactly once.
-#     mock_subprocess_run.assert_called_once()
-    
-
 import pytest
 import os
 import logging
 import re
 from unittest.mock import patch, MagicMock
 
-# --- Module Imports ---
 from gen3schemadev.schema.gen3_template import get_metaschema, resolve_schema
-from gen3schemadev.utils import bundled_schema_to_list_dict
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
 
 
-# --- Helper Function ---
 def _get_demographic_schema(schema_filename: str) -> dict:
     """Helper to load and parse a specific schema from a test data file."""
     file_loc = os.path.dirname(os.path.abspath(__file__))
     schema_file = os.path.join(file_loc, schema_filename)
-    resolved_schema = resolve_schema(schema_path=schema_file)
-    schema_list = bundled_schema_to_list_dict(resolved_schema)
-    demographic_schema = next((s for s in schema_list if s.get('id') == 'demographic'), None)
+    resolved_schema_list = resolve_schema(schema_path=schema_file)
+    demographic_schema = next((s for s in resolved_schema_list if s.get('id') == 'demographic'), None)
     if not demographic_schema:
         pytest.fail(f"Test setup error: Schema 'demographic' not found in {schema_filename}")
     return demographic_schema

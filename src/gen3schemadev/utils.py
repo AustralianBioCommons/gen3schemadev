@@ -137,33 +137,3 @@ def resolve_schema(schema_dir: str = None, schema_path: str = None) -> list:
         if temp_file_path and os.path.exists(temp_file_path):
             os.remove(temp_file_path)
 
-def bundled_schema_to_list_dict(bundled_schema: list[dict]) -> list[dict]:
-    """
-    Validates a list of Gen3 schema dictionaries and returns the list if valid.
-
-    :param bundled_schema: List of schema dictionaries.
-    :type bundled_schema: list[dict]
-
-    :returns: The validated list of schema dictionaries.
-    :rtype: list[dict]
-
-    :raises ValueError: If auxiliary files are found in the schema list.
-    :raises Exception: If the input is not a list of dicts or another error occurs.
-    """
-    try:
-        if not isinstance(bundled_schema, list) or not all(isinstance(v, dict) for v in bundled_schema):
-            raise Exception("Input must be a list of dictionaries representing schemas.")
-
-        ids = [v.get("id") for v in bundled_schema]
-        aux_files = {"_definitions.yaml", "_settings.yaml", "_terms.yaml"}
-        if any(aux_file in ids for aux_file in aux_files):
-            raise ValueError(
-                "Auxiliary files (_definitions.yaml, _settings.yaml, _terms.yaml) found in schema list. "
-                "Make sure you have resolved the bundled jsonschema first using "
-                "`gen3schemadev.utils.resolve_schema()`"
-            )
-
-        return bundled_schema
-    except Exception as e:
-        logger.exception("Failed to parse bundled schema list.")
-        raise
