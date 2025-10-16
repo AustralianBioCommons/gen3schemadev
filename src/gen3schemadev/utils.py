@@ -101,11 +101,7 @@ def bundle_yamls(input_dir: str) -> dict:
     return bundle
 
 
-import os
-import tempfile
-import json
-
-def resolve_schema(schema_dir: str = None, schema_path: str = None) -> list:
+def resolve_schema(schema_dir: str = None, schema_path: str = None) -> dict:
     """
     Load and resolve a Gen3 JSON schema from either a directory of YAML files or a bundled JSON file.
 
@@ -131,8 +127,9 @@ def resolve_schema(schema_dir: str = None, schema_path: str = None) -> list:
         resolver.resolve_schema()
         resolved = resolver.schema_resolved
         if isinstance(resolved, dict):
-            return list(resolved.values())
-        return resolved
+            return resolved
+        else:
+            raise Exception(f"Resolved schema not dictionary of schemas, failed to resolve schema: {resolved}")
     finally:
         if temp_file_path and os.path.exists(temp_file_path):
             os.remove(temp_file_path)

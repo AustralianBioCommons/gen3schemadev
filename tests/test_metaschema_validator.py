@@ -12,8 +12,13 @@ def _get_demographic_schema(schema_filename: str) -> dict:
     """Helper to load and parse a specific schema from a test data file."""
     file_loc = os.path.dirname(os.path.abspath(__file__))
     schema_file = os.path.join(file_loc, schema_filename)
-    resolved_schema_list = resolve_schema(schema_path=schema_file)
-    demographic_schema = next((s for s in resolved_schema_list if s.get('id') == 'demographic'), None)
+    resolved_schema_dict = resolve_schema(schema_path=schema_file)
+
+    for schema in resolved_schema_dict.values():
+        if isinstance(schema, dict) and schema.get('id') == 'demographic':
+            demographic_schema = schema
+            break
+
     if not demographic_schema:
         pytest.fail(f"Test setup error: Schema 'demographic' not found in {schema_filename}")
     return demographic_schema
