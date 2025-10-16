@@ -1,0 +1,133 @@
+$schema: http://json-schema.org/draft-04/schema#
+id: project
+title: Project
+type: object
+program: '*'
+project: '*'
+category: administrative
+description: The study the data is coming from
+additionalProperties: false
+submittable: true
+validators: null
+systemProperties:
+- id
+- state
+- released
+- releasable
+- intended_release_date
+required:
+- code
+- name
+- programs
+- dbgap_accession_number
+uniqueKeys:
+- - id
+- - code
+links:
+- name: programs
+  backref: projects
+  label: member_of
+  target_type: program
+  multiplicity: many_to_one
+  required: true
+constraints: null
+properties:
+  type:
+    type: string
+  id:
+    $ref: _definitions.yaml#/UUID
+    systemAlias: node_id
+    description: UUID for the project.
+  name:
+    type: string
+    description: Display name/brief description for the project.
+  code:
+    type: string
+    description: Unique identifier for the project.
+  date_collected:
+    description: The date or date range in which the project data was collected.
+    type: string
+  availability_type:
+    description: Is the project open or restricted?
+    enum:
+    - Open
+    - Restricted
+  availability_mechanism:
+    description: Mechanism by which the project will be made avilable.
+    type: string
+  support_source:
+    description: The name of source providing support/grant resources.
+    type: string
+  support_id:
+    description: The ID of the source providing support/grant resources.
+    type: string
+  programs:
+    $ref: _definitions.yaml#/to_one
+    description: 'Indicates that the Study is logically part of the indicated Study.
+
+      '
+  state:
+    description: 'The possible states a project can be in.  All but `open` are
+
+      equivalent to some type of locked state.
+
+      '
+    default: open
+    enum:
+    - open
+    - review
+    - submitted
+    - processing
+    - closed
+    - legacy
+  released:
+    description: 'To release a project is to tell the GDC to include all submitted
+
+      nodes in the next GDC index.
+
+      '
+    default: false
+    type: boolean
+  releasable:
+    description: 'A project can only be released by the user when `releasable` is
+      true.
+
+      '
+    default: false
+    type: boolean
+  intended_release_date:
+    description: Tracks a Project's intended release date.
+    type: string
+    format: date-time
+  dbgap_accession_number:
+    type: string
+    description: The dbgap accession number provided for the project. (CMG)
+  authz:
+    description: The authz string (example, ["/programs/Program.name/projects/Project.code"]
+      ).
+    type: array
+    items:
+      type: string
+  short_name:
+    description: The shorthand name for the project.
+    type: string
+  full_name:
+    description: The full name for the project.
+    type: string
+  project_description:
+    description: The description for the project.
+    type: string
+  project_registration:
+    description: External source from which the identifier included in study_id originates
+    type: string
+  consent_codes:
+    description: "Data Use Restrictions that are used to indicate  permissions/restrictions\
+      \ for datasets and/or materials, and relates to the purposes for which datasets\
+      \ and/or material might be removed, stored or used. \\n\n        Based on the\
+      \ Data Use Ontology : see http://www.obofoundry.org/ontology/duo.html"
+    type: array
+  data_access_url:
+    description: A URL link that takes you to a page that explains how to gain access
+      to the project
+    type: string
+namespace: http://commons.heartdata.baker.edu.au/
