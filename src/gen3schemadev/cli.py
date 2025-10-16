@@ -103,6 +103,11 @@ def main():
         action="store_true",
         help="Set logging level to DEBUG"
     )
+    validate_parser.add_argument(
+        "--no-exclude",
+        action="store_true",
+        help="Disables the exclusion of specific schema from the validation"
+    )
     
     # Create 'visualise' subcomand
     visualise_parser = subparsers.add_parser(
@@ -184,6 +189,9 @@ def main():
             '_terms', 'core_metadata_collection',
             'program'
         ]
+        if args.no_exclude:
+            print(f"Validation now includes: {exclude_schema_list}")
+            exclude_schema_list = []
 
         # Conducting business rule validation
         if args.bundled:
