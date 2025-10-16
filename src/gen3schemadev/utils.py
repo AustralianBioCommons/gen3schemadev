@@ -126,8 +126,14 @@ def resolve_schema(schema_dir: str = None, schema_path: str = None) -> dict:
         resolver = ResolveSchema(schema_path)
         resolver.resolve_schema()
         resolved = resolver.schema_resolved
-        if isinstance(resolved, dict):
-            return resolved
+        output = {}
+        
+        for k, v in resolved.items():
+            schema_name = v.get('id', '')
+            output[f"{schema_name}.yaml"] = v
+
+        if isinstance(output, dict):
+            return output
         else:
             raise Exception(f"Resolved schema not dictionary of schemas, failed to resolve schema: {resolved}")
     finally:
