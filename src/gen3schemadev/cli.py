@@ -143,7 +143,6 @@ def main():
     )
     logger = logging.getLogger(__name__)
 
-
     if args.command == "generate":
         print("Starting schema generation process...")
         metaschema = get_metaschema()
@@ -182,7 +181,6 @@ def main():
         print("Starting validation process...")
         metaschema = get_metaschema()
 
-
         # Exclusion list
         exclude_schema_list = [
             'project', '_definitions', '_settings',
@@ -198,15 +196,15 @@ def main():
             schema_dict = read_json(args.bundled)
         elif args.yamls:
             schema_dict = bundle_yamls(args.yamls)
-        
+
         for schema_name, schema in schema_dict.items():
 
             if '.' in schema_name:
                 schema_name = os.path.splitext(schema_name)[0]
-            
+
             if schema_name in exclude_schema_list:
                 continue
-            
+  
             rule_validator = RuleValidator(schema)
             rule_validator.validate()
             print(f"SUCCESS: Rule validation complete for: {schema_name}")
