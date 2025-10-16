@@ -41,9 +41,11 @@ def write_yaml(data, file_path):
     Logs success or error messages.
     """
     try:
-        create_dir_if_not_exists(file_path)
+        dir_path = os.path.dirname(file_path)
+        if dir_path:
+            create_dir_if_not_exists(file_path)
         with open(file_path, 'w') as f:
-            yaml.safe_dump(data, f, sort_keys=False)
+            yaml.safe_dump(data, f, sort_keys=False, indent=2)
             logger.info(f"Successfully wrote YAML file: {file_path}")
     except Exception as e:
         logger.error(f"Failed to write YAML file {file_path}: {e}")
