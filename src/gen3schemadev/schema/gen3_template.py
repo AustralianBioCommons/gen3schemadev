@@ -67,6 +67,9 @@ def generate_setting_template():
 def generate_terms_template():
     return read_template_yaml('_terms.yaml')
 
+def generate_project_template():
+    return read_template_yaml('project.yaml')
+
 def generate_core_metadata_template():
     return read_template_yaml('core_metadata_collection.yaml')
 

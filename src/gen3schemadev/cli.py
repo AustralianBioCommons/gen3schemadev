@@ -10,6 +10,7 @@ from gen3schemadev.schema.gen3_template import (
     generate_setting_template,
     generate_terms_template,
     generate_core_metadata_template,
+    generate_project_template
 )
 from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json, resolve_schema, read_json
 from gen3schemadev.schema.input_schema import DataModel
@@ -183,6 +184,7 @@ def main():
         write_yaml(setting_dict, f"{args.output}/_settings.yaml")
         write_yaml(generate_terms_template(), f"{args.output}/_terms.yaml")
         write_yaml(generate_core_metadata_template(), f"{args.output}/core_metadata_collection.yaml")
+        write_yaml(generate_project_template(), f"{args.output}/project.yaml")
 
         print("Schema generation process complete.")
 

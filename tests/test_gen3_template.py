@@ -104,3 +104,9 @@ def test_generate_core_metadata_template_reads_core_metadata_yaml():
     assert isinstance(result, dict)
     assert "id" in result
     assert result.get("id") == "core_metadata_collection"
+
+def test_generate_project_template_reads_project_yaml():
+    result = generate_project_template()
+    assert isinstance(result, dict)
+    assert "id" in result
+    assert result.get("id") == "project"
