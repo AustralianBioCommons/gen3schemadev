@@ -149,6 +149,10 @@ properties:
         - type: string
           pattern: "^_definitions\\.yaml#/.+"
   
+  additionalProperties:
+    type: boolean
+    description: "Allow additional properties to be added to the node."
+    default: false
 
 
 # Definitions:

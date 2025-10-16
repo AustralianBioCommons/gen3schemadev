@@ -587,7 +587,8 @@ def fixture_expected_output_lipid():
             'samples': {'$ref': '_definitions.yaml#/to_many'},
             'assays': {'$ref': '_definitions.yaml#/to_many'},
             'core_metadata_collections': {'$ref': '_definitions.yaml#/to_one'}
-        }
+        },
+        'additionalProperties': False
     }
     return output
 
