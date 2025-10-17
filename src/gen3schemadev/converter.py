@@ -233,7 +233,7 @@ def add_core_metadata_link(links: list[dict], child_name: str) -> list[dict]:
     Returns:
         Updated list of link dictionaries including core metadata link.
     """
-    core_link = create_core_metadata_link(child_name)
+    core_link = create_core_metadata_link(child_name, required=False)
     return links + [core_link]
 
 
