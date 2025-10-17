@@ -26,7 +26,7 @@ links:
     target_type: sample
     multiplicity: many_to_many
     required: false
-  - name: core_metadata_collection
+  - name: core_metadata_collections
     backref: lipidomics_files
     label: describes
     target_type: core_metadata_collection
@@ -47,7 +47,7 @@ properties:
   $ref: _definitions.yaml#/data_file_properties
   samples:
     $ref: _definitions.yaml#/to_many
-  core_metadata_collection:
+  core_metadata_collections:
     $ref: _definitions.yaml#/to_one
   data_type:
     description: The type of data in this data file

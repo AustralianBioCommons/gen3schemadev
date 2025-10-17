@@ -2611,7 +2611,7 @@
                         "required": false
                     },
                     {
-                        "name": "core_metadata_collection",
+                        "name": "core_metadata_collections",
                         "backref": "lipidomics_files",
                         "label": "describes",
                         "target_type": "core_metadata_collection",
@@ -2624,7 +2624,7 @@
         "required": [
             "type",
             "submitter_id",
-            "core_metadata_collection",
+            "core_metadata_collections",
             "data_type",
             "data_format",
             "data_category"
@@ -2643,7 +2643,7 @@
             "samples": {
                 "$ref": "_definitions.yaml#/to_many"
             },
-            "core_metadata_collection": {
+            "core_metadata_collections": {
                 "$ref": "_definitions.yaml#/to_one"
             },
             "data_type": {
