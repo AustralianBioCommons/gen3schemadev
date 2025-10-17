@@ -1,5 +1,6 @@
 # validates gen3 bundled jsonschema (.json) by testing gen3 specific business rules
 import logging
+from gen3schemadev.converter import link_suffix
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ class RuleValidator:
                 links = self._get_links()
                 logger.debug(f"Got links for data_file: {links}")
                 for link in links:
-                    if link.get("name") == "core_metadata_collection":
+                    if link.get("name") == link_suffix("core_metadata_collection"):
                         logger.debug(
                             f"Found core_metadata_collection link for data_file node (id: {schema_id})."
                         )
@@ -54,7 +55,7 @@ class RuleValidator:
                 )
                 raise ValueError(
                     f"Schema '{schema_id}' with category 'data_file' must include a link with "
-                    f"'name': 'core_metadata_collection'. Please add this link to the 'links' section."
+                    f"'name': 'core_metadata_collections'. Please add this link to the 'links' section."
                 )
             return False
         except Exception as ex:
