@@ -196,6 +196,25 @@ def create_core_metadata_link(child_name: str, required: bool = False) -> dict:
     return link_obj.to_dict()
 
 
+def flip_multiplicity(multiplicity: str) -> str:
+    """
+    Flip the multiplicity of a link.
+
+    Args:
+        multiplicity: The current multiplicity of the link.
+
+    Returns:
+        The flipped multiplicity.
+    """
+    if multiplicity == "one_to_one" or multiplicity == "many_to_many":
+        return multiplicity
+    elif multiplicity == "one_to_many":
+        return "many_to_one"
+    elif multiplicity == "many_to_one":
+        return "one_to_many"
+    else:
+        raise ValueError(f"Invalid multiplicity: {multiplicity}")
+
 def convert_node_links(links: list[dict], required: bool = True) -> list[dict]:
     """
     Convert a list of link dictionaries into the Gen3 schema 'links' format.
@@ -214,7 +233,7 @@ def convert_node_links(links: list[dict], required: bool = True) -> list[dict]:
             backref=link_suffix(link['child']),
             label="part_of",
             target_type=link['parent'],
-            multiplicity=link['multiplicity'],
+            multiplicity=flip_multiplicity(link['multiplicity']),
             required=required
         )
         link_list.append(link_obj.to_dict())
@@ -539,7 +558,7 @@ def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
 
     # Add link properties
     for link in links:
-        link_prop = create_link_prop(link['parent'], link['multiplicity'])
+        link_prop = create_link_prop(link['parent'], flip_multiplicity(link['multiplicity']))
         props_dict.update(link_prop)
 
     # if it's an Enum, add the enum values

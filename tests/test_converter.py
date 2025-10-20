@@ -75,7 +75,7 @@ def test_convert_node_links():
     assert link0["name"] == "samples"
     assert link0["backref"] == "lipidomics_files"
     assert link0["target_type"] == "sample"
-    assert link0["multiplicity"] == "many_to_one"
+    assert link0["multiplicity"] == "one_to_many"
     assert link0["required"] is True
     assert "label" in link0 and link0["label"] is 'part_of'
 
@@ -84,7 +84,7 @@ def test_convert_node_links():
     assert link1["name"] == "projects"
     assert link1["backref"] == "samples"
     assert link1["target_type"] == "project"
-    assert link1["multiplicity"] == "one_to_many"
+    assert link1["multiplicity"] == "many_to_one"
     assert link1["required"] is True
     assert "label" in link1 and link1["label"] is 'part_of'
 
@@ -448,8 +448,8 @@ def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
     result = construct_props("lipidomics_file", fixture_input_yaml_pass)
     expected = {
         "$ref": "_definitions.yaml#/data_file_properties",
-        "samples": {"$ref": "_definitions.yaml#/to_many"},
-        "assays": {"$ref": "_definitions.yaml#/to_many"},
+        "samples": {"$ref": "_definitions.yaml#/to_one"},
+        "assays": {"$ref": "_definitions.yaml#/to_one"},
         "core_metadata_collections": {"$ref": "_definitions.yaml#/to_one"},
         'cv': {'description': 'Coefficient of variation (%)', 'type': 'number'}
         
@@ -507,7 +507,7 @@ def test_construct_prop_sample(fixture_input_yaml_pass):
             "description": "Free text notes (string)"
         },
         "projects": {
-            "$ref": "_definitions.yaml#/to_many"
+            "$ref": "_definitions.yaml#/to_one"
         }
     }
     assert result == expected
@@ -562,7 +562,7 @@ def fixture_expected_output_lipid():
                     'backref': 'lipidomics_files',
                     'label': 'part_of',
                     'target_type': 'sample',
-                    'multiplicity': 'one_to_many',
+                    'multiplicity': 'many_to_one',
                     'required': True
                 },
                 {
@@ -570,7 +570,7 @@ def fixture_expected_output_lipid():
                     'backref': 'lipidomics_files',
                     'label': 'part_of',
                     'target_type': 'assay',
-                    'multiplicity': 'one_to_many',
+                    'multiplicity': 'many_to_one',
                     'required': True
                 },
                 {
@@ -585,8 +585,8 @@ def fixture_expected_output_lipid():
         }],
         'properties': {
             '$ref': '_definitions.yaml#/data_file_properties',
-            'samples': {'$ref': '_definitions.yaml#/to_many'},
-            'assays': {'$ref': '_definitions.yaml#/to_many'},
+            'samples': {'$ref': '_definitions.yaml#/to_one'},
+            'assays': {'$ref': '_definitions.yaml#/to_one'},
             'core_metadata_collections': {'$ref': '_definitions.yaml#/to_one'},
             'cv': {'description': 'Coefficient of variation (%)', 'type': 'number'}
         },
