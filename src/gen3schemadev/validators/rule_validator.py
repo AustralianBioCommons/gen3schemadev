@@ -119,6 +119,7 @@ class RuleValidator:
             "updated_datetime",
             "file_state",
             "error_type",
+            "label"
         ]
         logger.debug(f"System properties: {system_props}")
         return system_props
