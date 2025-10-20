@@ -181,9 +181,8 @@ definitions:
       backref:
         $ref: "#/definitions/field"
       label:
-        anyOf:
-          - $ref: "#/definitions/field"
-          - type: 'null'
+        type: string
+        minLength: 1
       multiplicity:
         type: string
         enum:
