@@ -467,7 +467,8 @@ def test_construct_prop_project(fixture_input_yaml_pass):
         "description": {
             "type": "string",
             "description": "Project containing synthetic data"
-        }
+        },
+        "programs": {'$ref': '_definitions.yaml#/to_one'},
     }
     assert result == expected
 

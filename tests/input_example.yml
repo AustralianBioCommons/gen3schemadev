@@ -61,6 +61,11 @@ nodes:
 
 
 links:
+
+- parent: program # program is the root and is auto generated when you use the `gen3schemadev generate` command
+  multiplicity: one_to_many
+  child: project
+
 - parent: project
   multiplicity: one_to_many
   child: sample
