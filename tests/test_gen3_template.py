@@ -110,3 +110,9 @@ def test_generate_project_template_reads_project_yaml():
     assert isinstance(result, dict)
     assert "id" in result
     assert result.get("id") == "project"
+
+def test_generate_program_template_reads_program_yaml():
+    result = generate_program_template()
+    assert isinstance(result, dict)
+    assert "id" in result
+    assert result.get("id") == "program"

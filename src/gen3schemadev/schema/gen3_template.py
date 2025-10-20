@@ -75,3 +75,6 @@ def generate_core_metadata_template():
 
 def get_metaschema():
     return read_template_yaml('gen3_metaschema.yml')
+
+def generate_program_template():
+    return read_template_yaml('program.yaml')
