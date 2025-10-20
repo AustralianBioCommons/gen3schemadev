@@ -173,7 +173,7 @@ def get_node_links(node: str, data: DataSourceProtocol) -> list[dict]:
     return node_links
 
 
-def create_core_metadata_link(child_name: str) -> dict:
+def create_core_metadata_link(child_name: str, required: bool = False) -> dict:
     """
     Create a link dictionary for core metadata collections.
 
@@ -188,10 +188,10 @@ def create_core_metadata_link(child_name: str) -> dict:
     link_obj = LinkObj(
         name=link_suffix("core_metadata_collection"),
         backref=link_suffix(child_name),
-        label=None,
+        label="part_of",
         target_type="core_metadata_collection",
         multiplicity="one_to_one",
-        required=True
+        required=required
     )
     return link_obj.to_dict()
 
@@ -212,7 +212,7 @@ def convert_node_links(links: list[dict], required: bool = True) -> list[dict]:
         link_obj = LinkObj(
             name=link_suffix(link['parent']),
             backref=link_suffix(link['child']),
-            label=None,
+            label="part_of",
             target_type=link['parent'],
             multiplicity=link['multiplicity'],
             required=required

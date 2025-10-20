@@ -50,9 +50,9 @@ def test_create_core_metadata_link():
     assert link_dict["backref"] == "lipidomics_files"
     assert link_dict["target_type"] == "core_metadata_collection"
     assert link_dict["multiplicity"] == "one_to_one"
-    assert link_dict["required"] is True
+    assert link_dict["required"] is False
     # label is None
-    assert "label" in link_dict and link_dict["label"] is None
+    assert "label" in link_dict and link_dict["label"] is 'part_of'
     # The dict should not have unexpected keys
     expected_keys = {"name", "backref", "label", "target_type", "multiplicity", "required"}
     assert set(link_dict.keys()) == expected_keys
@@ -77,7 +77,7 @@ def test_convert_node_links():
     assert link0["target_type"] == "sample"
     assert link0["multiplicity"] == "many_to_one"
     assert link0["required"] is True
-    assert "label" in link0 and link0["label"] is None
+    assert "label" in link0 and link0["label"] is 'part_of'
 
     # Check the structure of the second link
     link1 = result[1]
@@ -86,7 +86,7 @@ def test_convert_node_links():
     assert link1["target_type"] == "project"
     assert link1["multiplicity"] == "one_to_many"
     assert link1["required"] is True
-    assert "label" in link1 and link1["label"] is None
+    assert "label" in link1 and link1["label"] is 'part_of'
 
     # Test with required=False
     result2 = convert_node_links(links, required=False)
@@ -103,7 +103,7 @@ def test_add_core_metadata_link():
             "label": None,
             "target_type": "sample",
             "multiplicity": "many_to_one",
-            "required": True,
+            "required": False,
         }
     ]
     child_name = "lipidomics_file"
@@ -121,8 +121,8 @@ def test_add_core_metadata_link():
     assert core_link["backref"] == "lipidomics_files"
     assert core_link["target_type"] == "core_metadata_collection"
     assert core_link["multiplicity"] == "one_to_one"
-    assert core_link["required"] is True
-    assert "label" in core_link and core_link["label"] is None
+    assert core_link["required"] is False
+    assert "label" in core_link and core_link["label"] is 'part_of'
     # The dict should not have unexpected keys
     expected_keys = {"name", "backref", "label", "target_type", "multiplicity", "required"}
     assert set(core_link.keys()) == expected_keys
@@ -560,7 +560,7 @@ def fixture_expected_output_lipid():
                 {
                     'name': 'samples',
                     'backref': 'lipidomics_files',
-                    'label': None,
+                    'label': 'part_of',
                     'target_type': 'sample',
                     'multiplicity': 'one_to_many',
                     'required': True
@@ -568,7 +568,7 @@ def fixture_expected_output_lipid():
                 {
                     'name': 'assays',
                     'backref': 'lipidomics_files',
-                    'label': None,
+                    'label': 'part_of',
                     'target_type': 'assay',
                     'multiplicity': 'one_to_many',
                     'required': True
@@ -576,10 +576,10 @@ def fixture_expected_output_lipid():
                 {
                     'name': 'core_metadata_collections',
                     'backref': 'lipidomics_files',
-                    'label': None,
+                    'label': 'part_of',
                     'target_type': 'core_metadata_collection',
                     'multiplicity': 'one_to_one',
-                    'required': True
+                    'required': False
                 }
             ]
         }],
