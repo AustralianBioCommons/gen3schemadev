@@ -24,7 +24,7 @@ links:
     backref: lipidomics_files
     label: data_from
     target_type: sample
-    multiplicity: many_to_many
+    multiplicity: one_to_many
     required: false
   - name: core_metadata_collections
     backref: lipidomics_files

@@ -52,10 +52,10 @@ links:
     backref: lipidomics_files
     label: data_from
     target_type: sample
-    multiplicity: many_to_many
+    multiplicity: one_to_many
     required: false
 ```
-The `multiplicity` of `many_to_many` allows for a single file to be associated with multiple samples, and it also allows a single sample to be associated with multiple lipidomics files. The link is optional because `required` is `false`. In other words: "A lipidomics file can come from multiple samples, and a sample can be linked to many lipidomics files."
+The `multiplicity` of `one_to_many` allows for a single lipidomics file to be associated with multiple samples. The link is optional because `required` is `false`. In other words: "A lipidomics file can come from multiple samples, or multiple samples are linked with a single lipidomics file."
 
 
 # Advanced Linking with Subgroups
