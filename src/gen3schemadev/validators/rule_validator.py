@@ -13,6 +13,7 @@ class RuleValidator:
         self.data_file_link_core_metadata()
         self.link_props_exist()
         self.props_cannot_be_system_props()
+        self.props_must_have_type()
 
     def _get_links(self):
         links = self.schema.get("links", [])
@@ -149,3 +150,44 @@ class RuleValidator:
             raise RuntimeError(
                 f"Exception while checking for system property key conflicts in schema '{schema_id}': {ex}"
             ) from ex
+
+
+    def props_must_have_type(self):
+        """
+        Ensure all user-defined properties (that are dictionaries and not only $ref)
+        have a "type" or "enum" key.
+        """
+        props = self._get_props()
+        schema_id = self.schema.get("id", "<unknown id>")
+
+        for key, value in props.items():
+            # Skip schema-level $ref
+            if key == "$ref":
+                logger.debug(
+                    f"Skipping property '{key}' because it is a schema reference."
+                )
+                continue
+
+            # Require property definition to be a dict
+            if not isinstance(value, dict):
+                logger.debug(
+                    f"Skipping property '{key}' because it is not a dictionary."
+                )
+                continue
+
+            # Skip if property definition contains a $ref (i.e., is an alias/reference)
+            if "$ref" in value:
+                logger.debug(
+                    f"Skipping property '{key}' because it contains a '$ref'."
+                )
+                continue
+
+            # Require at least 'type' or 'enum' to be present
+            if "type" not in value and "enum" not in value:
+                logger.error(
+                    f"Property '{key}' in schema '{schema_id}' is missing a 'type' or 'enum' field."
+                )
+                raise ValueError(
+                    f"Property '{key}' must have a value for 'type' or 'enum' in schema '{schema_id}'."
+                )
+        return True

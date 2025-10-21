@@ -88,3 +88,22 @@ def test_props_cannot_be_system_props_fail(fixture_rule_validator_fail):
         fixture_rule_validator_fail.props_cannot_be_system_props()
     # Check message for context
     assert "uses a reserved system property name" in str(excinfo.value)
+
+
+def test_props_must_have_type_pass(fixture_rule_validator_pass):
+    # Should NOT raise any exception (pass scenario)
+    assert fixture_rule_validator_pass.props_must_have_type() is True
+
+def test_props_must_have_type_fail():
+    # Construct schema that will fail (property missing 'type' and 'enum')
+    bad_schema = {
+        "id": "test_schema",
+        "properties": {
+            "foo": { "description": "bar" },  # Missing 'type' and 'enum'
+            "baz": { "type": "string" },      # Good property
+        },
+    }
+    rule_validator = RuleValidator(bad_schema)
+    with pytest.raises(ValueError) as excinfo:
+        rule_validator.props_must_have_type()
+    assert "must have a value for 'type' or 'enum'" in str(excinfo.value)
