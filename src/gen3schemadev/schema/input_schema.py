@@ -12,7 +12,7 @@ class Property(BaseModel):
     """Schema for gen3 property"""
     name: str = Field(description="The name of the property.")
     type: Literal[
-        'string', 'integer', 'number', 'boolean', 'datetime', 'enum'
+        'string', 'integer', 'number', 'boolean', 'datetime', 'enum', 'array'
     ] = Field(description="The data type of the property.")
     description: str = Field(description="A human-readable description of the property.")
     required: bool = Field(default=False, description="Whether this property is required for the node.")

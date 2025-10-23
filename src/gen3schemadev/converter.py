@@ -524,6 +524,65 @@ def format_datetime(prop_dict: dict) -> dict:
         raise RuntimeError(f"Error formatting datetime property: {e}") from e
 
 
+def format_array(prop_dict: dict) -> dict:
+    """
+    Formats a property dictionary with a 'type' of 'array' to use a Gen3 'array' schema definition.
+
+    If the property is not of type 'array', returns the property unchanged.
+
+    Example input:
+        {
+            "sample_ids": {
+                "type": "array",
+                "description": "Sample IDs (array)"
+            }
+        }
+
+    Example output:
+        {
+            "sample_ids": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        }
+
+    Args:
+        prop_dict (dict): A dictionary with a single property as key and its attributes as value.
+
+    Returns:
+        dict: The formatted property dictionary suitable for Gen3 schema usage.
+
+    Raises:
+        ValueError: If the input dictionary does not contain exactly one property.
+        RuntimeError: If an error occurs during formatting.
+    """
+    try:
+        if len(prop_dict) != 1:
+            raise ValueError("Expected a single property dictionary")
+
+        key, value = next(iter(prop_dict.items()))
+
+        if isinstance(value, dict) and value.get('type') == 'array':
+            # Safely preserve description and required if present
+            formatted = {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+            if "description" in value:
+                formatted["description"] = value["description"]
+            if "required" in value:
+                formatted["required"] = value["required"]
+            return {key: formatted}
+        else:
+            return {key: value}
+    except Exception as e:
+        raise RuntimeError(f"Error formatting array property: {e}") from e
+
+
 def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
     """
     Construct the 'properties' section for a Gen3 schema node.
@@ -554,6 +613,7 @@ def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
         if isinstance(prop, dict):
             prop = format_enum(prop)
             prop = format_datetime(prop)
+            prop = format_array(prop)
             props_dict.update(prop)
 
     # Add link properties
