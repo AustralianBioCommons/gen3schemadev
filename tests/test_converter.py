@@ -464,8 +464,14 @@ def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
         "data_type": {
             "description": "The type of data in this data file",
             "enum": ['data_type_1', 'data_type_2', 'data_type_3']
+        },
+        "lipid_species": {
+            "description": "List of lipid species",
+            "items": {
+                "type": "string"
+            },
+            "type": "array"
         }
-        
     }
     assert result == expected
 
@@ -614,6 +620,13 @@ def fixture_expected_output_lipid():
             "data_type": {
                 "description": "The type of data in this data file",
                 "enum": ['data_type_1', 'data_type_2', 'data_type_3']
+            },
+            "lipid_species": {
+                "description": "List of lipid species",
+                "items": {
+                    "type": "string"
+                },
+                "type": "array"
             }
         },
         'additionalProperties': False

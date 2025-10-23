@@ -14,6 +14,7 @@ class RuleValidator:
         self.link_props_exist()
         self.props_cannot_be_system_props()
         self.props_must_have_type()
+        self.type_array_needs_items()
 
     def _get_links(self):
         links = self.schema.get("links", [])
@@ -210,4 +211,18 @@ class RuleValidator:
                 f"'data_type', 'data_format', and 'data_category'. Please add these properties "
                 f"to the 'properties' section."
             )
+        return True
+
+    
+    def type_array_needs_items(self):
+        """Ensure that any property with 'type': 'array' includes an 'items' property."""
+        props = self._get_props()
+
+        for key, value in props.items():
+            if isinstance(value, dict) and value.get("type") == "array":
+                if "items" not in value:
+                    raise ValueError(
+                        f"Schema '{self.schema.get('id')}' property '{key}' with type 'array' must include an 'items' property. "
+                        "Please add an 'items' property to the 'properties' section."
+                    )
         return True
