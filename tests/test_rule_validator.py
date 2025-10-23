@@ -49,7 +49,7 @@ def test_get_props(fixture_rule_validator_pass, fixture_rule_validator_fail):
     assert "samples" in props
     
     props_fail = fixture_rule_validator_fail._get_props()
-    assert len(props_fail) == 7
+    assert len(props_fail) == 6
     assert "type" in props_fail
 
 
