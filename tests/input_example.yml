@@ -58,6 +58,9 @@ nodes:
       type: number
       description: Coefficient of variation (%)
       required: true
+    - name: lipid_species
+      type: array
+      description: List of lipid species
 
 
 links:

@@ -166,3 +166,66 @@ def test_data_file_props_need_data_props():
     assert "data_format" in str(excinfo2.value)
     assert "data_category" in str(excinfo2.value)
 
+
+def test_type_array_needs_items_passes_on_arrays_with_items():
+    schema = {
+        "id": "array_test_schema",
+        "properties": {
+            "string_list": {
+                "type": "array",
+                "items": {"type": "string"}
+            },
+            "int_list": {
+                "type": "array",
+                "items": {"type": "integer"}
+            },
+            "foo": {"type": "string"}
+        }
+    }
+    rv = RuleValidator(schema)
+    assert rv.type_array_needs_items() is True
+
+def test_type_array_needs_items_fails_when_missing_items():
+    schema = {
+        "id": "array_bad_schema",
+        "properties": {
+            "string_list": {
+                "type": "array"
+                # missing "items"
+            },
+            "foo": {"type": "string"}
+        }
+    }
+    rv = RuleValidator(schema)
+    with pytest.raises(ValueError) as excinfo:
+        rv.type_array_needs_items()
+    assert "must include an 'items' property" in str(excinfo.value)
+    assert "string_list" in str(excinfo.value)
+    assert "array_bad_schema" in str(excinfo.value)
+
+def test_type_array_needs_items_ignores_non_array_properties():
+    schema = {
+        "id": "array_ok_schema",
+        "properties": {
+            "foo": {"type": "string"},
+            "bar": {"type": "integer"},
+            "flag": {"type": "boolean"}
+        }
+    }
+    rv = RuleValidator(schema)
+    assert rv.type_array_needs_items() is True
+
+def test_type_array_needs_items_skips_refs():
+    schema = {
+        "id": "array_ref_schema",
+        "properties": {
+            "referenced_prop": {"$ref": "#/definitions/foo"},
+            "another_array": {
+                "type": "array",
+                "items": {"type": "number"}
+            }
+        }
+    }
+    rv = RuleValidator(schema)
+    # The $ref property should be ignored, should not raise
+    assert rv.type_array_needs_items() is True
