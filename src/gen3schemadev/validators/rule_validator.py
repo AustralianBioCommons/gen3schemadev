@@ -15,6 +15,7 @@ class RuleValidator:
         self.props_cannot_be_system_props()
         self.props_must_have_type()
         self.type_array_needs_items()
+        self.core_metadata_required_link()
 
     def _get_links(self):
         links = self.schema.get("links", [])
@@ -226,3 +227,21 @@ class RuleValidator:
                         "Please add an 'items' property to the 'properties' section."
                     )
         return True
+
+
+    def core_metadata_required_link(self):
+        """Core metadata collection schema needs at least one required link
+        """
+        if not self.schema.get('id', '') == 'core_metadata_collection':
+            return True
+
+        links = self._get_links()
+        for link in links:
+            val = link.get("required", None)
+            if val is not None and val is True:
+                return True
+        # If loop completes without returning, then no required link exists
+        raise ValueError(
+            f"Schema '{self.schema.get('id')}' must include at least one required link. "
+            "Please add a required link to the 'links' section."
+        )

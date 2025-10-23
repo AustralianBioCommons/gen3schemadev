@@ -14,7 +14,6 @@ def fixture_lipidomic_fail_schema():
     return load_yaml(file_path)
 
 
-
 def test_rule_validator_pass_init(fixture_lipidomic_pass_schema):
     rule_validator = RuleValidator(fixture_lipidomic_pass_schema)
     assert rule_validator.schema['id'] == "lipidomics_file"
@@ -57,6 +56,7 @@ def test_data_file_link_core_metadata_pass(fixture_rule_validator_pass):
     # Should NOT raise any exception (pass scenario)
     assert fixture_rule_validator_pass.data_file_link_core_metadata() is True
 
+
 def test_data_file_link_core_metadata_fail(fixture_rule_validator_fail):
     # Should raise a ValueError (wrapped in RuntimeError)
     with pytest.raises(RuntimeError) as excinfo:
@@ -70,6 +70,7 @@ def test_link_props_exist_pass(fixture_rule_validator_pass):
     # Should NOT raise any exception (pass scenario)
     assert fixture_rule_validator_pass.link_props_exist() is True
 
+
 def test_link_props_exist_fail(fixture_rule_validator_fail):
     # Should raise a ValueError (wrapped in RuntimeError)
     with pytest.raises(RuntimeError) as excinfo:
@@ -82,6 +83,7 @@ def test_props_cannot_be_system_props_pass(fixture_rule_validator_pass):
     # Should NOT raise any exception (pass scenario)
     assert fixture_rule_validator_pass.props_cannot_be_system_props() is True
 
+
 def test_props_cannot_be_system_props_fail(fixture_rule_validator_fail):
     # Should raise a ValueError (wrapped in RuntimeError)
     with pytest.raises(RuntimeError) as excinfo:
@@ -93,6 +95,7 @@ def test_props_cannot_be_system_props_fail(fixture_rule_validator_fail):
 def test_props_must_have_type_pass(fixture_rule_validator_pass):
     # Should NOT raise any exception (pass scenario)
     assert fixture_rule_validator_pass.props_must_have_type() is True
+
 
 def test_props_must_have_type_fail():
     # Construct schema that will fail (property missing 'type' and 'enum')
@@ -185,6 +188,7 @@ def test_type_array_needs_items_passes_on_arrays_with_items():
     rv = RuleValidator(schema)
     assert rv.type_array_needs_items() is True
 
+
 def test_type_array_needs_items_fails_when_missing_items():
     schema = {
         "id": "array_bad_schema",
@@ -203,6 +207,7 @@ def test_type_array_needs_items_fails_when_missing_items():
     assert "string_list" in str(excinfo.value)
     assert "array_bad_schema" in str(excinfo.value)
 
+
 def test_type_array_needs_items_ignores_non_array_properties():
     schema = {
         "id": "array_ok_schema",
@@ -214,6 +219,7 @@ def test_type_array_needs_items_ignores_non_array_properties():
     }
     rv = RuleValidator(schema)
     assert rv.type_array_needs_items() is True
+
 
 def test_type_array_needs_items_skips_refs():
     schema = {
@@ -229,3 +235,61 @@ def test_type_array_needs_items_skips_refs():
     rv = RuleValidator(schema)
     # The $ref property should be ignored, should not raise
     assert rv.type_array_needs_items() is True
+
+
+def test_core_metadata_required_link_passes_when_required_link_exists():
+    schema = {
+        "id": "core_metadata_collection",
+        "links": [
+            {
+                "name": "projects",
+                "backref": "core_metadata_collections",
+                "label": "data_from",
+                "target_type": "project",
+                "multiplicity": "many_to_one",
+                "required": True,
+            }
+        ]
+    }
+    rv = RuleValidator(schema)
+    assert rv.core_metadata_required_link() is True
+
+
+def test_core_metadata_required_link_fails_when_no_required_true():
+    schema = {
+        "id": "core_metadata_collection",
+        "links": [
+            {
+                "name": "projects",
+                "backref": "core_metadata_collections",
+                "label": "data_from",
+                "target_type": "project",
+                "multiplicity": "many_to_one",
+                # required omitted or set to False
+            },
+            {
+                "name": "secondary",
+                "required": False
+            }
+        ]
+    }
+    rv = RuleValidator(schema)
+    with pytest.raises(ValueError) as excinfo:
+        rv.core_metadata_required_link()
+    assert "must include at least one required link" in str(excinfo.value)
+    assert "core_metadata_collection" in str(excinfo.value)
+
+
+def test_core_metadata_required_link_skips_if_not_core_metadata_collection():
+    schema = {
+        "id": "another_node",
+        "links": [
+            {
+                "name": "some_link",
+                "required": False
+            }
+        ]
+    }
+    rv = RuleValidator(schema)
+    # Should silently pass since id is NOT core_metadata_collection
+    assert rv.core_metadata_required_link() is True
