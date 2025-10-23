@@ -176,9 +176,7 @@ Properties are found within nodes. Properties can be thought of as the columns i
 | integer    | Whole numbers                                    | 42                   |
 | number     | Numeric values (integer or floating point)        | 3.14                 |
 | boolean    | True or false values                             | true                 |
-| object     | Key-value pairs (dictionary/map)                  | {"age": 30}          |
 | array      | Ordered list of values                           | [1, 2, 3]            |
-| null       | Null value (no value)                            | null                 |
 | datetime   | ISO 8601 date/time string (special type recognised by Gen3SchemaDev) | "2024-01-01T12:00:00Z" |
 
 *These are the standard [JSON Schema data types](https://json-schema.org/understanding-json-schema/reference/type.html) used to define the kind of data a property can hold.*
