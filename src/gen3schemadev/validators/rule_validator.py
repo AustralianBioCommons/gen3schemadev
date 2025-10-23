@@ -191,3 +191,23 @@ class RuleValidator:
                     f"Property '{key}' must have a value for 'type' or 'enum' in schema '{schema_id}'."
                 )
         return True
+    
+    def data_file_props_need_data_props(self):
+        """If the schema is category: data_file, then it must 
+        have the properties `data_type`, `data_format`, and `data_category`.
+        """
+
+        if not self.schema.get('category', '') == 'data_file':
+            return True
+
+        props = self._get_props()
+        prop_keys = set(props.keys())
+        need_props = {"data_type", "data_format", "data_category"}
+        if not need_props.issubset(prop_keys):
+            schema_id = self.schema.get("id", "<unknown id>")
+            raise ValueError(
+                f"Schema '{schema_id}' with category 'data_file' must include properties "
+                f"'data_type', 'data_format', and 'data_category'. Please add these properties "
+                f"to the 'properties' section."
+            )
+        return True

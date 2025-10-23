@@ -566,6 +566,19 @@ def construct_props(node_name: str, data: DataSourceProtocol) -> dict:
         props_dict['core_metadata_collections'] = {"$ref": "_definitions.yaml#/to_one"}
         props_dict['$ref'] = "_definitions.yaml#/data_file_properties"
 
+        props_dict['data_category'] = {
+            "description": "Broad categorization of the contents of the data file.",
+            "enum": ['data_category_1', 'data_category_2', 'data_category_3']
+        }
+        props_dict['data_format'] = {
+            "description": "The format of the data in this data file",
+            "enum": ['data_format_1', 'data_format_2', 'data_format_3']
+        }
+        props_dict['data_type'] = {
+            "description": "The type of data in this data file",
+            "enum": ['data_type_1', 'data_type_2', 'data_type_3']
+        }
+
     return props_dict
 
 

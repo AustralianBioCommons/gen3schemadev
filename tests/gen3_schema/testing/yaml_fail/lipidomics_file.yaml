@@ -55,12 +55,6 @@ properties:
     - tsv
     - xls
     - xlsx
-  data_category:
-    description: Broad categorization of the contents of the data file.
-    enum:
-    - mass spec raw
-    - mass spec analysed
-    - summarised results
   cv:
     description: Coefficient of variation (%)
     type: number

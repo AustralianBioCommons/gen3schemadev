@@ -452,6 +452,19 @@ def test_construct_prop_lipidomics_file(fixture_input_yaml_pass):
         "assays": {"$ref": "_definitions.yaml#/to_one"},
         "core_metadata_collections": {"$ref": "_definitions.yaml#/to_one"},
         'cv': {'description': 'Coefficient of variation (%)', 'type': 'number'}
+        ,
+        "data_category": {
+            "description": "Broad categorization of the contents of the data file.",
+            "enum": ['data_category_1', 'data_category_2', 'data_category_3']
+        },
+        "data_format": {
+            "description": "The format of the data in this data file",
+            "enum": ['data_format_1', 'data_format_2', 'data_format_3']
+        },
+        "data_type": {
+            "description": "The type of data in this data file",
+            "enum": ['data_type_1', 'data_type_2', 'data_type_3']
+        }
         
     }
     assert result == expected
@@ -589,7 +602,19 @@ def fixture_expected_output_lipid():
             'samples': {'$ref': '_definitions.yaml#/to_one'},
             'assays': {'$ref': '_definitions.yaml#/to_one'},
             'core_metadata_collections': {'$ref': '_definitions.yaml#/to_one'},
-            'cv': {'description': 'Coefficient of variation (%)', 'type': 'number'}
+            'cv': {'description': 'Coefficient of variation (%)', 'type': 'number'},
+            "data_category": {
+                "description": "Broad categorization of the contents of the data file.",
+                "enum": ['data_category_1', 'data_category_2', 'data_category_3']
+            },
+            "data_format": {
+                "description": "The format of the data in this data file",
+                "enum": ['data_format_1', 'data_format_2', 'data_format_3']
+            },
+            "data_type": {
+                "description": "The type of data in this data file",
+                "enum": ['data_type_1', 'data_type_2', 'data_type_3']
+            }
         },
         'additionalProperties': False
     }
