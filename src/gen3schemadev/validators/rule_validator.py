@@ -16,6 +16,7 @@ class RuleValidator:
         self.props_must_have_type()
         self.type_array_needs_items()
         self.core_metadata_required_link()
+        self.data_file_props_need_data_props()
 
     def _get_links(self):
         links = self.schema.get("links", [])
