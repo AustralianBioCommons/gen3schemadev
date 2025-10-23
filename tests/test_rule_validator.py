@@ -107,3 +107,62 @@ def test_props_must_have_type_fail():
     with pytest.raises(ValueError) as excinfo:
         rule_validator.props_must_have_type()
     assert "must have a value for 'type' or 'enum'" in str(excinfo.value)
+
+
+def test_data_file_props_need_data_props():
+    schema = {
+        "id": "my_data_file",
+        "category": "data_file",
+        "properties": {
+            "data_type": {"type": "string"},
+            "data_format": {"type": "string"},
+            "data_category": {"type": "string"},
+            "other": {"type": "string"}
+        }
+    }
+    rv = RuleValidator(schema)
+    assert rv.data_file_props_need_data_props() is True
+
+    # Not a data_file node: should pass (returns True, does not care about props)
+    non_data_file_schema = {
+        "id": "my_non_data_file",
+        "category": "project",
+        "properties": {
+            "some_field": {"type": "string"}
+        }
+    }
+    rv2 = RuleValidator(non_data_file_schema)
+    assert rv2.data_file_props_need_data_props() is True
+
+    # Failing: missing required property
+    missing_data_type = {
+        "id": "bad_data_file",
+        "category": "data_file",
+        "properties": {
+            "data_format": {"type": "string"},
+            "data_category": {"type": "string"}
+            # missing 'data_type'
+        }
+    }
+    rv3 = RuleValidator(missing_data_type)
+    with pytest.raises(ValueError) as excinfo:
+        rv3.data_file_props_need_data_props()
+    assert "must include properties" in str(excinfo.value)
+    assert "data_type" in str(excinfo.value)
+
+    # Failing: missing all required props
+    missing_all = {
+        "id": "bad_data_file2",
+        "category": "data_file",
+        "properties": {
+            "foo": {"type": "string"},
+        }
+    }
+    rv4 = RuleValidator(missing_all)
+    with pytest.raises(ValueError) as excinfo2:
+        rv4.data_file_props_need_data_props()
+    assert "must include properties" in str(excinfo2.value)
+    assert "data_type" in str(excinfo2.value)
+    assert "data_format" in str(excinfo2.value)
+    assert "data_category" in str(excinfo2.value)
+
