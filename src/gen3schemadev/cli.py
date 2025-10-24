@@ -205,9 +205,10 @@ def main():
 
         # Exclusion list
         exclude_schema_list = [
-            'project', '_definitions', '_settings',
-            '_terms', 'core_metadata_collection',
-            'program'
+            '_definitions',
+            '_settings',
+            '_terms',
+            'core_metadata_collection',
         ]
         if args.no_exclude:
             print(f"Validation now includes: {exclude_schema_list}")
