@@ -19,7 +19,6 @@ def test_get_node_names(fixture_input_yaml_pass):
     node_names = get_node_names(fixture_input_yaml_pass)
     assert 'lipidomics_file' in node_names
     assert 'sample' in node_names
-    assert 'project' in node_names
     assert 'assay' in node_names
 
 def test_get_node_data(fixture_input_yaml_pass):
@@ -214,22 +213,22 @@ def test_create_link_prop():
 
 
 def test_get_properties(fixture_input_yaml_pass):
-    result = get_properties("project", fixture_input_yaml_pass)
+    result = get_properties("lipidomics_file", fixture_input_yaml_pass)
     expected = [
         {
-            'project_id': {
-                'type': 'string',
-                'description': 'Synthetic_Dataset_1',
-                'required': True,
-                'enums': None
+            "cv": {
+                "type": "number",
+                "description": "Coefficient of variation (%)",
+                "enums": None,
+                "required": True
             }
         },
         {
-            'description': {
-                'type': 'string',
-                'description': 'Project containing synthetic data',
-                'required': False,
-                'enums': None
+            "lipid_species": {
+                "type": "array",
+                "enums": None,
+                "description": "List of lipid species",
+                "required": False
             }
         }
     ]
