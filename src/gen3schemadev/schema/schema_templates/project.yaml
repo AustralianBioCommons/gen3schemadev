@@ -126,6 +126,34 @@ properties:
       \ and/or material might be removed, stored or used. \\n\n        Based on the\
       \ Data Use Ontology : see http://www.obofoundry.org/ontology/duo.html"
     type: array
+    items:
+      type: string
+      enum:
+      - General Research Use
+      - Health or Biomedical Research
+      - Disease Specific Research
+      - not for profit, non commercial user only
+      - ethics approval required
+      - user specific restriction
+      enumDef:
+      - enumeration: General Research Use
+        source: duo
+        term_id: DUO:0000042
+      - enumeration: Health or Biomedical Research
+        source: duo
+        term_id: DUO:0000006
+      - enumeration: Disease Specific Research
+        source: duo
+        term_id: DUO:0000007
+      - enumeration: not for profit, non commercial user only
+        source: duo
+        term_id: DUO:0000018
+      - enumeration: ethics approval required
+        source: duo
+        term_id: DUO:0000021
+      - enumeration: user specific restriction
+        source: duo
+        term_id: DUO:0000026
   data_access_url:
     description: A URL link that takes you to a page that explains how to gain access
       to the project
