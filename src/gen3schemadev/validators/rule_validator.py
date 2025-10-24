@@ -129,6 +129,15 @@ class RuleValidator:
         return system_props
 
     def props_cannot_be_system_props(self):
+        
+        if self.schema.get('id', '') == 'project':
+            logger.info("Skipping system property check for project schema.")
+            return True
+        
+        if self.schema.get('id', '') == 'program':
+            logger.info("Skipping system property check for program schema.")
+            return True
+        
         props = self._get_props()
         prop_keys = list(props.keys())
         schema_id = self.schema.get("id", "<unknown id>")
