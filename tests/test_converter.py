@@ -211,6 +211,31 @@ def test_create_link_prop():
     assert prop3["weird_nodes"]["$ref"] == "_definitions.yaml#/to_one"
 
 
+def test_create_link_prop_project():
+    """
+    When a node links to 'project', the property $ref must use the special
+    'to_one_project' or 'to_many_project' definition rather than the generic
+    'to_one'/'to_many'. This is because 'project' uses a different foreign key
+    schema (foreign_key_project, identified by 'id' or 'code') compared to
+    the standard foreign_key (identified by 'id' or 'submitter_id').
+    """
+    prop_one = create_link_prop("project", "one_to_one")
+    assert "projects" in prop_one
+    assert prop_one["projects"]["$ref"] == "_definitions.yaml#/to_one_project"
+
+    prop_many = create_link_prop("project", "one_to_many")
+    assert "projects" in prop_many
+    assert prop_many["projects"]["$ref"] == "_definitions.yaml#/to_many_project"
+
+    prop_many2 = create_link_prop("project", "many_to_many")
+    assert "projects" in prop_many2
+    assert prop_many2["projects"]["$ref"] == "_definitions.yaml#/to_many_project"
+
+    prop_one2 = create_link_prop("project", "many_to_one")
+    assert "projects" in prop_one2
+    assert prop_one2["projects"]["$ref"] == "_definitions.yaml#/to_one_project"
+
+
 
 def test_get_properties(fixture_input_yaml_pass):
     result = get_properties("lipidomics_file", fixture_input_yaml_pass)
@@ -526,7 +551,7 @@ def test_construct_prop_sample(fixture_input_yaml_pass):
             "description": "Free text notes (string)"
         },
         "projects": {
-            "$ref": "_definitions.yaml#/to_one"
+            "$ref": "_definitions.yaml#/to_one_project"
         }
     }
     assert result == expected
