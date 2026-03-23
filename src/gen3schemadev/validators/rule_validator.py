@@ -17,6 +17,7 @@ class RuleValidator:
         self.type_array_needs_items()
         self.core_metadata_required_link()
         self.data_file_props_need_data_props()
+        self.project_must_require_code()
 
     def _get_links(self):
         links = self.schema.get("links", [])
@@ -238,6 +239,22 @@ class RuleValidator:
                     )
         return True
 
+
+    def project_must_require_code(self):
+        """If the schema is for the project node (id: project),
+        then 'code' must be in the required list. Gen3 uses 'code'
+        as the unique project identifier.
+        """
+        if self.schema.get('id', '') != 'project':
+            return True
+
+        required = self.schema.get('required', [])
+        if 'code' not in required:
+            raise ValueError(
+                f"Schema 'project' must include 'code' in the 'required' list. "
+                f"Please add 'code' to the 'required' section."
+            )
+        return True
 
     def core_metadata_required_link(self):
         """Core metadata collection schema needs at least one required link
