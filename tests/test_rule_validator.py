@@ -293,3 +293,56 @@ def test_core_metadata_required_link_skips_if_not_core_metadata_collection():
     rv = RuleValidator(schema)
     # Should silently pass since id is NOT core_metadata_collection
     assert rv.core_metadata_required_link() is True
+
+
+def test_project_must_require_code_passes_when_code_in_required():
+    """The project node in Gen3 must always have 'code' as a required property.
+    This is because Gen3 uses 'code' as the unique project identifier internally.
+    This test confirms validation passes when 'code' is present in the required list.
+    """
+    schema = {
+        "id": "project",
+        "required": ["code", "name", "programs", "dbgap_accession_number"],
+        "properties": {
+            "code": {"type": "string"},
+            "name": {"type": "string"},
+        },
+    }
+    rv = RuleValidator(schema)
+    assert rv.project_must_require_code() is True
+
+
+def test_project_must_require_code_fails_when_code_missing():
+    """The project node must have 'code' in its required list.
+    If a project schema omits 'code' from required, Gen3 will not function correctly
+    because it relies on 'code' as the unique project identifier.
+    This test confirms a ValueError is raised when 'code' is absent.
+    """
+    schema = {
+        "id": "project",
+        "required": ["name", "programs"],
+        "properties": {
+            "name": {"type": "string"},
+        },
+    }
+    rv = RuleValidator(schema)
+    with pytest.raises(ValueError) as excinfo:
+        rv.project_must_require_code()
+    assert "code" in str(excinfo.value)
+    assert "project" in str(excinfo.value)
+
+
+def test_project_must_require_code_skips_non_project_schemas():
+    """The 'code' requirement only applies to the project node.
+    Other nodes should not be affected by this rule.
+    This test confirms non-project schemas are silently skipped.
+    """
+    schema = {
+        "id": "sample",
+        "required": ["submitter_id"],
+        "properties": {
+            "sample_id": {"type": "string"},
+        },
+    }
+    rv = RuleValidator(schema)
+    assert rv.project_must_require_code() is True
