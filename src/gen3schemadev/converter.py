@@ -307,6 +307,10 @@ def create_link_prop(target_node: str, multiplicity: str) -> dict:
     """
     Create a property dictionary for a link to another node.
 
+    Links targeting 'project' use the special 'to_one_project' / 'to_many_project'
+    definitions because the project foreign key is identified by 'id' or 'code'
+    (foreign_key_project), not the standard 'id' or 'submitter_id' (foreign_key).
+
     Args:
         target_node: The name of the target node.
         multiplicity: The multiplicity of the link (e.g., 'one_to_one', 'one_to_many').
@@ -314,9 +318,14 @@ def create_link_prop(target_node: str, multiplicity: str) -> dict:
     Returns:
         A dictionary representing the link property for the schema.
     """
+    formatted = format_multiplicity(multiplicity)
+    if target_node == "project":
+        ref = f"_definitions.yaml#/{formatted}_project"
+    else:
+        ref = f"_definitions.yaml#/{formatted}"
     link_prop = {
         link_suffix(target_node): {
-            "$ref": f"_definitions.yaml#/{format_multiplicity(multiplicity)}"
+            "$ref": ref
         }
     }
     return link_prop
