@@ -663,3 +663,116 @@ def test_populate_output(fixture_input_yaml_pass, fixture_expected_output_lipid,
     assert isinstance(result, dict)
     assert result == expected
 
+
+# ---------------------------------------------------------------------------
+# Regression tests for issue: auto-injected file-node properties overwrote
+# user-defined properties in input.yaml.
+#
+# Before the fix, `construct_props` unconditionally assigned hardcoded
+# placeholder enums for `data_category`, `data_format`, and `data_type` (and
+# `core_metadata_collections`) on any node with category `data_file`, even
+# when the user had already declared those properties themselves.
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def fixture_input_yaml_file_props_defined():
+    """Input model where the user has explicitly declared data_* enums on a
+    data_file node. Exercises the preserve-user-definition path."""
+    data = load_yaml("tests/input_example_file_props.yml")
+    return DataModel.model_validate(data)
+
+
+def test_construct_props_preserves_user_data_format_enum(fixture_input_yaml_file_props_defined):
+    """Canonical regression test for the reported bug.
+
+    A user declaring `data_format` with enums [csv, txt] on a data_file node
+    expects those enum values to survive `construct_props`. Previously they
+    were silently replaced with ['data_format_1', 'data_format_2', 'data_format_3'],
+    which made the input.yaml declaration meaningless.
+    """
+    props = construct_props("lipidomics_file", fixture_input_yaml_file_props_defined)
+    assert props["data_format"] == {
+        "description": "File format for lipidomics output",
+        "enum": ["csv", "txt"],
+    }
+
+
+def test_construct_props_preserves_user_data_category_enum(fixture_input_yaml_file_props_defined):
+    """Same bug, different property. `data_category` is the second of the
+    three file-node properties that were being overwritten; this locks in
+    that the fix covers all three, not just `data_format`."""
+    props = construct_props("lipidomics_file", fixture_input_yaml_file_props_defined)
+    assert props["data_category"] == {
+        "description": "Category of lipidomics data",
+        "enum": ["proteomics", "metabolomics"],
+    }
+
+
+def test_construct_props_preserves_user_data_type_enum(fixture_input_yaml_file_props_defined):
+    """Same bug, `data_type`. Completes the coverage of the three
+    explicitly-reported file-node properties."""
+    props = construct_props("lipidomics_file", fixture_input_yaml_file_props_defined)
+    assert props["data_type"] == {
+        "description": "Type of lipidomics measurement",
+        "enum": ["raw", "processed"],
+    }
+
+
+def test_construct_props_preserves_user_core_metadata_collections(fixture_input_yaml_file_props_defined):
+    """Extends the same fix to `core_metadata_collections`, which
+    `construct_props` also assigned unconditionally for data_file nodes.
+    If the user declares their own shape for it, it must survive — no
+    hidden $ref replacement."""
+    props = construct_props("lipidomics_file", fixture_input_yaml_file_props_defined)
+    assert props["core_metadata_collections"] == {
+        "description": "Custom core metadata link sentinel",
+        "enum": ["custom_a", "custom_b"],
+    }
+
+
+def test_construct_props_injects_defaults_when_user_omits(fixture_input_yaml_pass):
+    """Fallback-path regression: if the user does NOT declare data_* properties,
+    the hardcoded placeholder enums must still be injected. This guards against
+    a naive fix that would simply delete the defaults — a change that would
+    silently break every existing project relying on them."""
+    props = construct_props("lipidomics_file", fixture_input_yaml_pass)
+    assert props["data_category"] == {
+        "description": "Broad categorization of the contents of the data file.",
+        "enum": ["data_category_1", "data_category_2", "data_category_3"],
+    }
+    assert props["data_format"] == {
+        "description": "The format of the data in this data file",
+        "enum": ["data_format_1", "data_format_2", "data_format_3"],
+    }
+    assert props["data_type"] == {
+        "description": "The type of data in this data file",
+        "enum": ["data_type_1", "data_type_2", "data_type_3"],
+    }
+    assert props["core_metadata_collections"] == {"$ref": "_definitions.yaml#/to_one"}
+
+
+def test_populate_template_roundtrip_preserves_user_enums(
+    fixture_input_yaml_file_props_defined, fixture_converter_template
+):
+    """End-to-end test through `populate_template`, which is what the CLI's
+    generate command calls per-node before writing YAML to disk. Ensures
+    the preserve-user-definition fix holds through the full pipeline, not
+    just `construct_props` in isolation."""
+    result = populate_template(
+        "lipidomics_file",
+        fixture_input_yaml_file_props_defined,
+        fixture_converter_template,
+    )
+    properties = result["properties"]
+    assert properties["data_format"] == {
+        "description": "File format for lipidomics output",
+        "enum": ["csv", "txt"],
+    }
+    assert properties["data_category"] == {
+        "description": "Category of lipidomics data",
+        "enum": ["proteomics", "metabolomics"],
+    }
+    assert properties["data_type"] == {
+        "description": "Type of lipidomics measurement",
+        "enum": ["raw", "processed"],
+    }

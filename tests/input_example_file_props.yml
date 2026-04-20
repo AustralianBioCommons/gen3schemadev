@@ -1,0 +1,67 @@
+version: 0.1.0
+url: https://link-to-data-portal
+
+nodes:
+- name: project
+  description: Gen3 Compulsary Node
+  category: administrative
+  properties:
+    - name: project_id
+      type: string
+      description: Project id
+      required: true
+
+- name: sample
+  description: Info about sample
+  category: biospecimen
+  properties:
+    - name: notes
+      type: string
+      description: Free text notes
+
+- name: lipidomics_file
+  description: Info about lipidomics file
+  category: data_file
+  properties:
+    - name: cv
+      type: number
+      description: Coefficient of variation (%)
+    - name: data_format
+      type: enum
+      description: File format for lipidomics output
+      enums:
+        - csv
+        - txt
+    - name: data_category
+      type: enum
+      description: Category of lipidomics data
+      enums:
+        - proteomics
+        - metabolomics
+    - name: data_type
+      type: enum
+      description: Type of lipidomics measurement
+      enums:
+        - raw
+        - processed
+    - name: core_metadata_collections
+      type: enum
+      description: Custom core metadata link sentinel
+      enums:
+        - custom_a
+        - custom_b
+
+
+links:
+
+- parent: program
+  multiplicity: one_to_many
+  child: project
+
+- parent: project
+  multiplicity: one_to_many
+  child: sample
+
+- parent: sample
+  multiplicity: one_to_many
+  child: lipidomics_file
