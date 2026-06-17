@@ -11,6 +11,8 @@ Expected Data Structure:
     - links: List of link objects with attributes: child, parent, multiplicity
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, asdict
 from typing import Protocol, runtime_checkable, Dict, Any, List
 import logging
