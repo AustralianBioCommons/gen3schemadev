@@ -20,6 +20,7 @@ from gen3schemadev.validators.metaschema_validator import validate_schema_with_m
 from importlib.metadata import version
 from gen3schemadev.ddvis import visualise_with_docker
 from gen3schemadev.validators.rule_validator import RuleValidator
+from gen3schemadev.refs import WRAPPED, SKIP_REASONS, fix_yaml_dir
 
 
 def main():
@@ -142,7 +143,28 @@ def main():
         action="store_true",
         help="Set logging level to DEBUG"
     )
-    
+
+    # Create 'fix-refs' subcommand
+    fixrefs_parser = subparsers.add_parser(
+        "fix-refs",
+        help="Rewrite properties with '$ref' siblings into draft-04-safe allOf form (in place)"
+    )
+    fixrefs_parser.add_argument(
+        "-y", "--yamldir",
+        required=True,
+        help="Directory of Gen3 YAML files to rewrite in place (recursive)"
+    )
+    fixrefs_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Report what would change without writing files"
+    )
+    fixrefs_parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Set logging level to DEBUG"
+    )
+
     args = parser.parse_args()
     
     # Handle case where no command is provided
@@ -305,6 +327,42 @@ def main():
 
         output_path = args.output or "input_example.yaml"
         write_yaml(init_yaml, output_path)
+
+    elif args.command == "fix-refs":
+        if not os.path.isdir(args.yamldir):
+            print(f"ERROR: Directory not found: {args.yamldir}", file=sys.stderr)
+            sys.exit(1)
+
+        if args.dry_run:
+            print(f"Dry run: scanning {args.yamldir} (no files will be written)")
+        else:
+            print(f"Fixing $ref sibling annotations in: {args.yamldir}")
+
+        reports = fix_yaml_dir(args.yamldir, dry_run=args.dry_run)
+
+        total_wrapped = 0
+        files_changed = 0
+        for report in reports:
+            print(report["path"])
+            if report["skipped_file"]:
+                print(f"  skipped file ({report['skipped_file']})")
+                continue
+            if not report["changes"]:
+                print("  no $ref properties found")
+                continue
+            for prop_name, action, preserved in report["changes"]:
+                if action == WRAPPED:
+                    total_wrapped += 1
+                    print(f"  wrapped: {prop_name} (preserved: {', '.join(preserved)})")
+                else:
+                    print(f"  skipped ({SKIP_REASONS[action]}): {prop_name}")
+            if report["rewritten"] or (args.dry_run and any(c[1] == WRAPPED for c in report["changes"])):
+                files_changed += 1
+
+        files_unchanged = len(reports) - files_changed
+        verb = "would be wrapped" if args.dry_run else "wrapped"
+        print(f"\nSummary: {total_wrapped} properties {verb} in {files_changed} files; "
+              f"{files_unchanged} files unchanged.")
 
 if __name__ == "__main__":
     main()

@@ -12,6 +12,17 @@ This repository aims to provide the documentation, learning materials, and softw
 - [Guide to creating your first dictionary](docs/gen3schemadev/first_dictionary.md)
 - [Troubleshooting](docs/gen3schemadev/troubleshooting.md)
 
+### Fixing `$ref` properties in an existing dictionary
+
+JSON Schema draft-04 (which Gen3 uses) ignores any keyword sitting as a direct sibling of `$ref`, so properties written as `{description: ..., $ref: _definitions.yaml#/X}` lose their description in the data-dictionary viewer. The `fix-refs` command rewrites such properties in place, moving the `$ref` into an `allOf` list so annotations survive resolution:
+
+```bash
+gen3schemadev fix-refs -y path/to/dictionary --dry-run   # preview changes
+gen3schemadev fix-refs -y path/to/dictionary             # rewrite in place
+```
+
+The command is idempotent and never touches bare refs, refs already inside `allOf`/`anyOf`/`oneOf`, the `properties: {$ref: ...}` merge construct, or `_definitions.yaml`/`_terms.yaml`/`_settings.yaml`.
+
 
 ## Deep dive into Gen3 Data Modelling
 *Special Thanks to Marion Shadbolt for providing the [source material](https://github.com/AustralianBioCommons/umccr-dictionary/tree/main/docs/schemas)*

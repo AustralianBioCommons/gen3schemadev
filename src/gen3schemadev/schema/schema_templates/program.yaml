@@ -24,8 +24,9 @@ properties:
   type:
     type: string
   id:
-    $ref: _definitions.yaml#/UUID
     systemAlias: node_id
+    allOf:
+    - $ref: _definitions.yaml#/UUID
   name:
     type: string
     description: Full name/title of the program.

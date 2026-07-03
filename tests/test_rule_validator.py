@@ -112,6 +112,57 @@ def test_props_must_have_type_fail():
     assert "must have a value for 'type' or 'enum'" in str(excinfo.value)
 
 
+@pytest.mark.parametrize("combinator", ["allOf", "anyOf", "oneOf"])
+def test_props_must_have_type_skips_combinator_wrapped_ref(combinator):
+    """
+    Gen3 resolves schemas with JSON Schema draft-04 semantics, where any
+    keyword next to a $ref is dropped. To keep descriptions visible in the
+    data-dictionary viewer, properties are written with the $ref wrapped in
+    a combinator list (allOf/anyOf/oneOf) and the description beside it:
+
+        atrial_fibrillation:
+          description: "Self-reported atrial fibrillation."
+          allOf:
+          - $ref: "_definitions.yaml#/enum_yes_no"
+
+    Such a property has no top-level 'type', 'enum', or '$ref' — its type
+    comes from the referenced definition. props_must_have_type must treat
+    it like a reference (skip it) rather than raising "must have a value
+    for 'type' or 'enum'".
+    """
+    schema = {
+        "id": "test_schema",
+        "properties": {
+            "atrial_fibrillation": {
+                "description": "Self-reported atrial fibrillation.",
+                combinator: [{"$ref": "_definitions.yaml#/enum_yes_no"}],
+            },
+        },
+    }
+    rule_validator = RuleValidator(schema)
+    assert rule_validator.props_must_have_type() is True
+
+
+def test_props_must_have_type_still_skips_legacy_sibling_ref():
+    """
+    Dictionaries written before the allOf fix have the $ref at the top
+    level of the property (with or without sibling annotations). These must
+    keep validating exactly as before — the fix is non-breaking for
+    existing dictionaries.
+    """
+    schema = {
+        "id": "test_schema",
+        "properties": {
+            "legacy_prop": {
+                "description": "Old-style property.",
+                "$ref": "_definitions.yaml#/enum_yes_no",
+            },
+        },
+    }
+    rule_validator = RuleValidator(schema)
+    assert rule_validator.props_must_have_type() is True
+
+
 def test_data_file_props_need_data_props():
     schema = {
         "id": "my_data_file",

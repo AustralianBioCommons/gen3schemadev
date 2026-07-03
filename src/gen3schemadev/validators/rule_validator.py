@@ -1,6 +1,7 @@
 # validates gen3 bundled jsonschema (.json) by testing gen3 specific business rules
 import logging
 from gen3schemadev.converter import link_suffix
+from gen3schemadev.refs import has_ref
 
 logger = logging.getLogger(__name__)
 
@@ -188,10 +189,12 @@ class RuleValidator:
                 )
                 continue
 
-            # Skip if property definition contains a $ref (i.e., is an alias/reference)
-            if "$ref" in value:
+            # Skip if property definition contains a $ref (i.e., is an alias/reference),
+            # either top-level or wrapped in allOf/anyOf/oneOf
+            if has_ref(value):
                 logger.debug(
-                    f"Skipping property '{key}' because it contains a '$ref'."
+                    f"Skipping property '{key}' because it contains a '$ref' "
+                    "(top-level or inside allOf/anyOf/oneOf)."
                 )
                 continue
 

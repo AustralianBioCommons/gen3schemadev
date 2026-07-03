@@ -35,9 +35,10 @@ properties:
   type:
     type: string
   id:
-    $ref: _definitions.yaml#/UUID
     systemAlias: node_id
     description: UUID for the project.
+    allOf:
+    - $ref: _definitions.yaml#/UUID
   name:
     type: string
     description: Display name/brief description for the project.
@@ -62,10 +63,11 @@ properties:
     description: The ID of the source providing support/grant resources.
     type: string
   programs:
-    $ref: _definitions.yaml#/to_one
     description: 'Indicates that the Study is logically part of the indicated Study.
 
       '
+    allOf:
+    - $ref: _definitions.yaml#/to_one
   state:
     description: 'The possible states a project can be in.  All but `open` are
 
