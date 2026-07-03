@@ -23,6 +23,8 @@ gen3schemadev fix-refs -y path/to/dictionary             # rewrite in place
 
 The command is idempotent and never touches bare refs, refs already inside `allOf`/`anyOf`/`oneOf`, the `properties: {$ref: ...}` merge construct, or `_definitions.yaml`/`_terms.yaml`/`_settings.yaml`.
 
+Both `fix-refs` and `validate` also warn about `description: null` placeholders anywhere in the dictionary (commonly in `_definitions.yaml`): the Gen3 metaschema requires descriptions to be strings, and such placeholders fail metaschema validation once exposed through bare or `allOf`-wrapped refs. Remove the null keys to resolve the warning.
+
 
 ## Deep dive into Gen3 Data Modelling
 *Special Thanks to Marion Shadbolt for providing the [source material](https://github.com/AustralianBioCommons/umccr-dictionary/tree/main/docs/schemas)*

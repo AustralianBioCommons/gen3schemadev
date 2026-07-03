@@ -20,7 +20,31 @@ from gen3schemadev.validators.metaschema_validator import validate_schema_with_m
 from importlib.metadata import version
 from gen3schemadev.ddvis import visualise_with_docker
 from gen3schemadev.validators.rule_validator import RuleValidator
-from gen3schemadev.refs import WRAPPED, SKIP_REASONS, fix_yaml_dir
+from gen3schemadev.refs import (
+    WRAPPED,
+    SKIP_REASONS,
+    fix_yaml_dir,
+    find_null_descriptions,
+    scan_dir_null_descriptions,
+)
+
+
+def print_null_description_warning(hits):
+    """
+    Print a warning block listing every null-valued 'description' key found
+    in the dictionary ("file: dotted.path" strings). No-op when hits is empty.
+    """
+    if not hits:
+        return
+    print(
+        "\nWARNING: found 'description: null' placeholders. The Gen3 metaschema "
+        "requires 'description' to be a string, and null placeholders in shared "
+        "definitions fail metaschema validation once exposed through bare or "
+        "allOf-wrapped $refs. Remove the null 'description' keys (removing adds "
+        "no shared description, so nothing leaks onto referencing properties):"
+    )
+    for hit in hits:
+        print(f"  - {hit}")
 
 
 def main():
@@ -242,6 +266,15 @@ def main():
         elif args.yamls:
             schema_dict = bundle_yamls(args.yamls)
 
+        # Pre-resolution diagnostic: report every null 'description' up front,
+        # because the metaschema stage fails on the first resolved node schema,
+        # far away from the definition that carries the null.
+        null_hits = []
+        for schema_name, schema in schema_dict.items():
+            for hit in find_null_descriptions(schema):
+                null_hits.append(f"{schema_name}: {hit}")
+        print_null_description_warning(null_hits)
+
         for schema_name, schema in schema_dict.items():
 
             if '.' in schema_name:
@@ -363,6 +396,10 @@ def main():
         verb = "would be wrapped" if args.dry_run else "wrapped"
         print(f"\nSummary: {total_wrapped} properties {verb} in {files_changed} files; "
               f"{files_unchanged} files unchanged.")
+
+        # Wrapping is what exposes null 'description' placeholders in shared
+        # definitions to metaschema validation, so surface them here too.
+        print_null_description_warning(scan_dir_null_descriptions(args.yamldir))
 
 if __name__ == "__main__":
     main()

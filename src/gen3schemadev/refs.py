@@ -141,6 +141,64 @@ def fix_schema(schema: dict) -> "tuple":
     return new_schema, changes
 
 
+def find_null_descriptions(node, path: str = "") -> list:
+    """
+    Recursively find every ``description`` key whose value is null.
+
+    The Gen3 metaschema requires ``description`` to be a string, so a
+    ``description: null`` placeholder (common in generated shared
+    definitions) is invalid. With a direct ``$ref`` the resolver happens to
+    mask it — the referencing property's own description merges over the
+    definition's null — but a bare or allOf-wrapped ref exposes the null in
+    the resolved node schema, where metaschema validation fails far away
+    from the definition that caused it.
+
+    Returns a list of dotted paths to each offender, with list items shown
+    as ``[i]`` (e.g. ``"enum_yes_no.description"``,
+    ``"properties.status.anyOf[0].description"``). Non-dict/list input
+    yields an empty list.
+    """
+    hits = []
+    if isinstance(node, dict):
+        for key, value in node.items():
+            key_path = f"{path}.{key}" if path else str(key)
+            if key == "description" and value is None:
+                hits.append(key_path)
+            else:
+                hits.extend(find_null_descriptions(value, key_path))
+    elif isinstance(node, list):
+        for i, item in enumerate(node):
+            hits.extend(find_null_descriptions(item, f"{path}[{i}]"))
+    return hits
+
+
+def scan_dir_null_descriptions(yaml_dir: str) -> list:
+    """
+    Scan every YAML file under ``yaml_dir`` (recursively) for null-valued
+    ``description`` keys.
+
+    Unlike ``fix_yaml_dir``, underscore files (``_definitions.yaml``,
+    ``_terms.yaml``, ...) are INCLUDED — shared definitions are where the
+    null placeholders usually live, and where they do the most damage
+    because every referencing property inherits them on resolution.
+
+    Returns ``"relpath: dotted.path"`` strings, one per offender.
+    """
+    from gen3schemadev.utils import load_yaml
+
+    hits = []
+    for root, _dirs, files in os.walk(yaml_dir):
+        for fname in sorted(files):
+            if not (fnmatch.fnmatch(fname, "*.yaml") or fnmatch.fnmatch(fname, "*.yml")):
+                continue
+            path = os.path.join(root, fname)
+            rel_path = os.path.relpath(path, yaml_dir)
+            schema = load_yaml(path)
+            for hit in find_null_descriptions(schema):
+                hits.append(f"{rel_path}: {hit}")
+    return hits
+
+
 def fix_yaml_dir(yaml_dir: str, dry_run: bool = False) -> list:
     """
     Rewrite every YAML node schema under ``yaml_dir`` (recursively) so that

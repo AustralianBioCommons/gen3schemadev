@@ -35,8 +35,10 @@ from gen3schemadev.refs import (
     NO_REF,
     PROPERTIES_MERGE,
     WRAPPED,
+    find_null_descriptions,
     fix_schema,
     fix_yaml_dir,
+    scan_dir_null_descriptions,
     wrap_ref_siblings,
 )
 from gen3schemadev.utils import load_yaml, write_yaml
@@ -295,3 +297,147 @@ def test_fix_yaml_dir_dry_run(tmp_path):
 
     contents_after = {p.name: p.read_bytes() for p in tmp_path.glob("*.yaml")}
     assert contents_after == contents_before
+
+
+# ---------------------------------------------------------------------------
+# Null-description diagnostics
+#
+# Background: the Gen3 metaschema requires 'description' to be a string, but
+# generated shared definitions often carry 'description: null' placeholders.
+# A direct $ref happens to mask the null (the referencing property's own
+# description merges over it during resolution), while a bare or
+# allOf-wrapped ref exposes it — the metaschema then fails on a resolved
+# NODE schema, far from the definition that caused it, and aborts on the
+# first hit. These helpers report every offender by file and path up front.
+# ---------------------------------------------------------------------------
+
+
+def test_find_null_descriptions_in_shared_definition():
+    """
+    Input: a _definitions.yaml-style mapping where one enum carries the
+    'description: null' placeholder and another has a real description.
+    Expected: exactly the null one is reported, as a dotted path that names
+    the offending definition (so the user knows what to fix without
+    reverse-engineering a metaschema traceback).
+    """
+    definitions = {
+        "enum_yes_no": {"description": None, "enum": ["yes", "no"]},
+        "enum_sex": {"description": "Sex at birth.", "enum": ["male", "female"]},
+    }
+    assert find_null_descriptions(definitions) == ["enum_yes_no.description"]
+
+
+def test_find_null_descriptions_inside_list_items():
+    """
+    Nulls can hide inside combinator lists (anyOf/allOf items). The path
+    must show the list index so the offender is still locatable, e.g.
+    'properties.status.anyOf[0].description'.
+    """
+    schema = {
+        "properties": {
+            "status": {
+                "anyOf": [
+                    {"description": None, "enum": ["a", "b"]},
+                    {"type": "string"},
+                ]
+            }
+        }
+    }
+    assert find_null_descriptions(schema) == ["properties.status.anyOf[0].description"]
+
+
+def test_find_null_descriptions_top_level_and_clean_schema():
+    """
+    A null description at the very top of a schema is reported with the
+    bare key as its path; a schema whose descriptions are all real strings
+    reports nothing; non-dict input (e.g. a YAML file that parsed to a
+    scalar) is handled gracefully with an empty result.
+    """
+    assert find_null_descriptions({"description": None}) == ["description"]
+    clean = {"description": "A node.", "properties": {"x": {"description": "X."}}}
+    assert find_null_descriptions(clean) == []
+    assert find_null_descriptions("not a schema") == []
+
+
+def test_scan_dir_null_descriptions_includes_underscore_files(tmp_path):
+    """
+    Scan a mini dictionary where _definitions.yaml carries two null
+    placeholders and the node file is clean. Underscore files are where
+    these placeholders usually live, so — unlike fix_yaml_dir, which never
+    rewrites them — the scanner must INCLUDE them. Expected: exactly the
+    two definition paths, prefixed with the file name.
+    """
+    definitions = {
+        "enum_yes_no": {"description": None, "enum": ["yes", "no"]},
+        "enum_smoking": {"description": None, "enum": ["never", "current"]},
+        "to_one": {"type": "object"},
+    }
+    subject = {
+        "id": "subject",
+        "properties": {
+            "smoking": {
+                "description": "Smoking status.",
+                "allOf": [{"$ref": "_definitions.yaml#/enum_smoking"}],
+            }
+        },
+    }
+    write_yaml(definitions, str(tmp_path / "_definitions.yaml"))
+    write_yaml(subject, str(tmp_path / "subject.yaml"))
+
+    hits = scan_dir_null_descriptions(str(tmp_path))
+    assert sorted(hits) == [
+        "_definitions.yaml: enum_smoking.description",
+        "_definitions.yaml: enum_yes_no.description",
+    ]
+
+
+def test_fix_refs_cli_warns_about_null_descriptions(tmp_path, monkeypatch, capsys):
+    """
+    End-to-end through the CLI: running `gen3schemadev fix-refs --dry-run`
+    on a dictionary whose _definitions.yaml carries a null description must
+    print a WARNING that names the offending definition. This is the
+    early-diagnosis feature: without it, the null only surfaces later as a
+    metaschema failure on an unrelated node schema.
+    """
+    import gen3schemadev.cli as cli
+
+    write_yaml(
+        {"enum_yes_no": {"description": None, "enum": ["yes", "no"]}},
+        str(tmp_path / "_definitions.yaml"),
+    )
+    write_yaml(
+        {"id": "subject", "properties": {"x": {"type": "string"}}},
+        str(tmp_path / "subject.yaml"),
+    )
+
+    monkeypatch.setattr(
+        "sys.argv", ["gen3schemadev", "fix-refs", "-y", str(tmp_path), "--dry-run"]
+    )
+    cli.main()
+    output = capsys.readouterr().out
+    assert "WARNING" in output
+    assert "_definitions.yaml: enum_yes_no.description" in output
+
+
+def test_fix_refs_cli_no_warning_on_clean_dictionary(tmp_path, monkeypatch, capsys):
+    """
+    A dictionary with only real string descriptions must produce no
+    WARNING — the diagnostic should stay silent when there is nothing to
+    fix, so warnings remain a trustworthy signal.
+    """
+    import gen3schemadev.cli as cli
+
+    write_yaml(
+        {"enum_yes_no": {"description": "Yes/no answer.", "enum": ["yes", "no"]}},
+        str(tmp_path / "_definitions.yaml"),
+    )
+    write_yaml(
+        {"id": "subject", "properties": {"x": {"type": "string"}}},
+        str(tmp_path / "subject.yaml"),
+    )
+
+    monkeypatch.setattr(
+        "sys.argv", ["gen3schemadev", "fix-refs", "-y", str(tmp_path), "--dry-run"]
+    )
+    cli.main()
+    assert "WARNING" not in capsys.readouterr().out
