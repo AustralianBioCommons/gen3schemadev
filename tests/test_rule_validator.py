@@ -115,20 +115,18 @@ def test_props_must_have_type_fail():
 @pytest.mark.parametrize("combinator", ["allOf", "anyOf", "oneOf"])
 def test_props_must_have_type_skips_combinator_wrapped_ref(combinator):
     """
-    Gen3 resolves schemas with JSON Schema draft-04 semantics, where any
-    keyword next to a $ref is dropped. To keep descriptions visible in the
-    data-dictionary viewer, properties are written with the $ref wrapped in
-    a combinator list (allOf/anyOf/oneOf) and the description beside it:
+    Some dictionaries in the wild write properties with the $ref wrapped in
+    a combinator list (allOf/anyOf/oneOf) and annotations beside it:
 
         atrial_fibrillation:
           description: "Self-reported atrial fibrillation."
           allOf:
           - $ref: "_definitions.yaml#/enum_yes_no"
 
-    Such a property has no top-level 'type', 'enum', or '$ref' — its type
-    comes from the referenced definition. props_must_have_type must treat
-    it like a reference (skip it) rather than raising "must have a value
-    for 'type' or 'enum'".
+    This is valid JSON Schema. Such a property has no top-level 'type',
+    'enum', or '$ref' — its type comes from the referenced definition —
+    so props_must_have_type must treat it like a reference (skip it)
+    rather than raising "must have a value for 'type' or 'enum'".
     """
     schema = {
         "id": "test_schema",
@@ -143,18 +141,18 @@ def test_props_must_have_type_skips_combinator_wrapped_ref(combinator):
     assert rule_validator.props_must_have_type() is True
 
 
-def test_props_must_have_type_still_skips_legacy_sibling_ref():
+def test_props_must_have_type_skips_sibling_ref():
     """
-    Dictionaries written before the allOf fix have the $ref at the top
-    level of the property (with or without sibling annotations). These must
-    keep validating exactly as before — the fix is non-breaking for
-    existing dictionaries.
+    The normal Gen3 form puts the $ref at the top level of the property,
+    optionally with sibling annotations such as 'description' (Gen3's
+    resolver merges the siblings over the referenced definition). Such a
+    property is a reference and must be skipped by the type/enum rule.
     """
     schema = {
         "id": "test_schema",
         "properties": {
-            "legacy_prop": {
-                "description": "Old-style property.",
+            "sibling_prop": {
+                "description": "Property documented beside its $ref.",
                 "$ref": "_definitions.yaml#/enum_yes_no",
             },
         },

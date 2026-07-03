@@ -467,15 +467,14 @@ def test_format_enum_missing_description():
     assert "description" in str(excinfo.value)
 
 
-def test_format_datetime_wraps_annotations():
+def test_format_datetime_keeps_description_as_ref_sibling():
     """
     A datetime property is converted to a $ref to the shared
-    _definitions.yaml#/datetime definition. Gen3 resolves schemas with JSON
-    Schema draft-04 semantics, where any keyword sitting directly beside a
-    $ref is silently dropped — so if the description stayed a sibling of
-    $ref, the data-dictionary viewer would show "No Description". The $ref
-    must therefore be wrapped in an allOf list with the description kept as
-    a sibling of allOf, where draft-04 preserves it.
+    _definitions.yaml#/datetime definition. Gen3's resolver merges a
+    property's sibling keys over the referenced definition, so the
+    property's description must be kept as a sibling of the $ref — dropping
+    it (as older versions did) loses the user's documentation, and the
+    data-dictionary viewer would show "No Description".
     """
     prop_dict = {
         "collection_date": {
@@ -486,9 +485,7 @@ def test_format_datetime_wraps_annotations():
     expected = {
         "collection_date": {
             "description": "Date and time of collection (datetime)",
-            "allOf": [
-                {"$ref": "_definitions.yaml#/datetime"}
-            ]
+            "$ref": "_definitions.yaml#/datetime"
         }
     }
     assert format_datetime(prop_dict) == expected
@@ -496,9 +493,8 @@ def test_format_datetime_wraps_annotations():
 
 def test_format_datetime_bare_ref_without_annotations():
     """
-    A datetime property with no annotations (only 'type') has nothing that
-    draft-04 resolution could drop, so it should stay a plain $ref rather
-    than being wrapped in an unnecessary allOf.
+    A datetime property with no annotations (only 'type') carries nothing
+    to preserve, so it becomes a plain bare $ref.
     """
     prop_dict = {"processed_at": {"type": "datetime"}}
     expected = {"processed_at": {"$ref": "_definitions.yaml#/datetime"}}
@@ -584,9 +580,7 @@ def test_construct_prop_sample(fixture_input_yaml_pass):
         },
         "collection_date": {
             "description": "Date and time of collection (datetime)",
-            "allOf": [
-                {"$ref": "_definitions.yaml#/datetime"}
-            ]
+            "$ref": "_definitions.yaml#/datetime"
         },
         "sample_tube_type": {
             "description": "Sample tube type (enum)",

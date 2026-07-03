@@ -17,8 +17,6 @@ from dataclasses import dataclass, asdict
 from typing import Protocol, runtime_checkable, Dict, Any, List
 import logging
 
-from gen3schemadev.refs import wrap_ref_siblings
-
 
 logger = logging.getLogger(__name__)
 
@@ -490,11 +488,11 @@ def format_datetime(prop_dict: dict) -> dict:
     Formats a property dictionary with a 'type' of 'datetime' to use a $ref
     to the Gen3 _definitions.yaml#/datetime definition.
 
-    Annotations such as 'description' are preserved by wrapping the $ref in
-    an allOf list: under JSON Schema draft-04, keywords sitting as direct
-    siblings of $ref are ignored during resolution, so they must live beside
-    allOf instead. A datetime property with no annotations becomes a bare
-    $ref. If the property is not of type 'datetime', it is returned unchanged.
+    Annotations such as 'description' are preserved as siblings of the $ref:
+    Gen3's resolver merges sibling keys over the referenced definition, so
+    the property's own description survives resolution. A datetime property
+    with no annotations becomes a bare $ref. If the property is not of type
+    'datetime', it is returned unchanged.
 
     Example input:
         {
@@ -508,9 +506,7 @@ def format_datetime(prop_dict: dict) -> dict:
         {
             "collection_date": {
                 "description": "Date and time of collection (datetime)",
-                "allOf": [
-                    {"$ref": "_definitions.yaml#/datetime"}
-                ]
+                "$ref": "_definitions.yaml#/datetime"
             }
         }
 
@@ -532,9 +528,8 @@ def format_datetime(prop_dict: dict) -> dict:
         value = prop_dict[first_key]
 
         if isinstance(value, dict) and value.get('type') == 'datetime':
-            ref_prop = {k: v for k, v in value.items() if k != 'type'}
-            ref_prop['$ref'] = "_definitions.yaml#/datetime"
-            formatted_props, _ = wrap_ref_siblings(ref_prop, first_key)
+            formatted_props = {k: v for k, v in value.items() if k != 'type'}
+            formatted_props['$ref'] = "_definitions.yaml#/datetime"
         else:
             formatted_props = value
 

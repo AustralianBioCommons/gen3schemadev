@@ -12,18 +12,9 @@ This repository aims to provide the documentation, learning materials, and softw
 - [Guide to creating your first dictionary](docs/gen3schemadev/first_dictionary.md)
 - [Troubleshooting](docs/gen3schemadev/troubleshooting.md)
 
-### Fixing `$ref` properties in an existing dictionary
+### Null description placeholders
 
-JSON Schema draft-04 (which Gen3 uses) ignores any keyword sitting as a direct sibling of `$ref`, so properties written as `{description: ..., $ref: _definitions.yaml#/X}` lose their description in the data-dictionary viewer. The `fix-refs` command rewrites such properties in place, moving the `$ref` into an `allOf` list so annotations survive resolution:
-
-```bash
-gen3schemadev fix-refs -y path/to/dictionary --dry-run   # preview changes
-gen3schemadev fix-refs -y path/to/dictionary             # rewrite in place
-```
-
-The command is idempotent and never touches bare refs, refs already inside `allOf`/`anyOf`/`oneOf`, the `properties: {$ref: ...}` merge construct, or `_definitions.yaml`/`_terms.yaml`/`_settings.yaml`.
-
-Both `fix-refs` and `validate` also warn about `description: null` placeholders anywhere in the dictionary (commonly in `_definitions.yaml`): the Gen3 metaschema requires descriptions to be strings, and such placeholders fail metaschema validation once exposed through bare or `allOf`-wrapped refs. Remove the null keys to resolve the warning.
+`gen3schemadev validate` warns about `description: null` placeholders anywhere in the dictionary (commonly in `_definitions.yaml`'s enum definitions). The Gen3 metaschema requires descriptions to be strings; null placeholders cause "No Description" in the data-dictionary viewer and metaschema validation failures that surface on resolved node schemas, far from the offending definition. Remove the null `description` keys to resolve the warning.
 
 
 ## Deep dive into Gen3 Data Modelling
