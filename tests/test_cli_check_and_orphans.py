@@ -16,9 +16,6 @@ case: a file nothing can regenerate, which still ships.
 import os
 import shutil
 
-from tests.conftest import snapshot
-
-
 def test_check_passes_when_output_matches_input(run_cli, input_file, generated):
     """
     Input: a dictionary freshly generated from its input, checked immediately.
@@ -35,7 +32,7 @@ def test_check_passes_when_output_matches_input(run_cli, input_file, generated):
     assert "OK" in out
 
 
-def test_check_writes_nothing(run_cli, input_file, generated):
+def test_check_writes_nothing(run_cli, input_file, generated, snapshot):
     """
     Input: a dictionary with a hand-edited file, run through --check.
 

@@ -103,18 +103,27 @@ def generated(run_cli, input_file, output_dir):
     return output_dir
 
 
-def snapshot(directory):
+@pytest.fixture
+def snapshot():
     """
-    Hash every file in a directory.
+    Return a helper that hashes every file in a directory.
 
-    Returns a {filename: sha256} mapping, so a test can assert that nothing on
-    disk moved - which is a stronger and more useful claim than asserting a
-    command merely exited non-zero.
+    Gives a {filename: sha256} mapping, so a test can assert that nothing on
+    disk moved - a stronger and more useful claim than asserting a command
+    merely exited non-zero.
+
+    This is a fixture rather than a plain importable function so the test
+    modules never need to import from `tests.conftest`. That import only
+    resolves when the repository root happens to be on sys.path, which is true
+    under `python -m pytest` but not under a bare `pytest` - the difference
+    between a suite that passes locally and one that fails in CI.
     """
-    result = {}
-    for name in sorted(os.listdir(directory)):
-        path = os.path.join(directory, name)
-        if os.path.isfile(path):
-            with open(path, "rb") as handle:
-                result[name] = hashlib.sha256(handle.read()).hexdigest()
-    return result
+    def _snapshot(directory):
+        result = {}
+        for name in sorted(os.listdir(directory)):
+            path = os.path.join(directory, name)
+            if os.path.isfile(path):
+                with open(path, "rb") as handle:
+                    result[name] = hashlib.sha256(handle.read()).hexdigest()
+        return result
+    return _snapshot

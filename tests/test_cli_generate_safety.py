@@ -14,10 +14,7 @@ noticed until much later. These tests pin down the guarantee that replaced it:
 generate writes nothing over your files unless you have told it to.
 """
 
-from tests.conftest import snapshot
-
-
-def test_first_generate_into_empty_directory_succeeds(run_cli, input_file, output_dir):
+def test_first_generate_into_empty_directory_succeeds(run_cli, input_file, output_dir, snapshot):
     """
     Input: an empty output directory and a valid input file.
 
@@ -36,8 +33,7 @@ def test_first_generate_into_empty_directory_succeeds(run_cli, input_file, outpu
 
 
 def test_second_generate_refuses_and_leaves_every_file_byte_identical(
-    run_cli, input_file, generated
-):
+    run_cli, input_file, generated, snapshot):
     """
     Input: a dictionary that has already been generated, where a developer has
     since hand-edited subject.yaml.
@@ -84,7 +80,7 @@ def test_force_overwrites_and_discards_hand_edits(run_cli, input_file, generated
     assert "a deliberate hand edit" not in open(edited).read()
 
 
-def test_input_driven_regenerates_every_node(run_cli, input_file, generated):
+def test_input_driven_regenerates_every_node(run_cli, input_file, generated, snapshot):
     """
     Input: an already-generated dictionary, regenerated with --input-driven.
 
@@ -102,8 +98,7 @@ def test_input_driven_regenerates_every_node(run_cli, input_file, generated):
 
 
 def test_only_regenerates_named_node_and_leaves_hand_edits_in_others(
-    run_cli, input_file, generated
-):
+    run_cli, input_file, generated, snapshot):
     """
     Input: a generated dictionary where subject.yaml has been hand-edited, and
     `--only biospecimen` is used to regenerate a different node.
@@ -136,8 +131,7 @@ def test_only_regenerates_named_node_and_leaves_hand_edits_in_others(
 
 
 def test_only_with_unknown_node_writes_nothing_and_suggests_a_match(
-    run_cli, input_file, generated
-):
+    run_cli, input_file, generated, snapshot):
     """
     Input: `--only subjcet`, a misspelling of the node "subject".
 
@@ -159,7 +153,7 @@ def test_only_with_unknown_node_writes_nothing_and_suggests_a_match(
     assert "did you mean" in out and "subject" in out
 
 
-def test_failed_write_leaves_output_directory_untouched(run_cli, input_file, generated):
+def test_failed_write_leaves_output_directory_untouched(run_cli, input_file, generated, snapshot):
     """
     Input: a regeneration in which one file partway through the alphabet cannot
     be written, because it has been made read-only.
@@ -199,8 +193,7 @@ def test_failed_write_leaves_output_directory_untouched(run_cli, input_file, gen
 
 
 def test_failed_generation_leaves_output_directory_untouched(
-    run_cli, tmp_path, generated
-):
+    run_cli, tmp_path, generated, snapshot):
     """
     Input: an already-generated dictionary, regenerated with --force from an
     input file that is malformed.
