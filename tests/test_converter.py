@@ -35,9 +35,27 @@ def test_get_node_data_not_found(fixture_input_yaml_pass):
 
 
 def test_get_node_links(fixture_input_yaml_pass):
+    """
+    Input: a node that is the child of two declared links, where neither link
+    declares `required`.
+
+    Expected: both links are returned, and each carries `required: True` from
+    the model default.
+
+    Why it matters: links are read straight off the validated model, so a link
+    now arrives with its own `required` value rather than having one stamped on
+    later. The default is True because that is what the generator emitted before
+    the field was declarable — which is what keeps every existing dictionary
+    regenerating unchanged.
+    """
     links = get_node_links('lipidomics_file', fixture_input_yaml_pass)
     assert len(links) == 2
-    assert dict(links[0]) == {'parent': 'sample', 'multiplicity': 'one_to_many', 'child': 'lipidomics_file'}
+    assert dict(links[0]) == {
+        'parent': 'sample',
+        'multiplicity': 'one_to_many',
+        'child': 'lipidomics_file',
+        'required': True,
+    }
 
 
 

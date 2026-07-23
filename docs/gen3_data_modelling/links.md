@@ -92,3 +92,83 @@ links:
         required: false
 ```
 In this setup, the subgroup has `required: true` and `exclusive: false`. This means a `lipidomics_file` must be linked to at least one of the nodes in the group, and it can be linked to more than one. It can be linked to a `sample`, a `core_metadata_collection`, or both. While the individual links inside the group are optional (`required: false`), the subgroup's top-level rule ensures the node is never left orphaned.
+
+
+***
+
+
+# Declaring Links in the `input_yaml`
+
+Everything above describes a `Gen3 Schema` as it is written out. If you are working from an `input_yaml`, you do not write those blocks yourself — you declare links as a flat list at the bottom of the file and Gen3SchemaDev builds them.
+
+Each entry reads as *"one `parent` is linked to `multiplicity` `child`"*:
+
+```yaml
+links:
+  - parent: sample
+    multiplicity: one_to_many
+    child: lipidomics_file
+```
+
+Gen3SchemaDev derives the rest: `name` from the parent, `backref` from the child, `label: part_of`, and the multiplicity inverted so that it reads from the child's point of view.
+
+## Making a link optional
+
+Add `required` to say whether an instance of the child *must* be attached to a parent of that type. It defaults to `true`, so leaving it out gives the same result as before this option existed.
+
+```yaml
+links:
+  # Every lipidomics file must belong to a sample.
+  - parent: sample
+    multiplicity: one_to_many
+    child: lipidomics_file
+
+  # A file may record the site it came from, but does not have to.
+  - parent: site
+    multiplicity: one_to_many
+    child: lipidomics_file
+    required: false
+```
+
+- *Note: `required` is set per link, not per node. Where a node has several parents, each link is answered independently — the second and third links can disagree with the first.*
+
+## A node with several parents
+
+When a node is the child of more than one link, Gen3SchemaDev collects them into a single subgroup for you. You do not write the subgroup; you write one entry per parent, and each keeps its own `required` value:
+
+```yaml
+links:
+  - parent: sample
+    multiplicity: one_to_many
+    child: lipidomics_file
+    required: true
+  - parent: lipidomics_assay
+    multiplicity: one_to_many
+    child: lipidomics_file
+    required: true
+  - parent: site
+    multiplicity: one_to_many
+    child: lipidomics_file
+    required: false
+```
+
+This generates a subgroup of three links carrying `true`, `true` and `false` respectively.
+
+## How the two levels of `required` interact
+
+A generated subgroup has two different `required` flags, and they answer different questions:
+
+| Where | Question it answers | Settable from the `input_yaml`? |
+| :--- | :--- | :--- |
+| On an individual link | Must *this particular* parent be supplied? | Yes — `required` on the link |
+| On the subgroup | Must *at least one* parent from the group be supplied? | No — always `true` |
+
+So a node whose links are all `required: false` is still never left orphaned: the subgroup rule means at least one parent must be present, while leaving the submitter free to choose which. That combination is the usual shape for a file node that can hang off any one of several parents.
+
+- *Note: the subgroup's own `exclusive` and `required` flags cannot currently be set from the `input_yaml` — they are always `false` and `true`. If you need `exclusive: true`, the schema must be edited by hand.*
+
+## Links involving `program`, `project` and `core_metadata_collection`
+
+These three nodes come from Gen3SchemaDev's own packaged templates, complete with their links. A link you declare whose `child` is one of them is **discarded**, and setting `required` on it has no effect.
+
+The link from a `data_file` node *to* `core_metadata_collection` is the opposite case: it is added for you, always with `required: false`, whether or not that node declares any links of its own.
