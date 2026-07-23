@@ -1,6 +1,6 @@
 [project]
 name = "Gen3SchemaDev"
-version = "3.0.0"
+version = "3.0.1"
 description = "Tool for data modelling in Gen3"
 authors = [
     {name = "JoshuaHarris391",email = "harjo391@gmail.com"}
