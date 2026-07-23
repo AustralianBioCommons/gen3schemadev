@@ -29,7 +29,7 @@
 ***
 
 ## Pre-requisites
-- `python v3.12.10` or higher
+- `python v3.9.5` or higher (`3.12.10` recommended; CI tests 3.9 through 3.12)
 - `poetry v2.1.3` or higher 
 - `docker compose` (optional for dictionary visualisation)
 
@@ -44,7 +44,7 @@ A single node in the gen3 graph model can be represented as a single yaml file c
 Therefore the gen3 data model can be represented as a either a collection of yaml files (schemas) or a single json file (bundled schema).
 
 For the purpose of this guide we will use the following terminology:
-- [`Gen3 Schema`](../../tests/gen3_schema/examples/yaml/lipidomics_file.yaml): A single yaml or json file that defines a single node in the data model. [Learn More](schemas.md)
+- [`Gen3 Schema`](../../tests/gen3_schema/examples/yaml/lipidomics_file.yaml): A single yaml or json file that defines a single node in the data model. [Learn More](../gen3_data_modelling/schemas.md)
 - [`Gen3 Data Dictionary`](../../tests/gen3_schema/examples/yaml/): A folder containing multiple yaml files for each node in the data model.
 - [`Gen3 Bundled Schema`](../../tests/gen3_schema/examples/json/schema_dev.json): A json file containing a dictionary of jsonschemas for each node in the data model.
 
@@ -435,6 +435,25 @@ arguments:
 - `-o`: output directory
 
 This will generate a folder of gen3 schemas in the `gen3_data_dictionary` directory.
+
+#### Regenerating after you change the input_yaml
+
+Throughout this guide we keep coming back to the input_yaml, changing it, and regenerating. That
+makes this tutorial an **input-driven** dictionary: the input_yaml is the source of truth, and the
+folder of gen3 schemas is rebuilt from it.
+
+`generate` will not overwrite an existing folder unless you say so, because in other projects those
+files may hold hand edits it knows nothing about. Since we do want to regenerate from the input
+every time, use `--input-driven` from here on:
+
+```bash
+gen3schemadev generate -i input_example.yml -o gen3_data_dictionary/ --input-driven
+```
+
+*This is a choice about how your repository works rather than a detail of this tutorial, and it is
+worth making deliberately. [Running a Gen3 Dictionary Repository](dictionary_repo.md) covers the
+alternatives — chiefly editing the gen3 schemas directly once they exist, which is a perfectly good
+way to work but a different one.*
 
 ### 7. Validating the `Gen3 Data Dictionary`
 Now that we have the `Gen3 Data Dictionary`, we can validate it using the `gen3schemadev validate` command.

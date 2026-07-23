@@ -3,6 +3,9 @@ import logging
 import sys
 import os
 
+import yaml
+from pydantic import ValidationError
+
 from gen3schemadev.schema.gen3_template import (
     get_metaschema,
     generate_gen3_template,
@@ -21,6 +24,14 @@ from importlib.metadata import version
 from gen3schemadev.ddvis import visualise_with_docker
 from gen3schemadev.validators.rule_validator import RuleValidator
 from gen3schemadev.refs import find_null_descriptions
+from gen3schemadev import messages
+from gen3schemadev.generation import (
+    build_dictionary,
+    plan_write,
+    find_orphans,
+    diff_against_disk,
+    write_dictionary,
+)
 
 
 def print_null_description_warning(hits):
@@ -76,6 +87,29 @@ def main():
         "-o", "--output",
         required=True,
         help="Output directory"
+    )
+    generate_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing files, discarding any hand edits in them"
+    )
+    generate_parser.add_argument(
+        "--input-driven",
+        action="store_true",
+        dest="input_driven",
+        help=(
+            "Treat the input file as the source of truth: regenerate everything, "
+            "and fail if the output directory contains files the input cannot produce"
+        )
+    )
+    generate_parser.add_argument(
+        "--only",
+        help="Comma-separated node names to regenerate, leaving all other files untouched"
+    )
+    generate_parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Report whether the output directory matches the input; write nothing. Exits non-zero on drift"
     )
     generate_parser.add_argument(
         "--debug",
@@ -185,30 +219,83 @@ def main():
         metaschema = get_metaschema()
         converter_template = generate_gen3_template(metaschema)
         print(f"Loading input YAML from: {args.input}")
-        data = load_yaml(args.input)
+        try:
+            data = load_yaml(args.input)
+        except yaml.YAMLError as exc:
+            # A punctuation slip in the input used to surface as a raw parser
+            # traceback. One consumer repo shipped an unparseable input for
+            # weeks without anyone realising generation had stopped working.
+            print()
+            print(messages.unparseable_input(args.input, exc))
+            sys.exit(1)
         print("Validating input data model...")
-        validated_model = DataModel.model_validate(data)
+        try:
+            validated_model = DataModel.model_validate(data)
+        except ValidationError as exc:
+            print()
+            print(messages.invalid_input(args.input, exc))
+            sys.exit(1)
         node_names = get_node_names(validated_model)
         print(f"Found nodes: {node_names}")
 
-        for node in node_names:
-            print(f"Populating template for node: '{node}'")
-            out_template = populate_template(node, validated_model, converter_template)
-            print(f"Writing output YAML to: {args.output}/{node}.yaml")
-            write_yaml(out_template, f"{args.output}/{node}.yaml")
+        only = None
+        if args.only:
+            only = [n.strip() for n in args.only.split(',') if n.strip()]
+            unknown = set(only) - set(node_names)
+            if unknown:
+                print(messages.only_unknown_nodes(unknown, node_names))
+                sys.exit(1)
 
-        print('Writing auxiliary files')
-        write_yaml(generate_def_template(), f"{args.output}/_definitions.yaml")
-        setting_dict = generate_setting_template()
-        setting_dict['_dict_version'] = validated_model.version
-        write_yaml(setting_dict, f"{args.output}/_settings.yaml")
-        write_yaml(generate_terms_template(), f"{args.output}/_terms.yaml")
-        write_yaml(generate_core_metadata_template(), f"{args.output}/core_metadata_collection.yaml")
-        if 'project' not in node_names:
-            write_yaml(generate_project_template(), f"{args.output}/project.yaml")
-        if 'program' not in node_names:
-            write_yaml(generate_program_template(), f"{args.output}/program.yaml")
+        # Build the whole dictionary before touching disk. If a node is
+        # malformed we fail here, with the existing dictionary untouched,
+        # rather than leaving a half-written directory behind.
+        print("Building dictionary...")
+        files, merge_summaries = build_dictionary(validated_model, converter_template, only=only)
+        for summary in merge_summaries:
+            print(messages.extends_summary(
+                summary['node'], summary['preset'],
+                summary['inherited'], summary['overridden'], summary['added'],
+                implicit=summary.get('implicit', False),
+            ))
 
+        if args.check:
+            diff = diff_against_disk(files, args.output)
+            if diff['changed'] or diff['missing'] or diff['orphans']:
+                print()
+                print(messages.drift_report(
+                    args.output, diff['changed'], diff['missing'], diff['orphans'],
+                    input_path=args.input,
+                ))
+                sys.exit(1)
+            print(f"OK: {args.output} matches {args.input}. {len(files)} files checked.")
+            sys.exit(0)
+
+        plan = plan_write(files, args.output)
+        # --only names exactly which nodes to rewrite, so it carries its own
+        # consent; refusing it would make the flag useless. --force and
+        # --input-driven are the blanket permissions.
+        may_overwrite = args.force or args.input_driven or only is not None
+        if plan['overwrite'] and not may_overwrite:
+            print()
+            print(messages.overwrite_refusal(
+                args.output, plan['overwrite'], plan['create'], args.input
+            ))
+            sys.exit(1)
+
+        orphans = find_orphans(files, args.output) if only is None else []
+        if orphans:
+            print()
+            print(messages.orphan_report(args.output, orphans, as_error=args.input_driven))
+            if args.input_driven:
+                sys.exit(1)
+
+        try:
+            written = write_dictionary(files, args.output)
+        except OSError as exc:
+            print()
+            print(messages.cannot_write(args.output, exc))
+            sys.exit(1)
+        print(f"Wrote {len(written)} files to {args.output}")
         print("Schema generation process complete.")
 
     elif args.command == "bundle":
@@ -238,6 +325,11 @@ def main():
             schema_dict = read_json(args.bundled)
         elif args.yamls:
             schema_dict = bundle_yamls(args.yamls)
+        else:
+            # Previously this fell through to an unhandled NameError on
+            # schema_dict, which reads as a crash rather than a usage mistake.
+            print(messages.validate_needs_a_target())
+            sys.exit(1)
 
         # Pre-resolution diagnostic: report every null 'description' up front,
         # because the metaschema stage fails on the first resolved node schema,
