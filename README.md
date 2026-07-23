@@ -10,6 +10,7 @@ This repository aims to provide the documentation, learning materials, and softw
 ## Using Gen3SchemaDev as a data modelling tool
 - [Quickstart](docs/gen3schemadev/quickstart.md)
 - [Guide to creating your first dictionary](docs/gen3schemadev/first_dictionary.md)
+- [Declaring links in the input_yaml](docs/gen3schemadev/input_yaml_links.md)
 - [Running a Gen3 dictionary repository](docs/gen3schemadev/dictionary_repo.md)
 - [Troubleshooting](docs/gen3schemadev/troubleshooting.md)
 

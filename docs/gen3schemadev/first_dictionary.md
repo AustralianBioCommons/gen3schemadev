@@ -359,7 +359,7 @@ links:
 ```
 - Here a `lipidomics_file` must belong to a `sample`, but recording the `site` it came from is optional.
 - `required` is set per link, so where a node has two or three parents, each one is answered independently.
-- *For how this interacts with subgroups, and what happens for `program`, `project` and `core_metadata_collection`, see [Defining Links in Gen3](../gen3_data_modelling/links.md#declaring-links-in-the-inputyaml).*
+- *For how this interacts with subgroups, and what happens for `program`, `project` and `core_metadata_collection`, see [Declaring links in the input_yaml](input_yaml_links.md).*
 
 
 
