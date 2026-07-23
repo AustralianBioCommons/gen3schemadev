@@ -255,6 +255,7 @@ def main():
             print(messages.extends_summary(
                 summary['node'], summary['preset'],
                 summary['inherited'], summary['overridden'], summary['added'],
+                implicit=summary.get('implicit', False),
             ))
 
         if args.check:
@@ -288,7 +289,12 @@ def main():
             if args.input_driven:
                 sys.exit(1)
 
-        written = write_dictionary(files, args.output)
+        try:
+            written = write_dictionary(files, args.output)
+        except OSError as exc:
+            print()
+            print(messages.cannot_write(args.output, exc))
+            sys.exit(1)
         print(f"Wrote {len(written)} files to {args.output}")
         print("Schema generation process complete.")
 

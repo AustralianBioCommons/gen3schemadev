@@ -11,6 +11,8 @@ detection - is built on top of that complete in-memory picture.
 import copy
 import logging
 import os
+import shutil
+import tempfile
 
 import yaml
 
@@ -67,7 +69,7 @@ def load_preset(name):
     return copy.deepcopy(PRESET_LOADERS[name]())
 
 
-def merge_onto_preset(node_model, node_name, validated_model):
+def merge_onto_preset(node_model, node_name, validated_model, preset=None):
     """
     Merge a declared node onto the packaged preset it extends.
 
@@ -82,17 +84,24 @@ def merge_onto_preset(node_model, node_name, validated_model):
         node_model: The validated input node declaring `extends`.
         node_name: The node's name.
         validated_model: The whole validated data model, for link lookups.
+        preset: Preset to merge onto. Defaults to the node's own `extends`.
 
     Returns:
         A tuple of (merged schema dict, summary dict describing the merge).
     """
-    preset = load_preset(node_model.extends)
+    preset_name = preset or node_model.extends
+    preset = load_preset(preset_name)
 
     # exclude_unset tells us precisely which keys the author typed, as opposed
     # to which merely have defaults. Without it every unwritten field would
     # look like a deliberate override.
+    #
+    # mode='json' resolves enums to their string values. Without it a declared
+    # `category` arrives as a CategoryEnum member, which yaml.safe_dump cannot
+    # represent, so generation fails at the very last step with a representer
+    # error that says nothing about the input.
     declared = node_model.model_dump(
-        by_alias=True, exclude_none=True, exclude_unset=True
+        by_alias=True, exclude_none=True, exclude_unset=True, mode='json'
     )
 
     overridden = []
@@ -118,7 +127,7 @@ def merge_onto_preset(node_model, node_name, validated_model):
 
     inherited = [k for k in _MERGEABLE_NODE_KEYS if k in preset and k not in overridden]
     summary = {
-        'preset': node_model.extends,
+        'preset': preset_name,
         'inherited': inherited,
         'overridden': overridden,
         'added': added,
@@ -164,9 +173,26 @@ def build_dictionary(validated_model, converter_template, only=None):
 
     for name in targets:
         node_model = nodes_by_name.get(name)
-        if node_model is not None and node_model.extends:
-            merged, summary = merge_onto_preset(node_model, name, validated_model)
+        # Declaring a node that shares a preset's name means adding to it, not
+        # replacing it. Building such a node from generic defaults would drop
+        # the settings Gen3 microservices depend on, and the resulting file
+        # still looks valid, so the loss is silent. Extending is therefore the
+        # default, and it is reported so it is never a surprise.
+        implicit = (
+            node_model is not None
+            and node_model.extends is None
+            and name in PRESET_LOADERS
+        )
+        preset_name = node_model.extends if node_model is not None else None
+        if implicit:
+            preset_name = name
+
+        if preset_name:
+            merged, summary = merge_onto_preset(
+                node_model, name, validated_model, preset=preset_name
+            )
             summary['node'] = name
+            summary['implicit'] = implicit
             summaries.append(summary)
             files[f"{name}.yaml"] = merged
         else:
@@ -333,9 +359,39 @@ def diff_against_disk(files, output_dir):
     }
 
 
+def unwritable_targets(files, output_dir):
+    """
+    Find existing files that could not be replaced.
+
+    Checked before anything is written, so a permissions problem is reported as
+    a refusal rather than discovered halfway through and left as a half-updated
+    dictionary.
+
+    Args:
+        files: The in-memory dictionary from build_dictionary.
+        output_dir: Target directory.
+
+    Returns:
+        A sorted list of filenames that exist but cannot be written.
+    """
+    blocked = []
+    for filename in files:
+        path = os.path.join(output_dir, filename)
+        if os.path.exists(path) and not os.access(path, os.W_OK):
+            blocked.append(filename)
+    return sorted(blocked)
+
+
 def write_dictionary(files, output_dir):
     """
-    Write a fully-built dictionary to disk.
+    Write a fully-built dictionary to disk without leaving it half-updated.
+
+    Files are staged into a temporary directory alongside the target and only
+    then moved into place. Writing directly would mean that a failure partway
+    through - a read-only file, a full disk - left some files updated and the
+    rest stale, which is the one state a dictionary must never be in: it matches
+    neither the input nor the previous commit, and nothing tells you which files
+    are which.
 
     Args:
         files: The in-memory dictionary from build_dictionary.
@@ -343,8 +399,31 @@ def write_dictionary(files, output_dir):
 
     Returns:
         The sorted list of filenames written.
+
+    Raises:
+        PermissionError: If an existing target file cannot be replaced. Raised
+            before anything is written.
     """
     os.makedirs(output_dir, exist_ok=True)
-    for filename, content in sorted(files.items()):
-        write_yaml(content, os.path.join(output_dir, filename))
+
+    blocked = unwritable_targets(files, output_dir)
+    if blocked:
+        raise PermissionError(
+            f"cannot replace existing file(s): {', '.join(blocked)}"
+        )
+
+    # Staged inside the output directory so the final move is a rename within
+    # one filesystem, which cannot half-complete.
+    staging = tempfile.mkdtemp(prefix='.gen3schemadev-', dir=output_dir)
+    try:
+        for filename, content in sorted(files.items()):
+            write_yaml(content, os.path.join(staging, filename))
+        for filename in sorted(files):
+            os.replace(
+                os.path.join(staging, filename),
+                os.path.join(output_dir, filename),
+            )
+    finally:
+        shutil.rmtree(staging, ignore_errors=True)
+
     return sorted(files)

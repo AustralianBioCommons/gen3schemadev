@@ -190,6 +190,99 @@ def test_declared_core_metadata_collection_is_no_longer_silently_discarded(
         assert name in cmc["properties"]
 
 
+def test_a_preset_named_node_merges_even_without_extends(run_cli, tmp_path):
+    """
+    Input: a core_metadata_collection node declared with a category and one
+    extra property, but WITHOUT saying `extends`.
+
+    Expected: the preset's own properties all survive, the extra property is
+    added, and the output explains that the node was merged rather than
+    replaced.
+
+    Why it matters: this is the most dangerous case, and a real repository is in
+    it. Declaring a node that happens to share a preset's name reads like
+    "add this field", not "replace the entire node", but building it from
+    generic defaults drops all fourteen of the preset's properties. The
+    resulting file is still valid YAML and still passes validation, so the loss
+    is completely silent. Merging by default is the safe reading of the author's
+    intent, and the message tells them how to make it explicit.
+    """
+    input_file = tmp_path / "input_dd.yaml"
+    input_file.write_text(
+        "version: 0.1.0\n"
+        "url: https://example.biocommons.org.au\n"
+        "nodes:\n"
+        "  - name: core_metadata_collection\n"
+        "    category: administrative\n"
+        "    description: \"Core metadata for this commons.\"\n"
+        "    properties:\n"
+        "      - name: submitter_cmc_id\n"
+        "        description: \"Submitter-assigned identifier.\"\n"
+        "        type: string\n"
+        "  - name: subject\n"
+        "    category: clinical\n"
+        "    description: \"An individual organism.\"\n"
+        "    properties: []\n"
+        "links:\n"
+        "  - parent: project\n"
+        "    multiplicity: one_to_many\n"
+        "    child: subject\n"
+    )
+    out = tmp_path / "dictionary"
+    out.mkdir()
+
+    code, printed = run_cli("generate", "-i", str(input_file), "-o", str(out))
+    cmc = yaml.safe_load((out / "core_metadata_collection.yaml").read_text())
+
+    assert code == 0
+    for name in generate_core_metadata_template()["properties"]:
+        assert name in cmc["properties"], f"preset property '{name}' was lost"
+    assert "submitter_cmc_id" in cmc["properties"]
+    assert "shares the name of a packaged preset" in printed
+
+
+def test_a_declared_category_is_written_as_a_plain_string(run_cli, tmp_path):
+    """
+    Input: a preset-named node that declares `category: administrative`.
+
+    Expected: generation succeeds and the category is the string
+    "administrative".
+
+    Why it matters: the category is validated into an enum member, and an enum
+    member cannot be serialised to YAML. Passing it through the merge unchanged
+    made generation fail at the final write with a representer error naming an
+    internal Python type - an error that gives the author no clue that their
+    perfectly reasonable `category:` line was responsible.
+    """
+    input_file = tmp_path / "input_dd.yaml"
+    input_file.write_text(
+        "version: 0.1.0\n"
+        "url: https://example.biocommons.org.au\n"
+        "nodes:\n"
+        "  - name: project\n"
+        "    extends: project\n"
+        "    category: administrative\n"
+        "    properties: []\n"
+        "  - name: subject\n"
+        "    category: clinical\n"
+        "    description: \"An individual organism.\"\n"
+        "    properties: []\n"
+        "links:\n"
+        "  - parent: project\n"
+        "    multiplicity: one_to_many\n"
+        "    child: subject\n"
+    )
+    out = tmp_path / "dictionary"
+    out.mkdir()
+
+    code, _ = run_cli("generate", "-i", str(input_file), "-o", str(out))
+    project = yaml.safe_load((out / "project.yaml").read_text())
+
+    assert code == 0
+    assert project["category"] == "administrative"
+    assert isinstance(project["category"], str)
+
+
 def test_extends_allows_an_explicit_override(run_cli, tmp_path):
     """
     Input: a project node that extends the preset but sets submittable: false.

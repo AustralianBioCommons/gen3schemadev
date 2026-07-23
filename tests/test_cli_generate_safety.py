@@ -159,6 +159,45 @@ def test_only_with_unknown_node_writes_nothing_and_suggests_a_match(
     assert "did you mean" in out and "subject" in out
 
 
+def test_failed_write_leaves_output_directory_untouched(run_cli, input_file, generated):
+    """
+    Input: a regeneration in which one file partway through the alphabet cannot
+    be written, because it has been made read-only.
+
+    Expected: the command fails, every file is unchanged, and no staging
+    directory is left behind.
+
+    Why it matters: generation writes many files. Writing them one by one meant
+    a failure partway through left some updated and the rest stale - a
+    dictionary matching neither the input nor the previous commit, with nothing
+    to indicate which files were which. Building in memory does not help here,
+    because the failure happens during writing rather than generation, so files
+    are staged and moved into place only once all of them exist.
+    """
+    import os
+
+    # Change the input so every generated file would differ.
+    with open(input_file) as handle:
+        source = handle.read()
+    with open(input_file, "w") as handle:
+        handle.write(source.replace(
+            "https://example.biocommons.org.au", "https://changed.example.org"
+        ))
+
+    blocked = f"{generated}/biospecimen.yaml"
+    os.chmod(blocked, 0o400)
+    before = snapshot(generated)
+    try:
+        code, out = run_cli("generate", "-i", input_file, "-o", generated, "--force")
+    finally:
+        os.chmod(blocked, 0o600)
+
+    assert code == 1
+    assert snapshot(generated) == before
+    assert "has not been modified" in out
+    assert not [name for name in os.listdir(generated) if name.startswith(".gen3schemadev-")]
+
+
 def test_failed_generation_leaves_output_directory_untouched(
     run_cli, tmp_path, generated
 ):

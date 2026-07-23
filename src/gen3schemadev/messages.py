@@ -179,7 +179,7 @@ def drift_report(output_dir, changed, missing, orphans, input_path=None):
     return "\n".join(lines)
 
 
-def extends_summary(node_name, preset, inherited, overridden, added):
+def extends_summary(node_name, preset, inherited, overridden, added, implicit=False):
     """
     Build the info line describing what an `extends` merge actually did.
 
@@ -193,11 +193,21 @@ def extends_summary(node_name, preset, inherited, overridden, added):
         inherited: Preset keys carried through unchanged.
         overridden: Preset keys the node replaced.
         added: Property names the node contributed.
+        implicit: True when the node did not say `extends` and was merged
+            because it shares a preset's name.
 
     Returns:
         The formatted message string.
     """
-    lines = [f"  '{node_name}' extends the packaged '{preset}' preset"]
+    if implicit:
+        lines = [
+            f"  '{node_name}' shares the name of a packaged preset, so it was merged",
+            f"    onto it rather than replacing it. Building it from scratch would drop",
+            f"    the preset's own properties and the node-level settings Gen3 relies on.",
+            f"    Add 'extends: {preset}' to the node to make this explicit.",
+        ]
+    else:
+        lines = [f"  '{node_name}' extends the packaged '{preset}' preset"]
     if added:
         lines.append(f"    added properties:  {', '.join(sorted(added))}")
     if overridden:
@@ -305,6 +315,36 @@ def invalid_input(input_path, error):
         f"  See: {DOCS_TROUBLESHOOTING}",
     ]
     return "\n".join(lines)
+
+
+def cannot_write(output_dir, error):
+    """
+    Build the error for a dictionary that could not be written.
+
+    Reassures the reader that the existing dictionary is intact, because the
+    obvious worry on seeing a write failure is that the directory has been left
+    half-updated.
+
+    Args:
+        output_dir: The directory being written to.
+        error: The underlying OSError.
+
+    Returns:
+        The formatted message string.
+    """
+    return "\n".join([
+        f"Could not write the dictionary to {output_dir}.",
+        "",
+        f"  {error}",
+        "",
+        "  Your existing dictionary has not been modified. Files are staged and",
+        "  only moved into place once all of them have been written, so a failure",
+        "  part way through cannot leave the directory half updated.",
+        "",
+        "  Check file permissions and available disk space, then run the same",
+        "  command again.",
+        f"  See: {DOCS_TROUBLESHOOTING}",
+    ])
 
 
 def validate_needs_a_target():

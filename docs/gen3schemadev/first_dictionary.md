@@ -29,7 +29,7 @@
 ***
 
 ## Pre-requisites
-- `python v3.12.10` or higher
+- `python v3.9.5` or higher (`3.12.10` recommended; CI tests 3.9 through 3.12)
 - `poetry v2.1.3` or higher 
 - `docker compose` (optional for dictionary visualisation)
 
@@ -44,7 +44,7 @@ A single node in the gen3 graph model can be represented as a single yaml file c
 Therefore the gen3 data model can be represented as a either a collection of yaml files (schemas) or a single json file (bundled schema).
 
 For the purpose of this guide we will use the following terminology:
-- [`Gen3 Schema`](../../tests/gen3_schema/examples/yaml/lipidomics_file.yaml): A single yaml or json file that defines a single node in the data model. [Learn More](schemas.md)
+- [`Gen3 Schema`](../../tests/gen3_schema/examples/yaml/lipidomics_file.yaml): A single yaml or json file that defines a single node in the data model. [Learn More](../gen3_data_modelling/schemas.md)
 - [`Gen3 Data Dictionary`](../../tests/gen3_schema/examples/yaml/): A folder containing multiple yaml files for each node in the data model.
 - [`Gen3 Bundled Schema`](../../tests/gen3_schema/examples/json/schema_dev.json): A json file containing a dictionary of jsonschemas for each node in the data model.
 
