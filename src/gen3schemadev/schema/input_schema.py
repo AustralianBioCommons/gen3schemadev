@@ -170,6 +170,14 @@ class Link(BaseModel):
     parent: str = Field(description="The parent node in the relationship.")
     multiplicity: Literal['one_to_many', 'many_to_one', 'one_to_one', 'many_to_many'] = Field(description="The cardinality of the relationship.")
     child: str = Field(description="The child node in the relationship.")
+    required: bool = Field(
+        default=True,
+        description=(
+            "Whether every instance of the child must be linked to a parent of this type. "
+            "Defaults to True, which is what the generator emitted before this was declarable, "
+            "so leaving it out changes nothing."
+        ),
+    )
 
 
 class DataModel(BaseModel):

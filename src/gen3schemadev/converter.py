@@ -223,7 +223,8 @@ def convert_node_links(links: list[dict], required: bool = True) -> list[dict]:
 
     Args:
         links: A list of link dictionaries for the node.
-        required: Whether the links are required (default: True).
+        required: Fallback used for links that do not declare their own value
+            (default: True).
 
     Returns:
         A list of formatted link dictionaries for the Gen3 schema.
@@ -236,7 +237,10 @@ def convert_node_links(links: list[dict], required: bool = True) -> list[dict]:
             label="part_of",
             target_type=link['parent'],
             multiplicity=flip_multiplicity(link['multiplicity']),
-            required=required
+            # Each link carries its own value, so the second and third links of
+            # a multi-link node can differ. The parameter remains as a fallback
+            # for callers passing raw dicts that predate the input field.
+            required=link.get('required', required)
         )
         link_list.append(link_obj.to_dict())
 
@@ -801,9 +805,13 @@ def populate_template(node_name: str, input_data: DataSourceProtocol, template: 
     links = get_node_links(node_name, input_data)
     converted_links = convert_node_links(links)
     
-    # Add core metadata link for file nodes
-    if file_node and links:
-        converted_links = add_core_metadata_link(converted_links, links[0]['child'])
+    # Add core metadata link for file nodes. This is not conditional on the node
+    # having declared links of its own: Gen3 requires every data_file node to
+    # link to core_metadata_collection, and construct_props adds the matching
+    # property unconditionally. Skipping the link for a link-less data_file node
+    # produced a schema that failed this tool's own validation rule.
+    if file_node:
+        converted_links = add_core_metadata_link(converted_links, node_name)
     
     # Create link group if multiple links exist
     if len(converted_links) > 1:

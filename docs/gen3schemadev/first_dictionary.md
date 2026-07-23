@@ -345,6 +345,22 @@ In the example above (parent node perspective):
 - many `sample` data records can be linked to one `assay`.
 - many `sample` data records can be linked to one `lipidomics_file`.
 
+### 4.3 Making a link optional
+By default every link is required, meaning a record cannot be submitted without it. Add `required: false` when a parent is optional.
+```yaml
+links:
+    - parent: sample
+      multiplicity: many_to_one
+      child: lipidomics_file
+    - parent: site
+      multiplicity: many_to_one
+      child: lipidomics_file
+      required: false
+```
+- Here a `lipidomics_file` must belong to a `sample`, but recording the `site` it came from is optional.
+- `required` is set per link, so where a node has two or three parents, each one is answered independently.
+- *For how this interacts with subgroups, and what happens for `program`, `project` and `core_metadata_collection`, see [Defining Links in Gen3](../gen3_data_modelling/links.md#declaring-links-in-the-inputyaml).*
+
 
 
 ---
