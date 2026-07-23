@@ -90,10 +90,19 @@ def write_json(data, file_path):
 def bundle_yamls(input_dir: str) -> dict:
     """
     Bundles all YAML files in a directory into a single dictionary.
+
+    Files are read in sorted order so the bundle is byte-identical wherever it is
+    built. os.listdir returns entries in filesystem order, which differs between
+    machines, so an unsorted bundle of an unchanged dictionary produced different
+    JSON on a contributor's laptop than on a Linux CI runner - identical content,
+    different key order, and a spurious diff on every commit.
+
+    Only the top level is sorted. Property order inside each schema comes from
+    the YAML document and is meaningful, so it is left as authored.
     """
     bundle = {}
     yamls_found = 0
-    for file_name in os.listdir(input_dir):
+    for file_name in sorted(os.listdir(input_dir)):
         if file_name.endswith('.yaml') or file_name.endswith('.yml'):
             yamls_found += 1
             file_path = os.path.join(input_dir, file_name)
