@@ -353,8 +353,15 @@ def get_properties(node_name: str, data: DataSourceProtocol) -> list[dict]:
     output = []
     if props:
         for prop in props:
+            # by_alias emits the Gen3 spelling of passthrough annotations
+            # (enum_def -> enumDef). Unset annotations are dropped rather than
+            # written out as nulls.
             pdict = {
-                prop.name: {k: v for k, v in prop.model_dump().items() if k != "name"}
+                prop.name: {
+                    k: v
+                    for k, v in prop.model_dump(by_alias=True).items()
+                    if k != "name" and v is not None
+                }
             }
             
             output.append(pdict)
@@ -744,17 +751,21 @@ def populate_template(node_name: str, input_data: DataSourceProtocol, template: 
         ValueError: If the node is not found in input_data.
     """
     ent = get_node_data(node_name, input_data)
-    ent_dict = ent.model_dump()
+    # by_alias so node-level overrides carry their Gen3 spelling
+    # (system_properties -> systemProperties). exclude_none so a field the user
+    # left unset inherits the template default instead of overwriting it with
+    # null.
+    ent_dict = ent.model_dump(by_alias=True, exclude_none=True)
     output_schema = template.copy()
     namespace = str(input_data.model_dump()['url'])
-    
+
     # add node name as title
     output_schema['title'] = ent.name
     output_schema['namespace'] = namespace
-    
+
     # Check if node is a file category
     file_node = is_file_node(node_name, input_data)
-    
+
     # Populate template with node data
     for key, value in ent_dict.items():
         if key == 'name':
@@ -763,19 +774,29 @@ def populate_template(node_name: str, input_data: DataSourceProtocol, template: 
             output_schema[key] = get_category(node_name, input_data)
         elif key == 'properties':
             output_schema[key] = construct_props(node_name, input_data)
+        elif key == 'extends':
+            # A directive for the merge step, not a Gen3 schema key.
+            continue
         elif key in output_schema:
             output_schema[key] = value
         else:
             logger.debug(f"Key '{key}' from node '{node_name}' not found in template")
-    
-    # add required props
-    props = get_properties(node_name, input_data)
-    required_props = get_required_prop_names(props)
-    if required_props:
-        required_props.append('submitter_id')
-        required_props.append('type')
-        output_schema['required'] = required_props
-    
+
+    # Required properties. An explicit node-level `required` list wins; falling
+    # back to per-property `required: true` flags preserves the older input
+    # style. submitter_id and type are always required by Gen3.
+    if ent.required is not None:
+        output_schema['required'] = list(dict.fromkeys(
+            [*ent.required, 'submitter_id', 'type']
+        ))
+    else:
+        props = get_properties(node_name, input_data)
+        required_props = get_required_prop_names(props)
+        if required_props:
+            required_props.append('submitter_id')
+            required_props.append('type')
+            output_schema['required'] = required_props
+
     # Process and add links
     links = get_node_links(node_name, input_data)
     converted_links = convert_node_links(links)

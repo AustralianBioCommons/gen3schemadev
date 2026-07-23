@@ -238,20 +238,34 @@ def test_create_link_prop_project():
 
 
 def test_get_properties(fixture_input_yaml_pass):
+    """
+    Input: two properties, neither of which declares any optional annotation
+    (no enums, no default, no format).
+
+    Expected: each property carries only the keys it actually set. Annotations
+    the author left unset are absent entirely rather than present-and-null.
+
+    Why it matters: a property may now declare several optional annotations
+    (default, format, items, enumDef, pattern, term). If unset ones were carried
+    through as None they would either litter the generated schema with nulls or
+    force every downstream formatter to filter them. Dropping them here, at the
+    single point where properties are read off the model, keeps that concern in
+    one place. Note this only affects the intermediate representation — the
+    formatters already discarded a null `enums`, so the generated Gen3 schema is
+    unchanged.
+    """
     result = get_properties("lipidomics_file", fixture_input_yaml_pass)
     expected = [
         {
             "cv": {
                 "type": "number",
                 "description": "Coefficient of variation (%)",
-                "enums": None,
                 "required": True
             }
         },
         {
             "lipid_species": {
                 "type": "array",
-                "enums": None,
                 "description": "List of lipid species",
                 "required": False
             }

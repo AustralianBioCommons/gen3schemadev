@@ -436,6 +436,25 @@ arguments:
 
 This will generate a folder of gen3 schemas in the `gen3_data_dictionary` directory.
 
+#### Regenerating after you change the input_yaml
+
+Throughout this guide we keep coming back to the input_yaml, changing it, and regenerating. That
+makes this tutorial an **input-driven** dictionary: the input_yaml is the source of truth, and the
+folder of gen3 schemas is rebuilt from it.
+
+`generate` will not overwrite an existing folder unless you say so, because in other projects those
+files may hold hand edits it knows nothing about. Since we do want to regenerate from the input
+every time, use `--input-driven` from here on:
+
+```bash
+gen3schemadev generate -i input_example.yml -o gen3_data_dictionary/ --input-driven
+```
+
+*This is a choice about how your repository works rather than a detail of this tutorial, and it is
+worth making deliberately. [Running a Gen3 Dictionary Repository](dictionary_repo.md) covers the
+alternatives — chiefly editing the gen3 schemas directly once they exist, which is a perfectly good
+way to work but a different one.*
+
 ### 7. Validating the `Gen3 Data Dictionary`
 Now that we have the `Gen3 Data Dictionary`, we can validate it using the `gen3schemadev validate` command.
 

@@ -1,7 +1,7 @@
 # Setup
 
 ## Pre-requisites
-- `python v3.12.10` or higher
+- `python v3.9.5` or higher (`3.12.10` recommended; CI tests 3.9 through 3.12)
 - `poetry v2.1.3` or higher
 - `docker compose` (optional for dictionary visualisation)
 

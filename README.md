@@ -10,7 +10,21 @@ This repository aims to provide the documentation, learning materials, and softw
 ## Using Gen3SchemaDev as a data modelling tool
 - [Quickstart](docs/gen3schemadev/quickstart.md)
 - [Guide to creating your first dictionary](docs/gen3schemadev/first_dictionary.md)
+- [Running a Gen3 dictionary repository](docs/gen3schemadev/dictionary_repo.md)
 - [Troubleshooting](docs/gen3schemadev/troubleshooting.md)
+
+### `generate` does not overwrite your files
+
+`gen3schemadev generate` never overwrites existing files by default. Generating into an empty folder works as it always has; generating into a folder that already contains files stops and lists exactly what it would have replaced, along with the ways forward.
+
+This matters because a dictionary repository can be run in more than one way. Some treat the `input_yaml` as the source of truth and regenerate from it. Others generate once and then edit the Gen3 schemas directly, at which point the generated files *are* the dictionary. The tool cannot tell which you are doing, and guessing wrong destroys work.
+
+- `--input-driven` — the `input_yaml` is the source of truth; regenerate everything, and fail if the folder holds a file the input cannot produce
+- `--only <node>` — regenerate named nodes, leaving every other file untouched
+- `--check` — report whether the folder still matches the input, write nothing, exit non-zero on drift. This is the CI gate
+- `--force` — overwrite everything, discarding any hand edits
+
+Nodes may also `extend` the packaged `program`, `project` and `core_metadata_collection` presets, adding properties while inheriting the node-level settings other Gen3 microservices depend on. See [Running a Gen3 dictionary repository](docs/gen3schemadev/dictionary_repo.md).
 
 ### Null description placeholders
 
