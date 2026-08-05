@@ -1,0 +1,44 @@
+version: 0.1.0
+url: https://link-to-data-portal
+nodes:
+- name: subject
+  description: The subject or patient
+  category: clinical
+  properties:
+  - name: subject_id
+    type: string
+    description: A deidentified identifier for the subject
+    required: true
+- name: sample
+  description: Info about sample
+  category: clinical
+  properties:
+  - name: sample_id
+    type: string
+    description: Sample ID (string)
+    required: true
+- name: supplementary_file
+  description: Supplementary file information
+  category: data_file
+  properties:
+  - name: file_id
+    type: string
+    description: File ID (string)
+  - name: file_format
+    type: enum
+    description: File format
+    enums:
+      - txt
+      - csv
+      - json
+    required: true
+links:
+- parent: project
+  multiplicity: one_to_many
+  child: subject
+- parent: subject
+  multiplicity: one_to_many
+  child: sample
+- parent: sample
+  multiplicity: one_to_many
+  child: supplementary_file

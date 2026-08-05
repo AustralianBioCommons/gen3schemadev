@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-04/schema#
+id: subject
+title: subject
+type: object
+namespace: https://link-to-data-portal/
+category: clinical
+program: '*'
+project: '*'
+description: The subject or patient
+submittable: true
+validators: null
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+required:
+- subject_id
+- submitter_id
+- type
+links:
+- name: projects
+  backref: subjects
+  label: part_of
+  target_type: project
+  multiplicity: many_to_one
+  required: true
+properties:
+  $ref: _definitions.yaml#/ubiquitous_properties
+  subject_id:
+    type: string
+    description: A deidentified identifier for the subject
+  projects:
+    $ref: _definitions.yaml#/to_one_project
+additionalProperties: false

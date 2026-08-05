@@ -1,0 +1,75 @@
+$schema: http://json-schema.org/draft-04/schema#
+id: supplementary_file
+title: supplementary_file
+type: object
+namespace: https://link-to-data-portal/
+category: data_file
+program: '*'
+project: '*'
+description: Supplementary file information
+submittable: true
+validators: null
+systemProperties:
+- id
+- project_id
+- state
+- created_datetime
+- updated_datetime
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+required:
+- file_format
+- submitter_id
+- type
+links:
+- exclusive: false
+  required: true
+  subgroup:
+  - name: samples
+    backref: supplementary_files
+    label: part_of
+    target_type: sample
+    multiplicity: many_to_one
+    required: true
+  - name: core_metadata_collections
+    backref: supplementary_files
+    label: part_of
+    target_type: core_metadata_collection
+    multiplicity: one_to_one
+    required: false
+properties:
+  $ref: _definitions.yaml#/data_file_properties
+  file_id:
+    type: string
+    description: File ID (string)
+  file_format:
+    description: File format
+    enum:
+    - txt
+    - csv
+    - json
+  samples:
+    $ref: _definitions.yaml#/to_one
+  core_metadata_collections:
+    $ref: _definitions.yaml#/to_one
+  data_category:
+    description: Broad categorization of the contents of the data file.
+    enum:
+    - data_category_1
+    - data_category_2
+    - data_category_3
+  data_format:
+    description: The format of the data in this data file
+    enum:
+    - data_format_1
+    - data_format_2
+    - data_format_3
+  data_type:
+    description: The type of data in this data file
+    enum:
+    - data_type_1
+    - data_type_2
+    - data_type_3
+additionalProperties: false
