@@ -78,3 +78,16 @@ def get_metaschema():
 
 def generate_program_template():
     return read_template_yaml('program.yaml')
+
+def get_input_example_text():
+    """
+    Returns the raw text of the packaged example input YAML.
+
+    Returned as text rather than a parsed dict so `init` can write it out
+    byte-for-byte identical to examples/input_example.yaml, preserving key
+    order, comments and formatting that a load/dump round trip would lose.
+    """
+    current_dir = os.path.dirname(__file__)
+    template_path = os.path.join(current_dir, 'schema_templates', 'input_example.yaml')
+    with open(template_path, 'r') as file:
+        return file.read()

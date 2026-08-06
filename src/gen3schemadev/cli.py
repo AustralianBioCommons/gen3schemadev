@@ -14,9 +14,10 @@ from gen3schemadev.schema.gen3_template import (
     generate_terms_template,
     generate_core_metadata_template,
     generate_project_template,
-    generate_program_template
+    generate_program_template,
+    get_input_example_text
 )
-from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json, resolve_schema, read_json
+from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json, resolve_schema, read_json, create_dir_if_not_exists
 from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_node_names, populate_template
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
@@ -383,48 +384,13 @@ def main():
     
     
     elif args.command == "init":
-        init_yaml = {
-            "version": "0.1.0",
-            "url": "https://link-to-data-portal",
-            "nodes": [
-                {
-                    "name": "subject",
-                    "description": "The subject or patient",
-                    "category": "clinical",
-                    "properties": [
-                        {
-                            "name": "subject_id",
-                            "type": "string",
-                            "description": "A deidentified identifier for the subject",
-                            "required": True
-                        }
-                    ]
-                },
-                {
-                    "name": "sample",
-                    "description": "Info about sample",
-                    "category": "clinical",
-                    "properties": [
-                        {
-                            "name": "sample_id",
-                            "type": "string",
-                            "description": "Sample ID (string)",
-                            "required": True
-                        }
-                    ]
-                }
-            ],
-            "links": [
-                {
-                    "parent": "subject",
-                    "multiplicity": "one_to_many",
-                    "child": "sample"
-                }
-            ]
-        }
-
         output_path = args.output or "input_example.yaml"
-        write_yaml(init_yaml, output_path)
+        dir_path = os.path.dirname(output_path)
+        if dir_path:
+            create_dir_if_not_exists(output_path)
+        with open(output_path, "w") as f:
+            f.write(get_input_example_text())
+        print(f"Wrote example input YAML to: {output_path}")
 
 if __name__ == "__main__":
     main()
