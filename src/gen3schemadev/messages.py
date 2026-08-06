@@ -20,6 +20,7 @@ exist.
 
 DOCS_DICTIONARY_REPO = "docs/gen3schemadev/dictionary_repo.md"
 DOCS_TROUBLESHOOTING = "docs/gen3schemadev/troubleshooting.md"
+DOCS_PROPERTIES = "docs/gen3_data_modelling/properties.md"
 
 # How many filenames to list before collapsing into "(+N more)".
 _MAX_LISTED = 6
@@ -343,6 +344,189 @@ def cannot_write(output_dir, error):
         "",
         "  Check file permissions and available disk space, then run the same",
         "  command again.",
+        f"  See: {DOCS_TROUBLESHOOTING}",
+    ])
+
+
+def _ref_lines(dangling, indent="    "):
+    """Format dangling references as 'file  path  ->  ref' lines."""
+    return [
+        f"{indent}{source}  {path}  ->  {ref}"
+        for source, path, ref in sorted(dangling)
+    ]
+
+
+def shadowed_property_report(shadowed):
+    """
+    Build the warning shown when input properties duplicate a shared definition.
+
+    Args:
+        shadowed: List of {'node', 'block', 'properties'} dicts.
+
+    Returns:
+        The formatted message string.
+    """
+    lines = [
+        f"WARNING: {len(shadowed)} node{'s' if len(shadowed) != 1 else ''} "
+        f"declare{'' if len(shadowed) != 1 else 's'} a property that "
+        f"_definitions.yaml already supplies",
+        "",
+    ]
+    for entry in shadowed:
+        lines.append(
+            f"    {entry['node']} - also supplied by {entry['block']}: "
+            f"{', '.join(entry['properties'])}"
+        )
+    lines += [
+        "",
+        "  This is allowed, and sometimes deliberate - the dictionary Gen3 publishes",
+        "  does it on nearly every node. Nothing was blocked and your files were written.",
+        "",
+        "  What it means: the generated file keeps both the shared $ref and your own",
+        "  property, so the duplication is invisible when reading the YAML. When the",
+        "  resolver gen3schemadev uses resolves the dictionary, your definition is the",
+        "  one that takes effect. If you are relying on that override, confirm the",
+        "  behaviour on your Gen3 instance before depending on it.",
+        "",
+        "  If you meant to add a property, rename it.",
+        "  If you meant to override the shared one, keep it - this line is the record",
+        "  that you did.",
+        "",
+        f"  See: {DOCS_PROPERTIES}",
+    ]
+    return "\n".join(lines)
+
+
+def rule_violation_report(violations, schemas_checked):
+    """
+    Build the report listing every rule violation found across a dictionary.
+
+    Args:
+        violations: List of {'source', 'rule', 'message'} dicts.
+        schemas_checked: How many schemas were checked in total.
+
+    Returns:
+        The formatted message string.
+    """
+    by_source = {}
+    for violation in violations:
+        by_source.setdefault(violation['source'], []).append(violation)
+
+    lines = [
+        f"FAILED: {len(violations)} rule violation"
+        f"{'s' if len(violations) != 1 else ''} across {len(by_source)} of "
+        f"{schemas_checked} schemas",
+        "",
+    ]
+    for source in sorted(by_source):
+        lines.append(f"  {source}")
+        for violation in by_source[source]:
+            lines.append(f"    [{violation['rule']}] {violation['message']}")
+        lines.append("")
+    lines += [
+        "  Every schema was checked, so this is the complete list - there is no",
+        "  second round of failures waiting behind it.",
+        "",
+        "  Fix the nodes above and run validate again.",
+        "",
+        f"  See: {DOCS_TROUBLESHOOTING}",
+    ]
+    return "\n".join(lines)
+
+
+def dangling_term_warning(dangling):
+    """
+    Build the warning for references to terms that do not exist.
+
+    Args:
+        dangling: List of (source_file, dotted_path, ref) tuples.
+
+    Returns:
+        The formatted message string.
+    """
+    lines = [
+        f"WARNING: {len(dangling)} documentation reference"
+        f"{'s' if len(dangling) != 1 else ''} "
+        f"point{'' if len(dangling) != 1 else 's'} at a term that does not exist",
+        "",
+    ]
+    lines += _ref_lines(dangling)
+    lines += [
+        "",
+        "  A 'term' is an ontology pointer used for documentation, not a JSON Schema",
+        "  keyword, so nothing about the shape of your data depends on it. Validation",
+        "  continued with the term left out.",
+        "",
+        "  To clear this, either add the missing key to _terms.yaml or remove the",
+        "  'term' block from the definition above. The dictionary Gen3 publishes",
+        "  currently carries one of these, so seeing it is not necessarily your mistake.",
+        "",
+        f"  See: {DOCS_TROUBLESHOOTING}",
+    ]
+    return "\n".join(lines)
+
+
+def unresolvable_dictionary(target, detail, dangling):
+    """
+    Build the message shown when a dictionary cannot be resolved at all.
+
+    Args:
+        target: The file or directory being validated.
+        detail: The resolver's description of what was missing.
+        dangling: List of (source_file, dotted_path, ref) tuples.
+
+    Returns:
+        The formatted message string.
+    """
+    lines = [
+        f"FAILED: {target} could not be resolved, so no schema was checked "
+        f"against the metaschema.",
+        "",
+        f"  Missing: {detail}",
+    ]
+    if dangling:
+        lines += ["", "  References that point at nothing:"]
+        lines += _ref_lines(dangling)
+    lines += [
+        "",
+        "  Resolution has to finish before any schema can be checked. Validating only",
+        "  the parts that did resolve would mean reporting success for a dictionary",
+        "  that was never fully read.",
+        "",
+        "  Add the missing definition, or remove the reference to it.",
+        "",
+        f"  See: {DOCS_TROUBLESHOOTING}",
+    ]
+    return "\n".join(lines)
+
+
+def unresolved_nodes(target, unresolved, resolved_count):
+    """
+    Build the message for schemas that went into resolution but did not come out.
+
+    Args:
+        target: The file or directory being validated.
+        unresolved: Names of the schemas that did not resolve.
+        resolved_count: How many schemas did resolve.
+
+    Returns:
+        The formatted message string.
+    """
+    total = len(unresolved) + resolved_count
+    return "\n".join([
+        f"FAILED: {len(unresolved)} of {total} schemas in {target} could not be "
+        f"resolved and were not checked.",
+        "",
+        "  Not checked:",
+        _file_list(unresolved),
+        "",
+        "  validate used to print SUCCESS for the schemas that resolved and say",
+        "  nothing about the rest, so a dictionary could pass with most of it",
+        "  unchecked. A schema that cannot be resolved has not been validated.",
+        "",
+        "  Check that each schema above has an 'id' and that every reference it",
+        "  makes points at something that exists.",
+        "",
         f"  See: {DOCS_TROUBLESHOOTING}",
     ])
 

@@ -24,6 +24,7 @@ from gen3schemadev.schema.gen3_template import (
     generate_core_metadata_template,
     generate_project_template,
     generate_program_template,
+    shared_property_names,
 )
 from gen3schemadev.utils import write_yaml
 
@@ -135,6 +136,76 @@ def merge_onto_preset(node_model, node_name, validated_model, preset=None):
     return preset, summary
 
 
+def _preset_for(node_model, node_name):
+    """
+    Return ``(preset_name, implicit)`` for a node, or ``(None, False)`` when it
+    is built from the generic template.
+
+    Declaring a node that shares a preset's name means adding to it, not
+    replacing it. Building such a node from generic defaults would drop the
+    settings Gen3 microservices depend on, and the resulting file still looks
+    valid, so the loss is silent. Extending is therefore the default.
+
+    Extracted so build_dictionary and find_shadowed_properties cannot drift
+    apart about which nodes take the preset path.
+    """
+    implicit = (
+        node_model is not None
+        and node_model.extends is None
+        and node_name in PRESET_LOADERS
+    )
+    if implicit:
+        return node_name, True
+    preset_name = node_model.extends if node_model is not None else None
+    return preset_name, False
+
+
+def find_shadowed_properties(validated_model):
+    """
+    Find declared properties that duplicate one the shared ``$ref`` supplies.
+
+    Every generated node points at ``_definitions.yaml#/ubiquitous_properties``,
+    or ``#/data_file_properties`` for a data_file node, and the node's own
+    properties are written beside it. Both survive into the file on disk, so the
+    duplication is invisible to anyone reading the YAML - it only resolves one
+    way or the other when the dictionary is resolved, and the node's own
+    definition is the one that wins.
+
+    Nodes built from a packaged preset are skipped: project.yaml and
+    program.yaml list their properties literally with no ``$ref``, so there is
+    nothing to shadow, and merge_onto_preset already reports what a declaring
+    node added or overrode.
+
+    Args:
+        validated_model: The validated input data model.
+
+    Returns:
+        A list of {'node', 'block', 'properties'} dicts, sorted by node name.
+    """
+    ubiquitous = shared_property_names('ubiquitous_properties')
+    data_file = shared_property_names('data_file_properties')
+
+    shadowed = []
+    for node_model in validated_model.nodes:
+        preset_name, _ = _preset_for(node_model, node_model.name)
+        if preset_name:
+            continue
+
+        category = getattr(node_model.category, 'value', node_model.category)
+        block = 'data_file_properties' if category == 'data_file' else 'ubiquitous_properties'
+        supplied = data_file if category == 'data_file' else ubiquitous
+
+        declared = [p.name for p in (node_model.properties or []) if p.name in supplied]
+        if declared:
+            shadowed.append({
+                'node': node_model.name,
+                'block': block,
+                'properties': sorted(declared),
+            })
+
+    return sorted(shadowed, key=lambda entry: entry['node'])
+
+
 def build_dictionary(validated_model, converter_template, only=None):
     """
     Build every file the dictionary consists of, in memory.
@@ -173,19 +244,7 @@ def build_dictionary(validated_model, converter_template, only=None):
 
     for name in targets:
         node_model = nodes_by_name.get(name)
-        # Declaring a node that shares a preset's name means adding to it, not
-        # replacing it. Building such a node from generic defaults would drop
-        # the settings Gen3 microservices depend on, and the resulting file
-        # still looks valid, so the loss is silent. Extending is therefore the
-        # default, and it is reported so it is never a surprise.
-        implicit = (
-            node_model is not None
-            and node_model.extends is None
-            and name in PRESET_LOADERS
-        )
-        preset_name = node_model.extends if node_model is not None else None
-        if implicit:
-            preset_name = name
+        preset_name, implicit = _preset_for(node_model, name)
 
         if preset_name:
             merged, summary = merge_onto_preset(

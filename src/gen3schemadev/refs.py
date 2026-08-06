@@ -44,6 +44,66 @@ def has_ref(prop) -> bool:
     return False
 
 
+def _ref_target_exists(ref: str, bundle: dict, source: str) -> bool:
+    """
+    Return True if ``ref`` points at something that exists in ``bundle``.
+
+    A ref of the form ``file.yaml#/a/b`` is looked up in the bundle by
+    filename; a bare ``#/a/b`` is looked up inside the schema that carries it,
+    which is why ``source`` is needed.
+    """
+    file_part, _, key_part = ref.partition("#")
+    file_part = file_part.strip()
+    target = bundle.get(file_part) if file_part else bundle.get(source)
+    if target is None:
+        return False
+    for part in key_part.strip("/").split("/"):
+        if not part:
+            continue
+        if not isinstance(target, dict) or part not in target:
+            return False
+        target = target[part]
+    return True
+
+
+def _walk_refs(bundle: dict, node, path: str, source: str) -> list:
+    """Recursively collect dangling ``$ref`` hits under ``node``."""
+    hits = []
+    if isinstance(node, dict):
+        ref = node.get("$ref")
+        if isinstance(ref, str) and not _ref_target_exists(ref, bundle, source):
+            hits.append((source, path.lstrip("."), ref))
+        for key, value in node.items():
+            hits.extend(_walk_refs(bundle, value, f"{path}.{key}", source))
+    elif isinstance(node, list):
+        for i, item in enumerate(node):
+            hits.extend(_walk_refs(bundle, item, f"{path}[{i}]", source))
+    return hits
+
+
+def find_dangling_refs(bundle: dict) -> list:
+    """
+    Find every ``$ref`` in a bundled dictionary whose target does not exist.
+
+    The resolver this tool ships raises a bare ``KeyError`` naming only the
+    missing key - ``'file_format'`` - with no indication of which file or which
+    property asked for it, which leaves the reader grepping ninety definitions.
+    This walks the bundle up front and names all three, so they can go straight
+    to the line.
+
+    Args:
+        bundle: The whole bundled dictionary, keyed by filename.
+
+    Returns:
+        A list of ``(source_file, dotted_path, ref)`` tuples. Paths use the
+        same ``.key`` and ``[i]`` notation as :func:`find_null_descriptions`.
+    """
+    hits = []
+    for name, schema in bundle.items():
+        hits.extend(_walk_refs(bundle, schema, "", name))
+    return hits
+
+
 def find_null_descriptions(node, path: str = "") -> list:
     """
     Recursively find every ``description`` key whose value is null.

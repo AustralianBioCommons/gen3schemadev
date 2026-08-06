@@ -206,9 +206,14 @@ definitions:
       required:
         type: boolean
       subgroup:
+        # A subgroup may contain another subgroup. The official Gen3
+        # dictionary uses this on submitted_copy_number, so allowing only
+        # plain links here rejected a dictionary Gen3 itself publishes.
         type: array
         items:
-          $ref: "#/definitions/link"
+          oneOf:
+            - $ref: "#/definitions/link"
+            - $ref: "#/definitions/link_subgroup"
 
   validator_def:
     title: "Define a validator to be used on a property"

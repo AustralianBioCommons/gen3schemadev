@@ -263,6 +263,55 @@ missing required field, or a value outside the allowed set.
 first node. Note that unknown field names are now rejected rather than ignored, so a typo like
 `descriptoin` fails here instead of silently producing a schema with that field missing.
 
+## "rule violations across N of M schemas"
+
+**Error message:** a list grouped by file, with each violation prefixed by the rule that produced
+it, such as `[link_props_exist]`.
+
+**Cause:** one or more nodes break a Gen3 business rule — a link with no matching property, a data
+file node with no `core_metadata_collections` link, a property with neither `type` nor `enum`.
+
+**Fix:** `validate` checks every schema before reporting, so this is the complete list; there is no
+second round of failures waiting behind it. Work through the nodes named, then run it again. Note
+that earlier versions stopped at the first violation, so a dictionary with several problems
+appeared to have only one.
+
+## "documentation reference points at a term that does not exist"
+
+**Warning message:** names the file, the property path and the reference, for example
+`_definitions.yaml  file_format.term  ->  _terms.yaml#/file_format`.
+
+**Cause:** a `term` block references a key that `_terms.yaml` does not contain.
+
+**Fix:** either add the missing key to `_terms.yaml` or remove the `term` block from that
+definition. This is a warning rather than an error because a `term` is an ontology pointer used for
+documentation, not a JSON Schema keyword — nothing about the shape of your data depends on it, and
+validation continues with the term left out. The dictionary Gen3 publishes currently carries one of
+these, so seeing it is not necessarily a mistake in your own dictionary.
+
+## "could not be resolved, so no schema was checked against the metaschema"
+
+**Error message:** names the missing reference and every other reference in the dictionary that
+points at nothing.
+
+**Cause:** a `$ref` outside a `term` block points at a definition that does not exist — a typo in
+the path, or a definition that was renamed or deleted while references to it remained.
+
+**Fix:** add the missing definition, or remove the reference to it. Resolution has to finish before
+any schema can be checked, so this stops validation rather than degrading it: checking only the
+parts that did resolve would mean reporting success for a dictionary that was never fully read.
+
+## "schemas could not be resolved and were not checked"
+
+**Error message:** names each schema that went into resolution but did not come out.
+
+**Cause:** usually a schema with no `id`, which resolution cannot key, or one whose references
+could not be followed.
+
+**Fix:** check that each schema named has an `id` and that its references resolve. This is an error
+rather than a warning because earlier versions printed `SUCCESS` for the schemas that resolved and
+said nothing about the rest — a dictionary could pass with most of it unchecked.
+
 ***
 
 

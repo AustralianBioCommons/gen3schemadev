@@ -124,3 +124,80 @@ def test_print_null_description_warning_silent_when_clean(capsys):
     """
     print_null_description_warning([])
     assert capsys.readouterr().out == ""
+
+
+# ---------------------------------------------------------------------------
+# Dangling reference detection
+#
+# The resolver this tool ships raises a bare KeyError naming only the missing
+# key - 'file_format' - with no indication of which file or which property
+# asked for it. On a dictionary with ninety definitions that is a grep, not a
+# diagnosis. find_dangling_refs names all three up front.
+# ---------------------------------------------------------------------------
+
+from gen3schemadev.refs import find_dangling_refs
+
+
+def test_find_dangling_refs_names_the_file_the_path_and_the_ref():
+    """
+    Input: a bundle whose _definitions.yaml points a term at a key that
+    _terms.yaml does not contain.
+
+    Expected: one hit giving the source file, the dotted path to the offending
+    property, and the reference itself.
+
+    Why it matters: this is exactly the defect in the dictionary Gen3
+    publishes. The reader needs to know where to go, and the resolver's own
+    error tells them only what was missing, not where it was asked for.
+    """
+    bundle = {
+        '_definitions.yaml': {
+            'file_format': {'type': 'string', 'term': {'$ref': '_terms.yaml#/file_format'}},
+        },
+        '_terms.yaml': {'data_format': {'description': 'A real term.'}},
+    }
+
+    assert find_dangling_refs(bundle) == [
+        ('_definitions.yaml', 'file_format.term', '_terms.yaml#/file_format'),
+    ]
+
+
+def test_find_dangling_refs_resolves_bare_refs_against_their_own_schema():
+    """
+    Input: a bundle whose _definitions.yaml uses a bare '#/UUID' reference to
+    a definition that exists in that same file.
+
+    Expected: nothing reported.
+
+    Why it matters: a bare ref points inside the schema that carries it, not
+    at another file in the bundle. Treating it as a cross-file lookup would
+    report a false dangling reference on essentially every healthy dictionary,
+    since Gen3's shared definitions reference each other this way constantly.
+    """
+    bundle = {
+        '_definitions.yaml': {
+            'UUID': {'type': 'string'},
+            'id': {'$ref': '#/UUID'},
+        },
+    }
+
+    assert find_dangling_refs(bundle) == []
+
+
+def test_find_dangling_refs_is_quiet_on_a_healthy_bundle():
+    """
+    Input: a bundle in which every reference resolves.
+
+    Expected: an empty list.
+
+    Why it matters: this diagnostic runs on every validate. If it reported
+    false positives, the warning it produces would be noise and people would
+    learn to scroll past it.
+    """
+    bundle = {
+        '_definitions.yaml': {'state': {'type': 'string'}},
+        '_terms.yaml': {'sample': {'description': 'A term.'}},
+        'sample.yaml': {'id': 'sample', 'properties': {'state': {'$ref': '_definitions.yaml#/state'}}},
+    }
+
+    assert find_dangling_refs(bundle) == []

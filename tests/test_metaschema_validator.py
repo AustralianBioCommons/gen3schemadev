@@ -105,3 +105,105 @@ def test_invalid_input_types(bad_input, fixture_metaschema):
         validate_schema_with_metaschema(schema=bad_input, metaschema=fixture_metaschema)
     with pytest.raises(ValueError, match="must be a dictionary"):
         validate_schema_with_metaschema(schema=fixture_metaschema, metaschema=bad_input)
+
+
+# ---------------------------------------------------------------------------
+# Nested link subgroups
+#
+# Gen3 allows a link subgroup to contain another subgroup - `submitted_copy_number`
+# in the official dictionary is shaped that way. The packaged metaschema only
+# allowed plain links inside a subgroup, so it rejected a dictionary Gen3 itself
+# publishes.
+# ---------------------------------------------------------------------------
+
+import jsonschema
+
+
+def _node_with_links(links):
+    """A metaschema-complete node, so a test only varies the links."""
+    return {
+        "id": "nested_node",
+        "title": "Nested Node",
+        "type": "object",
+        "category": "clinical",
+        "description": "A node whose links nest.",
+        "program": "*",
+        "project": "*",
+        "submittable": True,
+        "validators": None,
+        "systemProperties": ["id"],
+        "uniqueKeys": [["id"]],
+        "required": ["submitter_id", "type"],
+        "links": links,
+        "properties": {"type": {"type": "string"}},
+    }
+
+
+def _complete_link(name, target):
+    return {
+        "name": name,
+        "backref": f"{name}_backref",
+        "label": "derived_from",
+        "target_type": target,
+        "multiplicity": "one_to_one",
+        "required": False,
+    }
+
+
+def test_a_nested_link_subgroup_passes_the_metaschema(fixture_metaschema):
+    """
+    Input: a node whose link subgroup contains another subgroup.
+
+    Expected: no metaschema errors.
+
+    Why it matters: this is the shape of `submitted_copy_number` in the
+    dictionary Gen3 publishes. The metaschema previously allowed only plain
+    links inside a subgroup, so that node failed - the last thing standing
+    between the reference dictionary and a clean validate.
+    """
+    schema = _node_with_links([{
+        "exclusive": False,
+        "required": True,
+        "subgroup": [
+            _complete_link("core_metadata_collections", "core_metadata_collection"),
+            {
+                "exclusive": True,
+                "required": False,
+                "subgroup": [
+                    _complete_link("aliquots", "aliquot"),
+                    _complete_link("read_groups", "read_group"),
+                ],
+            },
+        ],
+    }])
+
+    errors = list(jsonschema.Draft4Validator(fixture_metaschema).iter_errors(schema))
+
+    assert errors == []
+
+
+def test_a_malformed_link_inside_a_nested_subgroup_is_still_rejected(fixture_metaschema):
+    """
+    Input: the same nested shape, but a link in the inner subgroup has no
+    `backref`.
+
+    Expected: the metaschema still reports an error.
+
+    Why it matters: the recursion was added so nested links are checked
+    properly, not so they stop being checked. Without this, a change that
+    accepted anything inside a subgroup would look identical to the fix.
+    """
+    incomplete = _complete_link("aliquots", "aliquot")
+    del incomplete["backref"]
+    schema = _node_with_links([{
+        "exclusive": False,
+        "required": True,
+        "subgroup": [
+            _complete_link("core_metadata_collections", "core_metadata_collection"),
+            {"exclusive": True, "required": False, "subgroup": [incomplete]},
+        ],
+    }])
+
+    errors = list(jsonschema.Draft4Validator(fixture_metaschema).iter_errors(schema))
+
+    assert errors != []

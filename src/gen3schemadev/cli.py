@@ -17,14 +17,17 @@ from gen3schemadev.schema.gen3_template import (
     generate_program_template,
     get_input_example_text
 )
-from gen3schemadev.utils import write_yaml, load_yaml, bundle_yamls, write_json, resolve_schema, read_json, create_dir_if_not_exists
+from gen3schemadev.utils import (
+    write_yaml, load_yaml, bundle_yamls, write_json, resolve_schema, read_json,
+    create_dir_if_not_exists, is_documentation_ref, SchemaResolutionError,
+)
 from gen3schemadev.schema.input_schema import DataModel
 from gen3schemadev.converter import get_node_names, populate_template
 from gen3schemadev.validators.metaschema_validator import validate_schema_with_metaschema
 from importlib.metadata import version
 from gen3schemadev.ddvis import visualise_with_docker
 from gen3schemadev.validators.rule_validator import RuleValidator
-from gen3schemadev.refs import find_null_descriptions
+from gen3schemadev.refs import find_null_descriptions, find_dangling_refs
 from gen3schemadev import messages
 from gen3schemadev.generation import (
     build_dictionary,
@@ -32,6 +35,7 @@ from gen3schemadev.generation import (
     find_orphans,
     diff_against_disk,
     write_dictionary,
+    find_shadowed_properties,
 )
 
 
@@ -259,6 +263,13 @@ def main():
                 implicit=summary.get('implicit', False),
             ))
 
+        # Printed before the --check branch returns, so continuous integration
+        # sees the same warning a developer does.
+        shadowed = find_shadowed_properties(validated_model)
+        if shadowed:
+            print()
+            print(messages.shadowed_property_report(shadowed))
+
         if args.check:
             diff = diff_against_disk(files, args.output)
             if diff['changed'] or diff['missing'] or diff['orphans']:
@@ -341,6 +352,10 @@ def main():
                 null_hits.append(f"{schema_name}: {hit}")
         print_null_description_warning(null_hits)
 
+        # Every schema is checked before anything is reported. Stopping at the
+        # first violation meant a dictionary with six problems took six runs.
+        violations = []
+        checked = []
         for schema_name, schema in schema_dict.items():
 
             if '.' in schema_name:
@@ -348,25 +363,59 @@ def main():
 
             if schema_name in exclude_schema_list:
                 continue
-  
-            rule_validator = RuleValidator(schema)
-            rule_validator.validate()
-            print(f"SUCCESS: Rule validation complete for: {schema_name}")
+
+            checked.append(schema_name)
+            for violation in RuleValidator(schema).validate():
+                # A schema's 'id' can differ from its filename, and the reader
+                # is looking for the file, so carry both.
+                violation['source'] = schema_name
+                violations.append(violation)
+
+        if violations:
+            print()
+            print(messages.rule_violation_report(violations, len(checked)))
+            sys.exit(1)
+        print(f"SUCCESS: rule validation passed for {len(checked)} schemas.")
+
+        # A reference into a 'term' block is documentation, so a missing one is
+        # reported and stepped over rather than being fatal. Anything else that
+        # dangles stops resolution below.
+        dangling = find_dangling_refs(schema_dict)
+        documentation_refs = [hit for hit in dangling if is_documentation_ref(hit[1])]
+        if documentation_refs:
+            print()
+            print(messages.dangling_term_warning(documentation_refs))
 
         # Resolving bundled schema which is required for metaschema validation
-        resolved_schema_dict = None
-
-        if args.bundled:
-            print(f"Resolving schema from bundled file: {args.bundled}")
-            resolved_schema_dict = resolve_schema(schema_path=args.bundled)
-        elif args.yamls:
-            print(f"Bundling and resolving schemas from directory: {args.yamls}")
-            resolved_schema_dict = resolve_schema(schema_dir=args.yamls)
-
-        if resolved_schema_dict is None:
-            logger.error("You must provide either --bundled or --yamls for validation.")
+        target = args.bundled or args.yamls
+        try:
+            if args.bundled:
+                print(f"Resolving schema from bundled file: {args.bundled}")
+                resolved_schema_dict = resolve_schema(schema_path=args.bundled)
+            else:
+                print(f"Bundling and resolving schemas from directory: {args.yamls}")
+                resolved_schema_dict = resolve_schema(schema_dir=args.yamls)
+        except SchemaResolutionError as exc:
+            print()
+            print(messages.unresolvable_dictionary(
+                target, str(exc),
+                [hit for hit in dangling if not is_documentation_ref(hit[1])],
+            ))
             sys.exit(1)
 
+        # Anything that went into resolution but did not come out was never
+        # checked. validate used to print SUCCESS for the schemas that resolved
+        # and say nothing at all about the rest.
+        expected = {
+            os.path.splitext(name)[0] for name in schema_dict
+            if not os.path.basename(name).startswith('_')
+        }
+        resolved_ids = {os.path.splitext(name)[0] for name in resolved_schema_dict}
+        unresolved = sorted(expected - resolved_ids)
+        if unresolved:
+            print()
+            print(messages.unresolved_nodes(target, unresolved, len(resolved_ids)))
+            sys.exit(1)
 
         for schema_name, schema in resolved_schema_dict.items():
             validate_schema_with_metaschema(

@@ -6,6 +6,8 @@ import logging
 from gen3_validator.resolve_schema import ResolveSchema
 import tempfile
 
+from gen3schemadev.refs import find_dangling_refs
+
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +114,42 @@ def bundle_yamls(input_dir: str) -> dict:
     return bundle
 
 
+class SchemaResolutionError(Exception):
+    """Raised when a bundled dictionary cannot be resolved into node schemas."""
+
+
+# Files in a bundle that describe the dictionary rather than a node. They are
+# resolution inputs, not things to resolve, and carry no 'id'.
+_NON_NODE_FILES = ('_definitions.yaml', '_terms.yaml', '_settings.yaml')
+
+
+def is_documentation_ref(path: str) -> bool:
+    """
+    Return True if a ``$ref`` at ``path`` sits inside a ``term`` block.
+
+    A ``term`` is an ontology/documentation pointer, not a JSON Schema
+    keyword - nothing about the shape of the data depends on it. So a ``term``
+    pointing at a definition that does not exist is worth reporting but is not
+    a reason to refuse to validate the dictionary. The official Gen3
+    dictionary ships exactly one of these.
+    """
+    segments = (part.split('[')[0] for part in path.split('.'))
+    return any(segment in ('term', 'terms') for segment in segments)
+
+
+def _strip_refs(node, refs: set):
+    """Return a copy of ``node`` with every dict holding one of ``refs`` removed."""
+    if isinstance(node, dict):
+        return {
+            key: _strip_refs(value, refs)
+            for key, value in node.items()
+            if not (isinstance(value, dict) and value.get('$ref') in refs)
+        }
+    if isinstance(node, list):
+        return [_strip_refs(item, refs) for item in node]
+    return node
+
+
 def resolve_schema(schema_dir: str = None, schema_path: str = None) -> dict:
     """
     Load and resolve a Gen3 JSON schema from either a directory of YAML files or a bundled JSON file.
@@ -119,11 +157,25 @@ def resolve_schema(schema_dir: str = None, schema_path: str = None) -> dict:
     If `schema_dir` is provided, all YAML files in the directory are bundled into a temporary JSON file,
     which is then resolved. If `schema_path` is provided, it is used directly.
 
+    Two things are done here that the underlying resolver does not do:
+
+    1. Every node is resolved against the terms *and* the resolved definitions.
+       The library resolves nodes against the definitions alone, so any node
+       referencing ``_terms.yaml`` directly failed - and those failures are
+       logged and swallowed, so the caller silently received a subset. On the
+       official Gen3 dictionary that was 10 nodes out of 29, each reported as a
+       success while the other 19 went unmentioned.
+    2. A dangling reference inside a ``term`` block is dropped rather than
+       being fatal, because a term is documentation. Any other dangling
+       reference raises :class:`SchemaResolutionError` naming it, instead of
+       the bare ``KeyError`` the library raises.
+
     Returns:
-        list: A list of resolved schema dictionaries.
+        dict: Resolved node schemas keyed by ``"<id>.yaml"``.
 
     Raises:
-        Exception: If neither `schema_dir` nor `schema_path` is provided, or if resolution fails.
+        SchemaResolutionError: If a non-documentation reference cannot be resolved.
+        Exception: If neither `schema_dir` nor `schema_path` is provided.
     """
     temp_file_path = None
     if schema_dir:
@@ -135,18 +187,37 @@ def resolve_schema(schema_dir: str = None, schema_path: str = None) -> dict:
 
     try:
         resolver = ResolveSchema(schema_path)
-        resolver.resolve_schema()
-        resolved = resolver.schema_resolved
-        output = {}
-        
-        for k, v in resolved.items():
-            schema_name = v.get('id', '')
-            output[f"{schema_name}.yaml"] = v
+        resolver.parse_schema()
+        bundle = resolver.schema
 
-        if isinstance(output, dict):
-            return output
-        else:
-            raise Exception(f"Resolved schema not dictionary of schemas, failed to resolve schema: {resolved}")
+        dangling = find_dangling_refs(bundle)
+        fatal = [hit for hit in dangling if not is_documentation_ref(hit[1])]
+        if fatal:
+            detail = "; ".join(f"{src}: {path} -> {ref}" for src, path, ref in fatal)
+            raise SchemaResolutionError(detail)
+
+        if dangling:
+            # Documentation-only, so drop the term and carry on. The caller
+            # reports these; see cli.py.
+            bundle = _strip_refs(bundle, {ref for _, _, ref in dangling})
+
+        try:
+            definitions = resolver.resolve_references(
+                bundle['_definitions.yaml'], bundle['_terms.yaml']
+            )
+            references = {**bundle['_terms.yaml'], **definitions}
+            output = {}
+            for file_name, schema in bundle.items():
+                if file_name in _NON_NODE_FILES:
+                    continue
+                resolved = resolver.resolve_references(schema, references)
+                schema_id = resolved.get('id')
+                if schema_id:
+                    output[f"{schema_id}.yaml"] = resolved
+        except KeyError as exc:
+            raise SchemaResolutionError(str(exc).strip("'")) from exc
+
+        return output
     finally:
         if temp_file_path and os.path.exists(temp_file_path):
             os.remove(temp_file_path)

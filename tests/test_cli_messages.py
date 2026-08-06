@@ -211,6 +211,7 @@ def test_unparseable_input_reports_the_position_and_the_usual_cause():
 @pytest.mark.parametrize("doc_path", [
     messages.DOCS_DICTIONARY_REPO,
     messages.DOCS_TROUBLESHOOTING,
+    messages.DOCS_PROPERTIES,
 ])
 def test_every_message_doc_pointer_resolves_to_a_real_file(doc_path):
     """
@@ -241,10 +242,86 @@ def test_no_message_references_an_undeclared_doc_path():
     past it, so this closes the gap by reading the source directly.
     """
     source = open(os.path.join(REPO_ROOT, "src/gen3schemadev/messages.py")).read()
-    declared = {messages.DOCS_DICTIONARY_REPO, messages.DOCS_TROUBLESHOOTING}
+    declared = {
+        messages.DOCS_DICTIONARY_REPO,
+        messages.DOCS_TROUBLESHOOTING,
+        messages.DOCS_PROPERTIES,
+    }
 
     referenced = set(re.findall(r"docs/[\w/]+\.md", source))
 
     assert referenced <= declared, (
         f"hardcoded doc paths found: {sorted(referenced - declared)}"
     )
+
+
+def test_shadowed_property_warning_does_not_promise_server_behaviour():
+    """
+    Input: a shadowed-property warning for a node declaring `type`.
+
+    Expected: it names the node, the block and the property, attributes the
+    override to the resolver this tool uses, and makes no claim about how a
+    Gen3 server behaves.
+
+    Why it matters: sibling-$ref precedence was verified against the resolver
+    this package ships, and nothing more. A message implying the Gen3 server
+    resolves the same way would be stating something nobody has checked, on a
+    point where being wrong means a user's data model does not mean what they
+    were told it means.
+    """
+    message = messages.shadowed_property_report([
+        {"node": "subject", "block": "ubiquitous_properties", "properties": ["type"]},
+    ])
+
+    assert "subject" in message
+    assert "ubiquitous_properties" in message
+    assert "resolver gen3schemadev uses" in message
+    assert "Gen3 will" not in message
+    assert "on the server" not in message
+
+
+def test_rule_violation_report_names_every_node_and_every_rule():
+    """
+    Input: three violations spread across two nodes.
+
+    Expected: every node name and every rule name appears, along with the count
+    of schemas checked.
+
+    Why it matters: the report exists so one run tells the reader everything
+    that is wrong. If it summarised without naming, they would be back to
+    running validate repeatedly to find the next problem.
+    """
+    message = messages.rule_violation_report([
+        {"source": "sample", "rule": "link_props_exist", "message": "missing samples"},
+        {"source": "sample", "rule": "props_must_have_type", "message": "no type"},
+        {"source": "my_file", "rule": "data_file_props_need_data_props", "message": "no data_type"},
+    ], schemas_checked=12)
+
+    assert "sample" in message
+    assert "my_file" in message
+    assert "link_props_exist" in message
+    assert "props_must_have_type" in message
+    assert "data_file_props_need_data_props" in message
+    assert "12 schemas" in message
+
+
+def test_dangling_term_warning_explains_why_it_is_only_a_warning():
+    """
+    Input: one dangling term reference.
+
+    Expected: the message names the file, path and reference, and says a term
+    is documentation.
+
+    Why it matters: a warning that does not justify itself gets silenced. This
+    one appears on the dictionary Gen3 publishes, so plenty of people will see
+    it on a dictionary they did not write and need to know whether it is their
+    problem.
+    """
+    message = messages.dangling_term_warning([
+        ("_definitions.yaml", "file_format.term", "_terms.yaml#/file_format"),
+    ])
+
+    assert "_definitions.yaml" in message
+    assert "file_format.term" in message
+    assert "_terms.yaml#/file_format" in message
+    assert "documentation" in message

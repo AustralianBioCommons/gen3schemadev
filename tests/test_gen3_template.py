@@ -116,3 +116,83 @@ def test_generate_program_template_reads_program_yaml():
     assert isinstance(result, dict)
     assert "id" in result
     assert result.get("id") == "program"
+
+# ---------------------------------------------------------------------------
+# Shared property name sets
+#
+# These names drive the warning shown when a user's input declares a property
+# that _definitions.yaml already supplies. They are read from the packaged
+# definitions rather than hardcoded, because a hardcoded list is exactly how
+# the old "reserved system property" rule drifted into banning names that Gen3
+# uses on every node.
+# ---------------------------------------------------------------------------
+
+from gen3schemadev.schema.gen3_template import shared_property_names
+
+
+def test_shared_property_names_matches_the_packaged_definitions():
+    """
+    Input: the 'ubiquitous_properties' block of the packaged _definitions.yaml.
+
+    Expected: exactly the seven property names Gen3 gives every node.
+
+    Why it matters: if this set drifts from the definitions actually written
+    into a dictionary, the warning either misses real shadowing or invents it.
+    Deriving it from the same file that is generated is what keeps the two
+    honest.
+    """
+    assert shared_property_names('ubiquitous_properties') == {
+        'type', 'id', 'submitter_id', 'state', 'project_id',
+        'created_datetime', 'updated_datetime',
+    }
+
+
+def test_shared_property_names_follows_the_data_file_block_ref():
+    """
+    Input: the 'data_file_properties' block.
+
+    Expected: a strict superset of the ubiquitous names, also containing
+    file-specific ones such as file_name and md5sum.
+
+    Why it matters: data_file_properties supplies the ubiquitous names through
+    a nested '$ref: #/ubiquitous_properties' rather than listing them. Reading
+    only the block's own keys would miss 'type' and 'id', so the warning would
+    go quiet on exactly the file nodes most likely to declare them.
+    """
+    ubiquitous = shared_property_names('ubiquitous_properties')
+    data_file = shared_property_names('data_file_properties')
+
+    assert ubiquitous < data_file
+    assert {'file_name', 'md5sum', 'file_state'} <= data_file
+
+
+def test_shared_property_names_is_empty_for_an_unknown_block():
+    """
+    Input: a block name that is not in _definitions.yaml.
+
+    Expected: an empty set rather than an exception.
+
+    Why it matters: this runs during generate. A KeyError here would turn a
+    missing definition into a crash in the middle of writing a dictionary.
+    """
+    assert shared_property_names('no_such_block') == set()
+
+
+def test_shared_property_names_terminates_on_a_cyclic_definition(monkeypatch):
+    """
+    Input: a definitions block that references itself.
+
+    Expected: the call returns instead of recursing forever.
+
+    Why it matters: the lookup follows '$ref' chains, and a dictionary is a
+    user-supplied file. A cycle in it should not hang generation with no
+    output and no explanation.
+    """
+    import gen3schemadev.schema.gen3_template as template
+
+    monkeypatch.setattr(template, 'generate_def_template', lambda: {
+        'loop_a': {'$ref': '#/loop_b', 'a_prop': {'type': 'string'}},
+        'loop_b': {'$ref': '#/loop_a', 'b_prop': {'type': 'string'}},
+    })
+
+    assert shared_property_names('loop_a') == {'a_prop', 'b_prop'}

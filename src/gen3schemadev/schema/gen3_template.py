@@ -79,6 +79,49 @@ def get_metaschema():
 def generate_program_template():
     return read_template_yaml('program.yaml')
 
+def shared_property_names(block_name: str) -> set:
+    """
+    Return the property names _definitions.yaml supplies through a shared block.
+
+    Read from the packaged _definitions.yaml rather than hardcoded, so the set
+    can never drift from the definitions actually generated. A hardcoded list
+    is how the old "reserved system property" check ended up banning names that
+    Gen3 itself uses on every node.
+
+    The block's own $ref is followed, which is why this is not simply
+    ``set(block)``: data_file_properties carries
+    ``$ref: "#/ubiquitous_properties"``, so a naive read would miss 'type',
+    'id' and 'submitter_id' and under-report on exactly the file nodes that
+    need it most.
+
+    Args:
+        block_name: A key in _definitions.yaml, e.g. 'ubiquitous_properties'.
+
+    Returns:
+        The set of property names the block supplies, or an empty set if the
+        block does not exist.
+    """
+    definitions = generate_def_template()
+
+    def collect(name, seen):
+        # A definition that referenced itself would otherwise hang generation.
+        if name in seen:
+            return set()
+        seen.add(name)
+        block = definitions.get(name)
+        if not isinstance(block, dict):
+            return set()
+        names = set()
+        for key, value in block.items():
+            if key == '$ref':
+                names |= collect(str(value).partition('#')[2].strip('/'), seen)
+            else:
+                names.add(key)
+        return names
+
+    return collect(block_name, set())
+
+
 def get_input_example_text():
     """
     Returns the raw text of the packaged example input YAML.

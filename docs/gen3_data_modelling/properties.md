@@ -59,6 +59,38 @@ Some examples from the gdc dictionary are:
 
 This `_definitions.yaml#/ubiquitous_properties` contains many of the required system properties such as `submitter_id` and `state`
 
+The full set is `type`, `id`, `submitter_id`, `state`, `project_id`, `created_datetime` and
+`updated_datetime`. Every generated node gets them through a `$ref`, so you do not need to declare
+them yourself. Data file nodes get `_definitions.yaml#/data_file_properties` instead, which adds
+`file_name`, `file_size`, `md5sum`, `file_state`, `object_id` and `error_type` on top.
+
+#### Overriding a ubiquitous property
+
+You may declare one of these names as a property of your own — this is ordinary Gen3 practice, and
+the dictionary Gen3 publishes does it on nearly every node. It is worth understanding what happens
+when you do.
+
+The generated node file keeps **both** the shared `$ref` and your property, so reading the YAML
+shows what looks like a duplicate:
+
+```yaml
+properties:
+  $ref: "_definitions.yaml#/ubiquitous_properties"
+  type:
+    description: "My own definition."
+    type: string
+```
+
+The duplication resolves only when the dictionary is resolved. The resolver merges a property's
+siblings **over** the referenced block, so your definition is the one that takes effect and the
+shared one is discarded for that property. Properties you do not declare keep their shared
+definitions as normal.
+
+`generate` prints a warning naming each node and property where this happens, because the override
+is otherwise invisible in the file on disk. The warning does not block generation. Note that this
+precedence is how the resolver `gen3schemadev` uses behaves; if you are depending on the override,
+confirm the behaviour on your own Gen3 instance.
+
 ### Link properties
 
 In each schema, there needs to be a property that stores the link to its parent(s). 
