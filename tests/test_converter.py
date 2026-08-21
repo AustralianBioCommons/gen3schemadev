@@ -499,6 +499,89 @@ def test_format_enum_missing_description():
     assert "description" in str(excinfo.value)
 
 
+def test_format_enum_preserves_annotation_keys():
+    """
+    An enum property may carry annotation keys beyond its choices: 'term'
+    (provenance, e.g. a termDef pointing at the source data dictionary),
+    'enumDef' (per-value ontology references), 'default', and 'pattern'.
+    The input model accepts all of these, so format_enum must pass them
+    through as siblings of the emitted 'enum' list. Older versions rebuilt
+    the property as {description, enum} only, silently discarding them —
+    which meant provenance recorded in the input never reached the generated
+    schema, and the data-dictionary viewer's Term column stayed empty.
+    """
+    prop_dict = {
+        "biological_sex": {
+            "type": "enum",
+            "description": "Biological sex of the subject.",
+            "required": False,
+            "enums": ["Male", "Female"],
+            "default": "Female",
+            "term": {
+                "description": "Imported from the study REDCap dictionary.",
+                "termDef": {
+                    "cde_id": "core.biological_sex",
+                    "cde_version": None,
+                    "source": "BPDC REDCap",
+                    "term": "core.biological_sex",
+                    "term_url": "https://example.org/dd.csv",
+                },
+            },
+            "enumDef": [
+                {"enumeration": "Male", "source": "NCIt", "term_id": "C20197"}
+            ],
+        }
+    }
+    result = format_enum(prop_dict)
+    assert result == {
+        "biological_sex": {
+            "description": "Biological sex of the subject.",
+            "default": "Female",
+            "term": {
+                "description": "Imported from the study REDCap dictionary.",
+                "termDef": {
+                    "cde_id": "core.biological_sex",
+                    "cde_version": None,
+                    "source": "BPDC REDCap",
+                    "term": "core.biological_sex",
+                    "term_url": "https://example.org/dd.csv",
+                },
+            },
+            "enumDef": [
+                {"enumeration": "Male", "source": "NCIt", "term_id": "C20197"}
+            ],
+            "enum": ["Male", "Female"],
+        }
+    }
+
+
+def test_format_enum_annotation_free_output_shape_unchanged():
+    """
+    An enum with no annotations must still come out as exactly
+    {description, enum} — nothing more. Repositories CI-diff their bundled
+    schema byte-for-byte against a fresh build, so preserving annotations
+    (the fix above) must not change the output of dictionaries that never
+    used any. This is the regression guard for that contract.
+    """
+    prop_dict = {
+        "sample_tube_type": {
+            "type": "enum",
+            "description": "Sample tube type (enum)",
+            "required": False,
+            "enums": ["EDTA", "Heparin"],
+        }
+    }
+    result = format_enum(prop_dict)
+    assert result == {
+        "sample_tube_type": {
+            "description": "Sample tube type (enum)",
+            "enum": ["EDTA", "Heparin"],
+        }
+    }
+    # key order matters for byte-stable YAML output
+    assert list(result["sample_tube_type"].keys()) == ["description", "enum"]
+
+
 def test_format_datetime_keeps_description_as_ref_sibling():
     """
     A datetime property is converted to a $ref to the shared

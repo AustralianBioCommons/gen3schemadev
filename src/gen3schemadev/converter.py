@@ -456,11 +456,26 @@ def format_enum(prop_dict: dict) -> dict:
     """
     Format an enum property dictionary for use in a Gen3 schema.
 
+    The input-language keys ('type', 'enums', 'required') are consumed; every
+    other key the property carries — 'term', 'enumDef', 'default', 'pattern'
+    — is preserved as a sibling of the emitted 'enum' list. The input model
+    accepts those annotations, so dropping them here would silently lose user
+    intent (a provenance termDef, for example, would never reach the
+    generated schema).
+
     Example:
         {'sample_tube_type': {'type': 'enum',
            'description': 'Sample tube type (enum)',
            'required': False,
-           'enums': ['EDTA', 'Heparin', 'Citrate']
+           'enums': ['EDTA', 'Heparin', 'Citrate'],
+           'term': {'termDef': {'source': 'NCIt'}}
+           }
+        }
+    becomes:
+        {'sample_tube_type': {
+           'description': 'Sample tube type (enum)',
+           'term': {'termDef': {'source': 'NCIt'}},
+           'enum': ['EDTA', 'Heparin', 'Citrate']
            }
         }
 
@@ -473,13 +488,18 @@ def format_enum(prop_dict: dict) -> dict:
     try:
         if len(prop_dict) != 1:
             raise ValueError("Expected a single property dictionary")
-        
+
         first_key = next(iter(prop_dict))
         value = prop_dict[first_key]
         formatted_props = {}
-        
+
         if 'enums' in value and value['enums'] is not None:
+            # Direct access on purpose: an enum with no description is an
+            # input error and should fail loudly here.
             formatted_props['description'] = value['description']
+            for k, v in value.items():
+                if k not in ('type', 'enums', 'required', 'description'):
+                    formatted_props[k] = v
             formatted_props['enum'] = value['enums']
         else:
             # Remove the 'enums' key from value if present
